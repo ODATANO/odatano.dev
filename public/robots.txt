@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://odatano.dev/sitemap-index.xml

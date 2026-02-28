@@ -1,0 +1,61 @@
+---
+import Layout from './Layout.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  frontmatter?: {
+    title: string;
+    description?: string;
+  };
+}
+
+const { frontmatter } = Astro.props;
+const title = frontmatter?.title ?? Astro.props.title ?? 'Docs';
+const description = frontmatter?.description ?? Astro.props.description;
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '');
+
+const navItems = [
+  { group: 'Getting Started', links: [
+    { label: 'Quick Start', href: '/docs/quick-start' },
+  ]},
+  { group: 'Guides', links: [
+    { label: 'User Guide', href: '/docs/user-guide' },
+    { label: 'Transaction Workflow', href: '/docs/transaction-workflow' },
+    { label: 'Security', href: '/docs/security' },
+    { label: 'Developer Guide', href: '/docs/developer-guide' },
+  ]},
+  { group: 'Examples', links: [
+    { label: 'TRACE Example App', href: '/docs/trace' },
+  ]},
+  { group: 'Reference', links: [
+    { label: 'API Reference', href: '/docs/reference' },
+  ]},
+];
+---
+
+<Layout title={title} description={description}>
+  <div class="docs-page">
+    <aside class="docs-sidebar">
+      <nav class="docs-sidebar__nav">
+        {navItems.map(group => (
+          <div class="docs-sidebar__group">
+            <p class="docs-sidebar__group-label">{group.group}</p>
+            {group.links.map(link => (
+              <a
+                href={link.href + '/'}
+                class:list={[{ active: currentPath === link.href || currentPath === link.href + '/' }]}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+        ))}
+      </nav>
+    </aside>
+    <article class="docs-content">
+      <slot />
+    </article>
+  </div>
+</Layout>
