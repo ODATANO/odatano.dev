@@ -1,5 +1,5 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
 
 const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
 <span class="code-cmd">npm install @odatano/core</span>
@@ -17,19 +17,17 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
 { <span class="code-key">"senderAddress"</span>: <span class="code-str">"addr1..."</span>,
   <span class="code-key">"recipientAddress"</span>: <span class="code-str">"addr1..."</span>,
   <span class="code-key">"lovelaceAmount"</span>: <span class="code-val">5000000</span> }`;
-
-
 ---
 
-<Layout title="OData for Cardano" description="Enterprise OData V4 Service for the Cardano Blockchain — built on SAP CAP. One npm install, three services, zero blockchain SDK required.">
-
+<Layout
+  title="OData for Cardano"
+  description="Enterprise OData V4 Service for the Cardano Blockchain — built on SAP CAP. One npm install, three services, zero blockchain SDK required."
+>
   <!-- ── Hero ─────────────────────────────────────────────── -->
   <section class="hero">
     <div class="container hero__inner">
       <div class="hero__text">
-        <span class="hero__badge">
-          ✦ Cardano Catalyst Fund 14
-        </span>
+        <span class="hero__badge"> ✦ Cardano Catalyst Fund 14 </span>
         <h1 class="hero__headline">
           OData for<br /><span>Cardano</span>
         </h1>
@@ -39,15 +37,22 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
           three services, no specific blockchain&nbsp; knowledge required.
         </p>
         <div class="hero__actions">
-          <a href="/docs/quick-start/" class="btn btn--primary btn--lg">Get Started</a>
-          <a href="https://github.com/ODATANO/ODATANO" class="btn btn--outline btn--lg" target="_blank" rel="noopener">
+          <a href="/docs/quick-start/" class="btn btn--primary btn--lg"
+            >Get Started</a
+          >
+          <a
+            href="https://github.com/ODATANO/ODATANO"
+            class="btn btn--outline btn--lg"
+            target="_blank"
+            rel="noopener"
+          >
             View on GitHub
           </a>
         </div>
       </div>
       <div class="hero__visual">
         <div class="hero__code-box">
-          <pre set:html={heroCode}></pre>
+          <pre set:html={heroCode} />
         </div>
       </div>
     </div>
@@ -58,7 +63,7 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
     <div class="container">
       <ul class="stats-bar__list">
         <li class="stats-bar__item">
-          <span class="stats-bar__value">1122</span>
+          <span class="stats-bar__value">1285</span>
           <span class="stats-bar__label">Tests</span>
         </li>
         <li class="stats-bar__item">
@@ -70,8 +75,8 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
           <span class="stats-bar__label">License</span>
         </li>
         <li class="stats-bar__item">
-          <span class="stats-bar__value">v0.3.milstone3</span>
-          <span class="stats-bar__label">Latest Release</span>
+          <span class="stats-bar__value">v1.0.0</span>
+          <span class="stats-bar__label">NPM Package</span>
         </li>
       </ul>
     </div>
@@ -81,224 +86,415 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
   <section class="arch-section">
     <div class="container">
       <div class="section__header">
-        <h2 class="section__title">The bridge between enterprise applications and blockchain</h2>
+        <h2 class="section__title">
+          The bridge between enterprise applications and blockchain
+        </h2>
         <p class="section__subtitle">
-          Immutable records. Trustless verification. Full auditability across organizational boundaries.
-          The Cardano Blockchain provides them by design. ODATANO makes them accessible to enterprise applications via OData V4. 
-          No deep protocol expertise required. No infrastructure or development overhead. Deployable as a standalone CAP Service or as a plugin data layer for full-stack applications.
-      </div>
-      <div class="arch">
+          Immutable records. Trustless verification. Full auditability across
+          organizational boundaries. The Cardano Blockchain provides them by
+          design. ODATANO makes them accessible to enterprise applications via
+          OData V4. No deep protocol expertise required. No infrastructure or
+          development overhead. Deployable as a standalone CAP Service or as a
+          plugin data layer for full-stack applications.
+        </p>
+        <div class="arch">
+          <!-- Left: App -->
+          <div class="arch__col arch__col--app">
+            <p class="arch__col-eyebrow">Your Application</p>
+            <div class="arch__col-chips">
+              <span class="arch__chip">SAP Fiori / UI5</span>
+              <span class="arch__chip">Any OData Client</span>
+              <span class="arch__chip">REST / curl</span>
+            </div>
+          </div>
 
-        <!-- Left: App -->
-        <div class="arch__col arch__col--app">
-          <p class="arch__col-eyebrow">Your Application</p>
-          <div class="arch__col-chips">
-            <span class="arch__chip">SAP Fiori / UI5</span>
-            <span class="arch__chip">Any OData Client</span>
-            <span class="arch__chip">REST / curl</span>
+          <!-- Connector 1 -->
+          <div class="arch__connector">
+            <div class="arch__connector-track">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M19 12H5m7-7-7 7 7 7"></path></svg
+              >
+              <div class="arch__connector-dashes"></div>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M5 12h14m-7-7 7 7-7 7"></path></svg
+              >
+            </div>
+          </div>
+
+          <!-- Center: ODATANO -->
+          <div class="arch__col arch__col--plugin">
+            <p class="arch__col-title">ODATANO</p>
+            <div class="arch__col-chips">
+              <span class="arch__chip arch__chip--white"
+                >CardanoODataService</span
+              >
+              <span class="arch__chip arch__chip--white"
+                >CardanoTransactionService</span
+              >
+              <span class="arch__chip arch__chip--white"
+                >CardanoSignService</span
+              >
+            </div>
+          </div>
+
+          <!-- Connector 2 -->
+          <div class="arch__connector">
+            <div class="arch__connector-track">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M19 12H5m7-7-7 7 7 7"></path></svg
+              >
+              <div class="arch__connector-dashes"></div>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M5 12h14m-7-7 7 7-7 7"></path></svg
+              >
+            </div>
+          </div>
+
+          <!-- Right: Cardano -->
+          <div class="arch__col arch__col--chain">
+            <p class="arch__col-eyebrow">Cardano Blockchain</p>
+            <div class="arch__col-chips">
+              <span class="arch__chip">Mainnet</span>
+              <span class="arch__chip">Preview</span>
+              <span class="arch__chip">Preprod</span>
+            </div>
           </div>
         </div>
-
-        <!-- Connector 1 -->
-        <div class="arch__connector">
-          <div class="arch__connector-track">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
-            <div class="arch__connector-dashes"></div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
-          </div>
-        </div>
-
-        <!-- Center: ODATANO -->
-        <div class="arch__col arch__col--plugin">
-          <p class="arch__col-title">ODATANO</p>
-          <div class="arch__col-chips">
-            <span class="arch__chip arch__chip--white">CardanoODataService</span>
-            <span class="arch__chip arch__chip--white">CardanoTransactionService</span>
-            <span class="arch__chip arch__chip--white">CardanoSignService</span>
-          </div>
-        </div>
-
-        <!-- Connector 2 -->
-        <div class="arch__connector">
-          <div class="arch__connector-track">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
-            <div class="arch__connector-dashes"></div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
-          </div>
-        </div>
-
-        <!-- Right: Cardano -->
-        <div class="arch__col arch__col--chain">
-          <p class="arch__col-eyebrow">Cardano Blockchain</p>
-          <div class="arch__col-chips">
-            <span class="arch__chip">Mainnet</span>
-            <span class="arch__chip">Preview</span>
-            <span class="arch__chip">Preprod</span>
-          </div>
-        </div>
-
       </div>
     </div>
-  </section>
 
-  <!-- ── Features ──────────────────────────────────────────── -->
-  <section class="section">
-    <div class="container">
-      <div class="section__header">
-        <h2 class="section__title">A unified OData surface for the Cardano blockchain</h2>
-        <p class="section__subtitle">
-          ODATANO maps Cardano onto OData V4 — structured entities, standard query conventions, full metadata. Chain interactions become predictable API operations that can integrate directly with existing enterprise tooling.
-        </p>
-      </div>
-      <div class="features__grid">
-
-        <div class="feature-card">
-          <div class="feature-card__icon">
-            <!-- grid / table icon -->
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0C5ECF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-              <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
-            </svg>
-          </div>
-          <h3>Read Operations</h3>
-          <p>
-            18 OData entities, 15 actions &mdash; query Blocks, Transactions,
-            Addresses, UTxOs, Pools, Accounts, DReps and more via standard
-            <code>$filter</code>, <code>$select</code>, <code>$expand</code>, <code>$orderby</code> operations.
+    <!-- ── Features ──────────────────────────────────────────── -->
+    <section class="section">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">
+            A unified OData surface for the Cardano blockchain
+          </h2>
+          <p class="section__subtitle">
+            ODATANO maps Cardano onto OData V4 — structured entities, standard
+            query conventions, full metadata. Chain interactions become
+            predictable API operations that can integrate directly with existing
+            enterprise tooling.
           </p>
         </div>
-
-        <div class="feature-card">
-          <div class="feature-card__icon">
-            <!-- send / transaction icon -->
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0C5ECF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/>
-            </svg>
+        <div class="features__grid">
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <!-- grid / table icon -->
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#0C5ECF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect><rect
+                  x="14"
+                  y="3"
+                  width="7"
+                  height="7"
+                  rx="1"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1"></rect><rect
+                  x="3"
+                  y="14"
+                  width="7"
+                  height="7"
+                  rx="1"></rect>
+              </svg>
+            </div>
+            <h3>Read Operations</h3>
+            <p>
+              18 OData entities, 15 actions &mdash; query Blocks, Transactions,
+              Addresses, UTxOs, Pools, Accounts, DReps and more via standard
+              <code>$filter</code>, <code>$select</code>, <code>$expand</code>, <code
+                >$orderby</code
+              > operations.
+            </p>
           </div>
-          <h3>Transaction Building</h3>
-          <p>
-           End-to-end Build → Sign → Submit flow. Simple ADA or native Token transfers, minting, CIP-20 metadata, Plutus V3 smart contracts interactions. All covered with ready-to-use Preview testnet examples.
+
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <!-- send / transaction icon -->
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#0C5ECF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M22 2L11 13"></path><path
+                  d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+              </svg>
+            </div>
+            <h3>Transaction Building</h3>
+            <p>
+              End-to-end Build → Sign → Submit flow. Simple ADA or native Token
+              transfers, minting, CIP-20 metadata, Plutus V3 smart contracts
+              interactions. All covered with ready-to-use Preview testnet
+              examples.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <!-- shield / signing icon -->
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#0C5ECF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                ></path><polyline points="9 12 11 14 15 10"></polyline>
+              </svg>
+            </div>
+            <h3>External Signing</h3>
+            <p>
+              Supports signing with CIP-30 browser wallets, Cardano CLI or HSM
+              integration. Flexible signing from local development to
+              enterprise-grade security.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Tech Stack ─────────────────────────────────────────── -->
+    <section class="section section--dark">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">Built on proven technology</h2>
+          <p class="section__subtitle">
+            Enterprise-grade components end to end &mdash; from CAP framework to
+            Cardano node.
           </p>
         </div>
-
-        <div class="feature-card">
-          <div class="feature-card__icon">
-            <!-- shield / signing icon -->
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0C5ECF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/>
-            </svg>
+        <div class="stack__grid">
+          <div class="stack__item">
+            <span class="stack__category">Framework</span>
+            <span class="stack__value">SAP CAP 9.x</span>
           </div>
-          <h3>External Signing</h3>
+          <div class="stack__item">
+            <span class="stack__category">Language</span>
+            <span class="stack__value">TypeScript 5.x</span>
+          </div>
+          <div class="stack__item">
+            <span class="stack__category">Runtime</span>
+            <span class="stack__value">Node.js 20 / 22</span>
+          </div>
+          <div class="stack__item">
+            <span class="stack__category">Database</span>
+            <span class="stack__value">SQLite · SAP HANA</span>
+          </div>
+          <div class="stack__item">
+            <span class="stack__category">Blockchain APIs</span>
+            <span class="stack__value">Blockfrost · Koios · Ogmios</span>
+          </div>
+          <div class="stack__item">
+            <span class="stack__category">TX Builders</span>
+            <span class="stack__value">CSL · Buildooor</span>
+          </div>
+          <div class="stack__item">
+            <span class="stack__category">Testing</span>
+            <span class="stack__value"
+              >Jest — 1285 tests, 31 suites, 99% coverage</span
+            >
+          </div>
+          <div class="stack__item">
+            <span class="stack__category">License</span>
+            <span class="stack__value">Apache 2.0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TRACE Section ─────────────────────────────────────── -->
+    <section class="section">
+      <div class="container trace-section__inner">
+        <div class="trace-section__text">
+          <span class="trace-section__tag">Example Application</span>
+          <h2>TRACE &mdash; Pharma Supply Chain on Cardano</h2>
           <p>
-            Supports signing with CIP-30 browser wallets, Cardano CLI or HSM integration. Flexible signing from local development to enterprise-grade security.
+            A full-stack SAP Fiori + CAP application demonstrating batch NFT
+            minting, chain-of-custody via Plutus V3 smart contracts, document
+            anchoring, and public verification &mdash; all signed from CIP-30
+            browser wallets. TRACE and ODATANO never hold private keys.
           </p>
+          <div class="trace-section__actions">
+            <a href="/docs/trace/" class="btn btn--primary">Learn More</a>
+            <a
+              href="https://github.com/ODATANO/TRACE"
+              class="btn btn--outline"
+              target="_blank"
+              rel="noopener"
+            >
+              View Source
+            </a>
+          </div>
         </div>
-
+        <div class="trace-flow">
+          <div class="trace-flow__step">
+            <span class="trace-flow__step-icon">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"
+                ></path></svg
+              >
+            </span>
+            Mint Batch NFT (Plutus V3)
+          </div>
+          <div class="trace-flow__arrow">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><line x1="12" y1="5" x2="12" y2="19"></line><polyline
+                points="19 12 12 19 5 12"></polyline></svg
+            >
+          </div>
+          <div class="trace-flow__step">
+            <span class="trace-flow__step-icon">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 014-4h14"
+                ></path><path d="M7 23l-4-4 4-4"></path><path
+                  d="M21 13v2a4 4 0 01-4 4H3"></path></svg
+              >
+            </span>
+            Transfer Custody
+          </div>
+          <div class="trace-flow__arrow">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><line x1="12" y1="5" x2="12" y2="19"></line><polyline
+                points="19 12 12 19 5 12"></polyline></svg
+            >
+          </div>
+          <div class="trace-flow__step">
+            <span class="trace-flow__step-icon">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+                ></path><polyline points="14 2 14 8 20 8"></polyline><line
+                  x1="16"
+                  y1="13"
+                  x2="8"
+                  y2="13"></line><line x1="16" y1="17" x2="8" y2="17"
+                ></line><polyline points="10 9 9 9 8 9"></polyline></svg
+              >
+            </span>
+            Anchor Documents
+          </div>
+          <div class="trace-flow__arrow">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><line x1="12" y1="5" x2="12" y2="19"></line><polyline
+                points="19 12 12 19 5 12"></polyline></svg
+            >
+          </div>
+          <div class="trace-flow__step trace-flow__step--success">
+            <span class="trace-flow__step-icon">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><polyline points="20 6 9 17 4 12"></polyline></svg
+              >
+            </span>
+            Public Verification
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   </section>
-
-  <!-- ── Tech Stack ─────────────────────────────────────────── -->
-  <section class="section section--dark">
-    <div class="container">
-      <div class="section__header">
-        <h2 class="section__title">Built on proven technology</h2>
-        <p class="section__subtitle">
-          Enterprise-grade components end to end &mdash; from CAP framework to Cardano node.
-        </p>
-      </div>
-      <div class="stack__grid">
-        <div class="stack__item">
-          <span class="stack__category">Framework</span>
-          <span class="stack__value">SAP CAP 9.x</span>
-        </div>
-        <div class="stack__item">
-          <span class="stack__category">Language</span>
-          <span class="stack__value">TypeScript 5.x</span>
-        </div>
-        <div class="stack__item">
-          <span class="stack__category">Runtime</span>
-          <span class="stack__value">Node.js 20 / 22</span>
-        </div>
-        <div class="stack__item">
-          <span class="stack__category">Database</span>
-          <span class="stack__value">SQLite · SAP HANA</span>
-        </div>
-        <div class="stack__item">
-          <span class="stack__category">Blockchain APIs</span>
-          <span class="stack__value">Blockfrost · Koios · Ogmios</span>
-        </div>
-        <div class="stack__item">
-          <span class="stack__category">TX Builders</span>
-          <span class="stack__value">CSL · Buildooor</span>
-        </div>
-        <div class="stack__item">
-          <span class="stack__category">Testing</span>
-          <span class="stack__value">Jest — 1121 tests, 99% coverage</span>
-        </div>
-        <div class="stack__item">
-          <span class="stack__category">License</span>
-          <span class="stack__value">Apache 2.0</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── TRACE Section ─────────────────────────────────────── -->
-  <section class="section">
-    <div class="container trace-section__inner">
-      <div class="trace-section__text">
-        <span class="trace-section__tag">Example Application</span>
-        <h2>TRACE &mdash; Pharma Supply Chain on Cardano</h2>
-        <p>
-          A full-stack SAP Fiori + CAP application demonstrating batch NFT minting,
-          chain-of-custody via Plutus V3 smart contracts, document anchoring,
-          and public verification &mdash; all signed from CIP-30 browser wallets.
-          TRACE and ODATANO never hold private keys.
-        </p>
-        <div class="trace-section__actions">
-          <a href="/docs/trace/" class="btn btn--primary">Learn More</a>
-          <a href="https://github.com/ODATANO/TRACE" class="btn btn--outline" target="_blank" rel="noopener">
-            View Source
-          </a>
-        </div>
-      </div>
-      <div class="trace-flow">
-        <div class="trace-flow__step">
-          <span class="trace-flow__step-icon">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-          </span>
-          Mint Batch NFT (Plutus V3)
-        </div>
-        <div class="trace-flow__arrow">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-        </div>
-        <div class="trace-flow__step">
-          <span class="trace-flow__step-icon">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
-          </span>
-          Transfer Custody
-        </div>
-        <div class="trace-flow__arrow">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-        </div>
-        <div class="trace-flow__step">
-          <span class="trace-flow__step-icon">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          </span>
-          Anchor Documents
-        </div>
-        <div class="trace-flow__arrow">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-        </div>
-        <div class="trace-flow__step trace-flow__step--success">
-          <span class="trace-flow__step-icon">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          </span>
-          Public Verification
-        </div>
-      </div>
-    </div>
-  </section>
-
 </Layout>
