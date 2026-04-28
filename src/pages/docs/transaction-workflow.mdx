@@ -1,341 +1,157 @@
 ---
 layout: ../../layouts/DocLayout.astro
 title: "Transaction Workflow"
-description: "Complete Build → Sign → Submit transaction flow"
+description: "Build → Sign → Submit. Action parameter tables and signing methods."
 ---
 
-This guide covers building, signing, and submitting Cardano transactions via the ODATANO API.
+# Transaction Workflow
 
----
+ODATANO follows a strict **Build → Sign → Submit** flow. \
+The server never holds private keys. 
 
-## Table of Contents
+<img src="/assets/docs/build-sign-submit.svg" alt="Build → Sign → Submit transaction flow" /> \
+- **Build** (server) returns `unsignedTxCbor`, `txBodyHash`, `fee`, `buildId`.
+- **Sign** (client / wallet / HSM) using the unsigned CBOR.
+- **Submit** (server) via:
+    - `SubmitTransaction(buildId, signedTxCbor)`
+    - `SubmitSignedTransaction(signedTxCbor, network)`.
 
-1. [Overview](#overview)
-2. [Workflow Steps](#workflow-steps)
-3. [Signing Methods](#signing-methods)
-4. [HSM Signing](#hsm-signing)
-5. [Transaction Types](#transaction-types)
-6. [API Reference](#api-reference)
-7. [Error Handling](#error-handling)
-8. [Troubleshooting](#troubleshooting)
-9. [Examples](#examples)
-
----
-
-## Overview
-
-ODATANO follows a **Build &rarr; Sign &rarr; Submit** workflow with complete private key isolation:
-
-<img src="/assets/docs/tx-flow-ad.png" alt="Transaction Flow" />
-
-- Server **never** sees private keys
-- Signing is external (CLI, browser wallet, hardware wallet) or via HSM (key never leaves chip)
-- Full audit trail via TransactionBuilds, SigningRequests, TransactionSubmissions entities
-- Two builder engines: CSL (`TX_BUILDERS=csl`) and Buildooor (`TX_BUILDERS=buildooor`)
-
----
-
-## Workflow Steps
-
-### Step 1: Build Unsigned Transaction
-
-**POST** `/odata/v4/cardano-transaction/BuildSimpleAdaTransaction`
-
-```json
-{
-  "senderAddress": "addr_test1vqm5vyp8...",
-  "recipientAddress": "addr_test1qrgfq5j...",
-  "lovelaceAmount": 10000000
-}
-```
-
-**Response** includes `unsignedTxCbor`, `txBodyHash`, `fee`, `inputs[]`, `outputs[]`, and a `buildId` for tracking.
-
-The server fetches protocol parameters and UTxOs, selects inputs, calculates fees, creates change output, serializes to unsigned CBOR, and stores the build record.
-
-### Step 2: Sign Transaction (External)
-
-**The server never performs this step.** Private keys remain under client control.
-
-#### Cardano CLI
-
-```bash
-echo '{ "type": "Tx ConwayEra", "description": "", "cborHex": "84a50081..." }' > unsigned.tx
-
-cardano-cli conway transaction sign \
-  --tx-body-file unsigned.tx \
-  --signing-key-file payment.skey \
-  --testnet-magic 2 \
-  --out-file signed.tx
-
-cat signed.tx | jq -r '.cborHex'
-```
-
-#### Browser Wallet (CIP-30)
-
-```javascript
-const api = await window.cardano.nami.enable();
-const witnesses = await api.signTx(unsignedTxCbor, true);
-```
-
-#### Hardware Wallet (Ledger/Trezor)
-
-Via browser extension integration (same CIP-30 API as above).
-
-### Step 3: Submit Signed Transaction
-
-**POST** `/odata/v4/cardano-transaction/SubmitTransaction`
-
-```json
-{
-  "buildId": "a8f4c3b2-1e5d-4f9a-b7c6-2d8e9f1a3b4c",
-  "signedTxCbor": "84a5008182582071f3d8c1b2..."
-}
-```
-
-**Response** includes `txHash`, `status`, `submittedAt`, and `submittedToBackend`. Submission goes to Ogmios (primary), then Blockfrost/Koios as fallback.
-
----
+There are two possible builder engines: `csl` and `buildooor` for transaction building available. \
+*Make sure to use Buildooor for any Plutus / mint / ref-script / validity-bound work*
 
 ## Signing Methods
 
-| Method | Speed | Security | Key Location | Use Case |
-|--------|-------|----------|-------------|----------|
-| Cardano CLI | Medium | High | File system (`.skey`) | Backend automation |
-| Browser Wallet (CIP-30) | Fast | Very High | Browser extension | Web dApps, Fiori |
-| Hardware Wallet | Slow | Maximum | Dedicated device | High-value transactions |
-| HSM (PKCS#11) | Fast | Maximum | HSM chip | Enterprise automation |
+| Method | `signerType` | Key Location | Notes |
+|--------|--------------|--------------|-------|
+| Cardano CLI | `cardano-cli` | File system (`.skey`) | Backend automation |
+| CIP-30 wallet | `browser-wallet` | Browser extension | Nami, Eternl, Lace, Yoroi, Flint |
+| Hardware wallet | `hardware-wallet` | Ledger / Trezor | Via wallet adapter |
+| HSM (PKCS#11) | _-_ | HSM chip | Server-side, key never leaves chip |
 
----
+External signing flow (4 actions): \
+1.`BuildXXX` → `CreateSigningRequest` → _client signs_ → `SubmitVerifiedTransaction`. \
+2. HSM flow (2 actions): `BuildXXX` → `SignAndSubmitWithHsm`. \
+HSM details + setup: [Security › HSM](/docs/security/#hsm-pkcs11-integration).
 
-## HSM Signing
+## Build Action Parameters
 
-When an HSM is configured, ODATANO supports automated server-side signing. The private key never leaves the HSM chip.
+Required = **bold**. Optional fields are tagged where they apply only to a specific builder or feature.
 
-### Workflow Comparison
+### `BuildSimpleAdaTransaction`
 
-**External (4 steps):** Build &rarr; CreateSigningRequest &rarr; Sign (client) &rarr; SubmitVerifiedTransaction
+| Param | Type | Notes |
+|-------|------|-------|
+| **`senderAddress`** | String | Bech32 address with funds |
+| **`recipientAddress`** | String | Bech32 address ( overridden when `lockOnScript=true` ) |
+| **`lovelaceAmount`** | Integer | Amount to send / lock |
+| `changeAddress` | bech32 | Defaults to sender |
+| `outputDatumJson` | String | PlutusData JSON - required when sending to a script address |
+| `assetsJson` | String | Assets as Json String `[{unit, quantity}]` |
+| `forceInputsJson` | String | UTxOs that MUST be consumed |
+| `validatorScript` | String | Plutus validator hex (used to derive script address) |
+| `scriptParamsJson` | String | PlutusData params for parameterized validators |
+| `lockOnScript` | Boolean | Route output to derived script address |
+| `referenceScriptHex` | String | CIP-33 ref-script |
+| `validityStartMs` | String | Posix-ms (Buildooor only) |
+| `validityEndMs` | String | Posix-ms (Buildooor only) |
 
-**HSM (2 steps):** Build &rarr; SignAndSubmitWithHsm
+### `BuildTransactionWithMetadata`
 
-### HSM Actions
+| Param | Type | Notes |
+|-------|------|-------|
+| **`senderAddress`** | String | Bech32 address with funds |
+| **`recipientAddress`** | String | Bech32 recipient address |
+| **`lovelaceAmount`** | Integer | Amount to send |
+| **`metadataJson`** | String | Object keyed by numeric label |
+| `changeAddress` | String |  Defaults to sender |
 
-| Action | Description |
-|--------|-------------|
-| `GetHsmStatus` | Check HSM connection, key info, derived Cardano address |
-| `SignWithHsm` | Sign a build (creates signing request + verification, no submit) |
-| `SignAndSubmitWithHsm` | Sign + submit in one atomic step |
+### `BuildMultiAssetTransaction`
 
-### Configuration
+| Param | Type | Notes |
+|-------|------|-------|
+| **`senderAddress`** | String | Bech32 address with funds |
+| **`recipientAddress`** | String | Bech32 address ( overridden when `lockOnScript=true` ) |
+| **`lovelaceAmount`** | Integer | Amount to send / lock |
+| **`assetsJson`** | String | `[{unit, quantity}]` |
+| `changeAddress` | String |  Defaults to sender |
+| `outputDatumJson` | String | PlutusData JSON - required when sending to a script address |
+| `referenceScriptHex` | String | CIP-33 ref-script |
+| `validityStartMs` | String | Posix-ms (Buildooor only) |
+| `validityEndMs` | String | Posix-ms (Buildooor only) |
 
-```bash
-HSM_ENABLED=true
-HSM_PKCS11_MODULE=/usr/lib/pkcs11/yubihsm_pkcs11.so
-HSM_SLOT=0
-HSM_PIN=0001password
-HSM_KEY_LABEL=cardano-signing-key
-```
+### `BuildMintTransaction`
 
-### Example
+| Param | Type | Notes |
+|-------|------|-------|
+| **`senderAddress`** | String | Bech32 address with funds |
+| **`recipientAddress`** | String | Bech32 address ( overridden when `lockOnScript=true` ) |
+| **`lovelaceAmount`** | Integer | Amount to send / lock |
+| **`mintActionsJson`** | String | `[{assetUnit, quantity}]` (negative = burn) |
+| **`mintingPolicyScript`** | String | CBOR hex |
+| `requiredSignersJson` | String | 28-byte hex key hashes for `extra_signatories` |
+| `scriptParamsJson` | String | PlutusData params for parameterized validators |
+| `inlineDatumJson`| String | Parameterized validators / state machines |
+| `mintRedeemerJson`| String | Parameterized validators / state machines |
+| `lockOnScript` | Boolean | Route output to derived script address |
+| `forceInputsJson` | String | One-shot mint seeds |
+| `referenceInputsJson` | String | CIP-31 ref inputs (Buildooor only) |
+| `metadataJson` | String | CIP-20 / label-674 |
+| `referenceScriptHex` | String | CIP-33 |
+| `validityStartMs` | String | Posix-ms (Buildooor only) |
+| `validityEndMs` | String | Posix-ms (Buildooor only) |
 
-```typescript
-// 1. Check HSM status
-const status = await POST('/odata/v4/cardano-sign/GetHsmStatus', {});
-// → { connected: true, cardanoAddress: "addr_test1...", publicKeyHash: "a1b2..." }
+### `BuildPlutusSpendTransaction`
 
-// 2. Build transaction (use HSM address as sender)
-const build = await POST('/odata/v4/cardano-transaction/BuildSimpleAdaTransaction', {
-  senderAddress: status.cardanoAddress,
-  recipientAddress: 'addr_test1...',
-  lovelaceAmount: '5000000',
-});
+| Param | Type | Notes |
+|-------|------|-------|
+| **`senderAddress`** | String | Bech32 address with funds |
+| **`recipientAddress`** | String | Bech32 address ( overridden when `lockOnScript=true` ) |
+| **`lovelaceAmount`** | Integer | Amount to send / lock |
+| **`validatorScript`** | String | CBOR hex |
+| **`scriptTxHash`** | String | 64-char hex |
+| **`scriptOutputIndex`** | Integer | outputindex of script output index |
+| **`redeemerJson`** | String | Supports `__INPUT_IDX:txHash#n__` (Buildooor only) |
+| `datumJson` | String | Only for hash-based datums |
+| `requiredSignersJson` | String | 28-byte hex key hashes for `extra_signatories` |
+| `scriptParamsJson` | String | PlutusData params for parameterized validators |
+| `inlineDatumJson`| String | Parameterized validators / state machines |
+| `lockOnScript` | Boolean | Route output to derived script address |
+| `forceInputsJson` | String | Besides the script UTxO |
+| `extraOutputsJson` | String | `[{address, lovelaceAmount, assets?, inlineDatumJson?, referenceScriptHex?}]` |
+| `mintActionsJson`  | String | Combined spend+mint |
+| `mintingPolicyScript` | String | Combined spend+mint |
+| `mintRedeemerJson` | String | Combined spend+mint |
+| `referenceInputsJson` | String | CIP-31 ref inputs (Buildooor only) |
+| `referenceScriptHex` | String | CIP-33 |
+| `validityStartMs` | String | Posix-ms (Buildooor only) |
+| `validityEndMs` | String | Posix-ms (Buildooor only) |
 
-// 3. Sign + submit
-const submission = await POST('/odata/v4/cardano-sign/SignAndSubmitWithHsm', {
-  buildId: build.id,
-});
-// → { txHash: "abc123...", status: "submitted" }
-```
+### `SetCollateral`
 
-For HSM security details, supported hardware, and SoftHSM dev setup, see [Security Guide](/docs/security/#hsm-pkcs11-integration).
+| Param | Type | Notes |
+|-------|------|-------|
+| **`address`** | `string`  | `bech32` |
 
----
 
-## Transaction Types
+### Submission
 
-### Simple ADA Transfer
-**Action:** `BuildSimpleAdaTransaction` — Transfer lovelace between addresses. Supports `outputDatumJson` for sending to script addresses and `assetsJson` for including native tokens.
+| Action | Params |
+|--------|--------|
+| `SubmitTransaction` | `buildId: UUID`, `signedTxCbor: String` |
+| `SubmitSignedTransaction` | `signedTxCbor: String`, `network: String(10)` (`mainnet` / `preview` / `preprod`) |
+| `CheckSubmissionStatus` | _bound on `TransactionSubmissions(id)`_ |
 
-### Transaction with Metadata
-**Action:** `BuildTransactionWithMetadata` — ADA transfer with attached CIP-20 metadata (invoices, receipts, on-chain records).
 
-### Multi-Asset Transfer
-**Action:** `BuildMultiAssetTransaction` — Transfer ADA + native tokens. Supports `outputDatumJson` for script address outputs.
+### Utility actions (v1.7.5, no network call)
 
-### Token Minting
-**Action:** `BuildMintTransaction` — Create native tokens. Supports `scriptParamsJson` for parameterized validators, `inlineDatumJson` for datum on minted output, `mintRedeemerJson` for custom redeemers, `lockOnScript` to route output to script address, and `requiredSignersJson` for Plutus `extra_signatories`.
+| Action | Params | Returns |
+|--------|--------|---------|
+| `DeriveScriptAddress` | `validatorScript`, `scriptParamsJson?`, `network?` | `{ scriptAddress, scriptHash }` |
+| `ExtractPaymentKeyHash` | `address` | `{ paymentKeyHash }` |
 
-### Plutus Smart Contract Spending
-**Action:** `BuildPlutusSpendTransaction` — Spend UTxOs locked at Plutus script addresses. Supports `inlineDatumJson` for continuing output datum (state machines), `lockOnScript` to re-lock at script address, and `requiredSignersJson`.
-
-**Plutus workflow:**
-```
-1. Lock:  BuildMintTransaction (lockOnScript + inlineDatumJson) → Sign → Submit
-2. Spend: BuildPlutusSpendTransaction (validatorScript + redeemer + lockOnScript) → Sign → Submit
-```
-
-### Collateral Setup
-**Action:** `SetCollateral` — Creates a dedicated 5 ADA collateral UTxO for Plutus transactions. Returns 409 if collateral already exists, 400 if insufficient funds (&lt; 6 ADA).
-
----
-
-## API Reference
-
-### BuildSimpleAdaTransaction
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| senderAddress | bech32 | Yes | Source address |
-| recipientAddress | bech32 | Yes | Recipient address |
-| lovelaceAmount | Integer | Yes | Amount in lovelace (1 ADA = 1,000,000) |
-| changeAddress | bech32 | No | Change address (defaults to sender) |
-| outputDatumJson | String | No | Inline datum for recipient output (PlutusData JSON) |
-| assetsJson | String | No | Native assets: `[&#123;"unit":"policyId+name","quantity":"amt"&#125;]` |
-
-### BuildTransactionWithMetadata
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| senderAddress | bech32 | Yes | Source address |
-| recipientAddress | bech32 | Yes | Recipient address |
-| lovelaceAmount | Integer | Yes | Amount in lovelace |
-| metadataJson | String | Yes | Transaction metadata (JSON) |
-| changeAddress | bech32 | No | Change address |
-
-### BuildMultiAssetTransaction
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| senderAddress | bech32 | Yes | Source address |
-| recipientAddress | bech32 | Yes | Recipient address |
-| lovelaceAmount | Integer | Yes | Amount in lovelace |
-| assetsJson | String | Yes | Assets: `[&#123;"unit":"policyId+name","quantity":"amt"&#125;]` |
-| changeAddress | bech32 | No | Change address |
-| outputDatumJson | String | No | Inline datum for recipient output |
-
-### BuildMintTransaction
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| senderAddress | bech32 | Yes | Sender (pays fees) |
-| recipientAddress | bech32 | Yes | Recipient (overridden when `lockOnScript=true`) |
-| lovelaceAmount | Integer | Yes | Lovelace with minted assets |
-| mintActionsJson | String | Yes | Mint actions: `[&#123;"assetUnit":"policyId+name","quantity":"amt"&#125;]` |
-| mintingPolicyScript | String | Yes | Minting policy CBOR hex |
-| changeAddress | bech32 | No | Change address |
-| requiredSignersJson | String | No | Ed25519 key hashes for `extra_signatories` |
-| scriptParamsJson | String | No | PlutusData params for parameterized validators |
-| inlineDatumJson | String | No | Inline datum on recipient output |
-| mintRedeemerJson | String | No | Minting redeemer (defaults to integer 0) |
-| lockOnScript | Boolean | No | Route output to derived script address |
-
-Returns `scriptHash`, `fingerprint`, `scriptAddress` when applicable.
-
-### BuildPlutusSpendTransaction
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| senderAddress | bech32 | Yes | Sender (pays fees) |
-| recipientAddress | bech32 | Yes | Recipient (overridden when `lockOnScript=true`) |
-| lovelaceAmount | Integer | Yes | Lovelace to send |
-| validatorScript | String | Yes | Plutus validator CBOR hex |
-| scriptTxHash | String | Yes | UTxO tx hash at script address (64-char hex) |
-| scriptOutputIndex | Integer | Yes | UTxO output index |
-| redeemerJson | String | Yes | Redeemer PlutusData JSON |
-| datumJson | String | No | Input datum (for hash-based datums) |
-| changeAddress | bech32 | No | Change address |
-| requiredSignersJson | String | No | Ed25519 key hashes for `extra_signatories` |
-| scriptParamsJson | String | No | PlutusData params for parameterized validators |
-| inlineDatumJson | String | No | Inline datum on continuing output |
-| lockOnScript | Boolean | No | Re-lock at derived script address |
-
-Returns `scriptHash`, `scriptAddress` when applicable.
-
-### SetCollateral
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| address | bech32 | Yes | Address to set up collateral for |
-
-Returns 200 (build), 409 (already available), or 400 (insufficient funds).
-
-### SubmitTransaction
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| buildId | UUID | Yes | Build ID from a build action |
-| signedTxCbor | String | Yes | Fully signed transaction CBOR hex |
-
-### SubmitSignedTransaction
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| signedTxCbor | String | Yes | Fully signed transaction CBOR hex |
-| network | String | Yes | Target network |
-
-For externally built transactions (not via ODATANO actions).
-
----
-
-## Error Handling
-
-| Error Code | HTTP | Cause | Resolution |
-|------------|------|-------|------------|
-| `ODATANO_INSUFFICIENT_FUNDS` | 400 | Sender doesn't have enough ADA | Top up address or reduce amount |
-| `ODATANO_INVALID_INPUT` | 400 | Malformed address, invalid amount, missing fields | Validate bech32 format, check required params |
-| `ODATANO_TX_VALIDATION_FAILED` | 400 | Wrong signing key or tampered CBOR | Verify correct `.skey`, re-build if modified |
-| `ODATANO_PROVIDER_UNAVAILABLE` | 503 | All backends unreachable/timed out | Retry after 30s, check Ogmios/Blockfrost status |
-| `ODATANO_TX_ALREADY_SUBMITTED` | 409 | Transaction already on chain/mempool | Expected (idempotent), check explorer |
-
----
-
-## Troubleshooting
-
-### "All backends failed: Failed to acquire requested point"
-Ogmios node not fully synchronized. Check: `curl http://localhost:1337/health` — wait until `networkSynchronization > 0.99`.
-
-### "Insufficient funds" but wallet has balance
-UTxOs not yet confirmed or spent in a pending transaction. Wait 1-2 minutes for confirmations.
-
-### "Invalid signature" after signing
-Wrong signing key or unsigned TX was modified. Verify key matches sender address, check `--testnet-magic` matches network. Re-build if needed.
-
-### "No ADA-only UTxO available for collateral"
-Plutus transactions require collateral. Use `SetCollateral` to create a dedicated 5 ADA UTxO, or ensure the sender has at least one UTxO with >= 5 ADA.
-
----
+For Plutus Smart Contract details: [Plutus & Smart Contracts](/docs/plutus/).
 
 ## Examples
 
-### Postman Collection
-- [ODATANO Full Service Catalog](https://github.com/ODATANO/ODATANO/blob/main/scripts/ODATANO%20M2%20-%20Full%20Service%20Catalog.postman_collection.json)
-
-### TypeScript Scripts
-- [Simple ADA Transfer](https://github.com/ODATANO/ODATANO/blob/main/scripts/send-ada-preview.ts)
-- [Metadata Transaction](https://github.com/ODATANO/ODATANO/blob/main/scripts/send-ada-with-metadata-preview.ts)
-- [Minting Transaction](https://github.com/ODATANO/ODATANO/blob/main/scripts/mint-token-preview.ts)
-- [Multi-Asset Transaction](https://github.com/ODATANO/ODATANO/blob/main/scripts/send-multi-asset-preview.ts)
-- [Plutus Spend Transaction](https://github.com/ODATANO/ODATANO/blob/main/scripts/plutus-spend-preview.ts)
-- [HSM Signing Example](https://github.com/ODATANO/ODATANO/blob/main/scripts/send-ada-hsm-preview.ts)
-
----
-
-## References
-
-- [Cardano Transaction Specification](https://github.com/IntersectMBO/cardano-ledger)
-- [Ogmios Documentation](https://ogmios.dev/)
-- [Cardano CLI Reference](https://github.com/IntersectMBO/cardano-cli)
-- [Buildooor TX Library](https://github.com/HarmonicLabs/buildooor)
-- [Security Guide](/docs/security/) — Signing security, HSM details, signature verification
-
----
+- **Postman:** [M3 catalog](https://github.com/ODATANO/ODATANO/blob/main/scripts/postman/ODATANO%20M3%20-%20Full%20Service%20Catalog.postman_collection.json)
+- **TypeScript Test Scripts:** [`scripts/testing/`](https://github.com/ODATANO/ODATANO/tree/main/scripts/testing)

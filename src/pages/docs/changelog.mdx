@@ -1,0 +1,44 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: Changelog
+description: ODATANO release history. Full notes in the source CHANGELOG.
+---
+
+# Changelog
+
+Concise release summary. Full notes: [`CHANGELOG.md`](https://github.com/ODATANO/ODATANO/blob/main/CHANGELOG.md).
+
+## v1.7.5 - 2026-04-27 - CBOR Parsing + Script Address Utilities + Validity Bounds
+
+**Added** `ParseTransactionCbor`, `DeriveScriptAddress`, `ExtractPaymentKeyHash`, `lockOnScript` on Plutus spend, validity-window bounds (`validityStartMs` / `validityEndMs`).
+**Fixed** Buildooor input-side `dataHash` / `scriptRef` preservation, CSL `forcedInputsUsed` accuracy.
+**New module** `srv/cbor/`.
+
+## v1.6.1 - 2026-04-18 - CIP-33 Reference Scripts + Buildooor 0.2.6
+
+**Added** `referenceScriptHex` on all Build actions (incl. per-`extraOutputsJson` entry), input-side `refScript` preservation for Buildooor + Koios.
+**Changed** Buildooor `0.1.28` → `0.2.6`, costmodels-ts `1.4.0` API migration (removed `.toBuffer()` calls).
+**Known** Hash-only `scriptRef` from Blockfrost / Ogmios; CSL still rejects `__INPUT_IDX__`.
+
+## v1.0 - 2026-03-12 - First Production Release
+
+**Added** request coalescing, expanded test coverage.
+**Changed** hardened error handling, protocol params refresh, Koios resilience, `@requires: 'authenticated-user'` on all 3 services.
+
+## v0.3-milestone3 - 2026-02-26 - External Signing & SAP Integration
+
+**Added** `CardanoSignService` (3rd CDS service) with 8 actions, external signing module, CIP-30 wallet integration, HSM (PKCS#11) signing (`SignWithHsm`, `SignAndSubmitWithHsm`, `GetHsmStatus`), centralized App Context, `BuildPlutusSpendTransaction`, `SetCollateral`, parameterized validators (`scriptParamsJson`, `requiredSignersJson`, `inlineDatumJson`, `lockOnScript`, `mintRedeemerJson`, `fingerprint`).
+
+## v0.2-milestone2 - 2025-01-25 - Transaction Build & Submit
+
+**Added** dual-builder architecture (CSL + Buildooor), 6 transaction actions (`BuildSimpleAdaTransaction`, `BuildTransactionWithMetadata`, `BuildMintTransaction`, `BuildMultiAssetTransaction`, `SubmitTransaction`, `SubmitSignedTransaction`), Ogmios live backend, transaction error classes.
+
+## v0.1-milestone1 - 2024-12-29 - OData Read Service
+
+**Added** OData V4 read service, 18 entities, 15 read actions, multi-provider architecture (Blockfrost + Koios), lazy on-demand indexing, network-aware bech32 validation.
+
+---
+## See Also
+- [Full source CHANGELOG](https://github.com/ODATANO/ODATANO/blob/main/CHANGELOG.md)
+- [Releases](https://github.com/ODATANO/ODATANO/releases)
+- [Catalyst proposal](https://projectcatalyst.io/funds/14/sponsored-by-leftovers/sap-cardano-odata-v4-api-with-cap-and-sap-cardano-sdk)

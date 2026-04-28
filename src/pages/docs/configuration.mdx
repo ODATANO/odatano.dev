@@ -1,0 +1,128 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: Configuration
+description: All odatano-core configuration keys, environment variables, and resolution rules.
+---
+
+# Configuration
+
+ODATANO supports two configuration paths:
+
+| Mode | Config source | Used when |
+|------|---------------|-----------|
+| **Plugin** | `cds.requires.odatano-core.*` in your `package.json` | Install `@odatano/core` as a CAP plugin |
+| **Standalone** | Environment variables (`.env` or shell) | Run the ODATANO server directly |
+
+## Core Keys
+
+| CDS key | Env var | Type | Default | Description |
+|---------|---------|------|---------|-------------|
+| `network` | `NETWORK` | `mainnet` `preview` `preprod` | `preview` | Target Cardano network |
+| `backends` | `BACKENDS` | `blockforst` `koios   ` `ogmios` | `["koios"]` | Backend priority order - first one is the live backend |
+| `txBuilders` | `TX_BUILDERS` | `buildooor` `csl` | `["buildooor"]` | Transaction builder engines |
+| `blockfrostApiKey` | `BLOCKFROST_API_KEY` | string | _(empty)_ | Required if backends includes blockfrost. |
+| `koiosApiKey` | `KOIOS_API_KEY` | string | _(empty)_ | Optional Koios bearer token |
+| `ogmiosUrl` | `OGMIOS_URL` | string | ws://localhost:1337 | Required if backends includes ogmios|
+| `primaryTimeoutMs` | `PRIMARY_TIMEOUT_MS` | number (ms) | `30000` | Timeout for the primary backend |
+| `fallbackTimeoutMs` | `FALLBACK_TIMEOUT_MS` | number (ms) | `60000` | Timeout for fallback backends |
+| `indexTtlMs` | `INDEX_TTL_MS` | number (ms) | `3600000` | Cache TTL for temporal entities (Addresses, Accounts) |
+
+Validation runs at startup (`loadConfigFromEnv()` in `srv/server.ts`). Invalid values throw with a clear error before the server accepts requests.
+
+## HSM Keys (PKCS#11)
+
+| CDS key (under `hsm.*`) | Env var | Required | Description |
+|-------------------------|---------|----------|-------------|
+| `enabled` | `HSM_ENABLED` | Yes | `true` to activate HSM signing actions |
+| `pkcs11Module` | `HSM_PKCS11_MODULE` | Yes | Path to vendor PKCS#11 shared library |
+| `pin` | `HSM_PIN` | Yes | PKCS#11 user PIN (use credential store in production) |
+| `slot` | `HSM_SLOT` | No (default `0`) | PKCS#11 slot number |
+| `keyId` | `HSM_KEY_ID` | One of these required | PKCS#11 key identifier |
+| `keyLabel` | `HSM_KEY_LABEL` | One of these required | PKCS#11 key label |
+| `requiresRole` | `HSM_REQUIRES_ROLE` | No | JWT role/scope name required to invoke HSM signing actions (e.g. `Sign`) |
+
+HSM init failures are non-fatal - the rest of the server still starts; HSM actions return `ODATANO_HSM_UNAVAILABLE`. See [Security › HSM Integration](/docs/security/#hsm-pkcs11-integration).
+
+## Authentication
+
+All three services declare `@requires: 'authenticated-user'` at service level, so every request must carry a recognised principal. CAP picks the auth strategy via the `auth` config:
+
+| Profile | `auth.kind` | When to use |
+|---------|-------------|-------------|
+| `[development]` | `dummy` | Local `cds watch`. Always returns an authenticated user — no JWT needed. |
+| `[development]` | `mocked` | Local dev with mock users defined in `.cdsrc.json` for role-based testing. |
+| `[production]` | `xsuaa` | SAP BTP — JWT validated via XSUAA service binding. |
+
+Without an explicit `auth` block in dev, requests can be rejected with **401**. See [Security › Authentication](/docs/security/#authentication-xsuaa) for the production XSUAA setup.
+
+## Full Plugin Mode Example
+
+```json
+{
+  "cds": {
+    "requires": {
+      "[development]": {
+        "auth": { "kind": "dummy" }
+      },
+      "db": {
+        "kind": "sqlite",
+        "credentials": { "url": "db.sqlite" }
+      },
+      "odatano-core": {
+        "network": "preview",
+        "backends": ["ogmios", "blockfrost", "koios"],
+        "txBuilders": ["buildooor"],
+        "blockfrostApiKey": "preview_your_api_key",
+        "ogmiosUrl": "ws://localhost:1337",
+        "primaryTimeoutMs": 30000,
+        "fallbackTimeoutMs": 60000,
+        "indexTtlMs": 3600000,
+        "hsm": {
+          "enabled": true,
+          "pkcs11Module": "/usr/lib/pkcs11/yubihsm_pkcs11.so",
+          "pin": "0001password",
+          "keyLabel": "cardano-signing-key",
+          "requiresRole": "Sign"
+        }
+      }
+    }
+  }
+}
+```
+
+## Standalone Mode Example (`.env`)
+
+```bash
+NETWORK=preview
+BACKENDS=ogmios,blockfrost,koios
+TX_BUILDERS=buildooor
+BLOCKFROST_API_KEY=preview_your_api_key
+OGMIOS_URL=ws://localhost:1337
+PRIMARY_TIMEOUT_MS=30000
+FALLBACK_TIMEOUT_MS=60000
+INDEX_TTL_MS=3600000
+
+# HSM (optional)
+HSM_ENABLED=true
+HSM_PKCS11_MODULE=/usr/lib/pkcs11/yubihsm_pkcs11.so
+HSM_PIN=0001password
+HSM_KEY_LABEL=cardano-signing-key
+HSM_REQUIRES_ROLE=Sign
+```
+
+## Network → Address & Backend Prefix Matching
+
+| `network` | Address prefix | Blockfrost project prefix |
+|-----------|----------------|---------------------------|
+| `mainnet` | `addr1...` | `mainnetXXX` |
+| `preview` | `addr_test1...` | `previewXXX` |
+| `preprod` | `addr_test1...` | `preprodXXX` |
+
+Mismatches surface as `ODATANO_INVALID_INPUT` at request time (network-aware bech32 validator) or as Blockfrost auth failures.
+
+## See Also
+
+- [Quick Start:](/docs/quick-start/) Minimum viable setup
+- [Backend Configuration:](/docs/backend-configuration/) Backend selection logic
+- [Security:](/docs/security/) HSM details and secrets management
+- [Production Deployment:](/docs/production-deployment/) Production fine tuning

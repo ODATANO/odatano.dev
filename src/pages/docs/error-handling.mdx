@@ -1,0 +1,89 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: Error Handling
+description: Error classes, normalization rules, and stable ODATANO_* codes.
+---
+
+# Error Handling
+
+Every backend failure is normalized into a typed `BackendError` subclass with a stable `code`. **Branch on `code`, not HTTP status** so multiple distinct conditions share the same status.
+
+## Class Hierarchy
+
+```
+BackendError                            // Base - carries statusCode, code, backendName, originalError, target
+├── NotFoundError                       // 404 - transaction / address not found
+├── TransactionValidationError          // 400 - bad CBOR / inputs / signature
+├── ScriptValidationError               // 400 - Plutus script failed
+├── TransactionAlreadySubmittedError    // 409 - idempotent duplicate
+├── InsufficientFundsError              // 400 - not enough funds in wallet
+├── MixedAssetsError                    // 400 - non-ADA UTxO in ADA-only path
+├── ProviderUnavailableError            // 503 - timeout / 5xx / WebSocket drop
+├── RateLimitError                      // 429 - may include retry-after
+├── AllBackendsFailedError              // 503 - every backend failed (carries error[])
+├── BackendInitError                    // 500 - init failed
+└── HsmError                            // 500/503 - no hsm module found 
+
+ConfigError                             // 500 - bad config (no parent BackendError)
+AllBackendsInitFailedError              // 500 - startup fatal
+```
+
+## Stable Codes (`srv/utils/error-codes.ts`)
+
+| Code | HTTP | Meaning |
+|------|------|---------|
+| `ODATANO_INVALID_INPUT` | 400 | Bad bech32 / hash, missing field, JSON over limit |
+| `ODATANO_NOT_FOUND` | 404 | Resource doesn't exist on chain |
+| `ODATANO_INSUFFICIENT_FUNDS` | 400 | No funds in wallet to build transaction |
+| `ODATANO_TX_VALIDATION_FAILED` | 400 | Signature / witness / CBOR invalid |
+| `ODATANO_SCRIPT_VALIDATION_FAILED` | 400 | Plutus script failed |
+| `ODATANO_TX_ALREADY_SUBMITTED` | 409 | In mempool / on chain |
+| `ODATANO_PROVIDER_RATE_LIMITED` | 429 | Blockfrost / Koios Rate Limt |
+| `ODATANO_PROVIDER_UNAVAILABLE` | 503 | Backend timeout or 5xx |
+| `ODATANO_INTERNAL_ERROR` | 500 | Last-resort fallback |
+| `ODATANO_HSM_UNAVAILABLE` | 503 | HSM device / session not available |
+| `ODATANO_HSM_SIGNING_FAILED` | 500 | Signing with HSM not available |
+| `ODATANO_HSM_NOT_CONFIGURED` | 400 | HSM action called but `HSM_ENABLED=false` |
+
+
+## Backends
+
+| Backend | Behavior |
+|---------|----------|
+| Blockfrost | Correct HTTP statuses: 404 maps directly |
+| Koios | May return 5xx for not-found: Text normalization rescues |
+| Ogmios | WebSocket drops surface as `ProviderUnavailableError` |
+
+## Server-Side Helpers
+
+| Helper | Purpose |
+|--------|---------|
+| `handleRequest(req, async (db) => {...})` | Service-level wrapper opens `cds.tx`, maps errors to `req.reject` |
+| `handleBackendRequest(fn, backendName)` | Backend-call wrapper runs `normalizeBackendError()` |
+| `mapError(req, err, ctx)` | Manual error → `req.reject` |
+| `rejectMissing(req, ctx, field)` | 400 for missing required field |
+| `rejectInvalid(req, ctx, message, target)` | 400 for invalid input |
+| `throwIfValidationErrors(req, ctx, errors)` | Batch throws first error from `validateTransactionInputs()` |
+
+## Best Practices
+
+- Validate inputs **before** `handleRequest()`, never inside.
+- Throw typed classes never bare `new Error()`.
+- Wrap backend calls with `handleBackendRequest()` for pre-normalization.
+- Client-side: branch on `code`, not status.
+
+## Example Response
+
+```json
+{ "error": {
+  "code": "ODATANO_INSUFFICIENT_FUNDS",
+  "message": "Sender 'addr_test1qq…' has 4 500 000 lovelace, needs 10 200 000",
+  "target": "senderAddress"
+} }
+```
+
+## See Also
+
+- [Source: ERROR_HANDLING.md](https://github.com/ODATANO/ODATANO/blob/main/docs/concepts%20%26%20architecture/ERROR_HANDLING.md) 
+- [Transaction Workflow](/docs/transaction-workflow/)
+- [Developer Guide](/docs/developer-guide/)

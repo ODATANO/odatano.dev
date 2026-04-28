@@ -1,0 +1,92 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: Production Deployment
+description: SAP BTP / HANA deployment essentials and tuning.
+---
+
+# Production Deployment
+
+## Pre-Deploy Checklist
+
+- `NETWORK` matches target (`mainnet` / `preview` / `preprod`)
+- `BLOCKFROST_API_KEY` prefix matches network (`mainnetXXX`, etc.)
+- `NODE_ENV=production` (activates HANA + XSUAA profiles)
+- `TX_BUILDERS=buildooor` (recommended)
+- TLS terminated upstream (BTP automatic; Docker → reverse proxy)
+- Outbound HTTPS to backend APIs allowed
+- Tests green: `npm run build && npm run typecheck && npm test`
+
+| Network | Address Prefix | Blockfrost Project Prefix |
+|---------|----------------|---------------------------|
+| `mainnet` | `addr1...` | `mainnetXXX` |
+| `preview` | `addr_test1...` | `previewXXX` |
+| `preprod` | `addr_test1...` | `preprodXXX` |
+
+## Production .env
+
+```bash
+NETWORK=mainnet
+NODE_ENV=production
+LOG_LEVEL=info
+BACKENDS=blockfrost,koios
+BLOCKFROST_API_KEY=mainnetYourApiKey
+TX_BUILDERS=buildooor
+PRIMARY_TIMEOUT_MS=8000        
+FALLBACK_TIMEOUT_MS=10000
+INDEX_TTL_MS=600000           
+```
+
+## SAP BTP Cloud Foundry
+
+Architecture:
+- `odatano-srv` (CAP backend)
+- `odatano-db-deployer` (HDI)
+- `odatano` (AppRouter, XSUAA, routing)
+- `odatano-html5-repo-host` 
+- `odatano-auth` (XSUAA)
+- Services: `odatano-db` (HANA HDI)
+- Destination: `html5-runtime`
+
+Full `mta.yaml`, `xs-app.json`, and CF deploy commands: [`docs/guides/PRODUCTION_DEPLOYMENT.md`](https://github.com/ODATANO/ODATANO/blob/main/docs/guides/PRODUCTION_DEPLOYMENT.md).
+
+```bash
+cd ODATANO && npm ci && mbt build
+cf login -a https://api.cf.<region>.hana.ondemand.com
+cf deploy mta_archives/odatano_1.0.0.mtar
+cf set-env odatano-srv NETWORK              "mainnet"
+cf set-env odatano-srv BACKENDS             "blockfrost,koios"
+cf set-env odatano-srv BLOCKFROST_API_KEY   "mainnetYourKey"
+cf set-env odatano-srv TX_BUILDERS          "buildooor"
+cf restage odatano-srv
+```
+
+## Database
+
+SQLite for dev / Docker:
+
+```json
+{ "cds": { "requires": { "db": { "kind": "sqlite", "credentials": { "url": "db.sqlite" } } } } }
+```
+
+HANA for production:
+
+```json
+{ "cds": { "requires": { "[production]": {
+  "db": { "kind": "hana", "pool": { "acquireTimeoutMillis": 30000, "min": 0, "max": 10 } },
+  "auth": "xsuaa"
+} } } }
+```
+
+## Mainnet Notes
+
+- Use a paid Blockfrost project key, free-tier rate limits may throttle production.
+- Run your own cardano-node + Ogmios for full tx submission you control.
+- Monitor `ODATANO_PROVIDER_UNAVAILABLE` rate circuit breaker in action.
+- Rotate `BLOCKFROST_API_KEY` every 90 days.
+
+## See Also
+
+- [Configuration](/docs/configuration/)
+- [Backend Configuration](/docs/backend-configuration/)
+- [Security](/docs/security/)
+- [Docker Deployment](/docs/docker-deployment/)

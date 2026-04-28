@@ -12,7 +12,7 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
   <span class="code-key">"txBuilders"</span>: [<span class="code-str">"buildooor"</span>]
 }
 
-<span class="code-comment"># POST — build a simple ADA transaction</span>
+<span class="code-comment"># POST - build a simple ADA transaction</span>
 <span class="code-cmd">POST</span> <span class="code-val">.../cardano-transaction/BuildSimpleAdaTransaction</span>
 { <span class="code-key">"senderAddress"</span>: <span class="code-str">"addr1..."</span>,
   <span class="code-key">"recipientAddress"</span>: <span class="code-str">"addr1..."</span>,
@@ -21,7 +21,7 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
 
 <Layout
   title="OData for Cardano"
-  description="Enterprise OData V4 Service for the Cardano Blockchain — built on SAP CAP. One npm install, three services, zero blockchain SDK required."
+  description="OData V4 service for the Cardano blockchain, packaged as a SAP CAP plugin. Three CDS services: read, transaction building, and signing."
 >
   <!-- ── Hero ─────────────────────────────────────────────── -->
   <section class="hero">
@@ -36,8 +36,10 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
           OData for<br /><span class="hero__headline-accent">Cardano</span>
         </h1>
         <p class="hero__sub">
-          Integrate Cardano blockchain into enterprise applications via familiar
-          OData&nbsp;V4 patterns &mdash; built on SAP&nbsp;CAP.
+          OData&nbsp;V4 service exposing the Cardano blockchain. Packaged as a
+          SAP&nbsp;CAP plugin - install with npm, configure via <code
+            >cds.requires</code
+          >, Cardano services register automatically.
         </p>
         <div class="hero__actions">
           <a href="/docs/quick-start/" class="btn btn--primary btn--lg">
@@ -84,7 +86,7 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
           <span class="stats-bar__label">License</span>
         </li>
         <li class="stats-bar__item">
-          <span class="stats-bar__value">v1.7.4</span>
+          <span class="stats-bar__value">v1.7.5</span>
           <span class="stats-bar__label">NPM Package</span>
         </li>
       </ul>
@@ -95,19 +97,14 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
   <section class="arch-section">
     <div class="container">
       <div class="section__header">
-        <h2 class="section__title">
-          The bridge between enterprise applications and blockchain
-        </h2>
+        <h2 class="section__title">Architecture</h2>
         <p class="section__subtitle">
-          Trust at scale — across partners, regulators, and the public —
-          requires evidence no single party controls. ERP systems run the
-          business, but their records are only as trusted as the company that
-          owns them. ODATANO turns Cardano into a public notary for enterprise
-          data: records stay in their systems of origin when confidentiality
-          matters — verifiable through on-chain proofs without ever being
-          exposed. Or go on-chain directly when transparency is the goal. Either
-          way, integrity is certified by neutral ground, verifiable by anyone.
-          Accessible via OData V4.
+          Any OData V4 client connects to ODATANO's three CDS services. ODATANO
+          orchestrates Blockfrost, Koios, and Ogmios with automatic failover,
+          indexes results into SQLite or HANA, and routes transaction submission
+          to the configured backend. Three Cardano networks supported: <code
+            >mainnet</code
+          >, <code>preview</code>, <code>preprod</code>.
         </p>
       </div>
       <div class="arch">
@@ -209,14 +206,12 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
   <section class="section">
     <div class="container">
       <div class="section__header">
-        <h2 class="section__title">
-          A unified OData surface for the Cardano blockchain
-        </h2>
+        <h2 class="section__title">CDS services</h2>
         <p class="section__subtitle">
-          ODATANO maps Cardano onto OData V4 with structured entities, standard
-          query conventions, full explorable metadata. Chain interactions become
-          predictable API operations that can integrate directly with existing
-          enterprise tooling.
+          Cardano core usage is exposed as OData V4 entities and actions.
+          Standard query options (<code>$filter</code>, <code>$select</code>,
+          <code>$expand</code>, <code>$orderby</code>) work as in any OData
+          service. Full metadata available at <code>$metadata</code>.
         </p>
       </div>
       <div class="features__grid">
@@ -239,12 +234,12 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
               <rect x="3" y="14" width="7" height="7" rx="1"></rect>
             </svg>
           </div>
-          <h3>Read Operations</h3>
+          <h3>Read</h3>
           <p>
-            18 OData entities, 15 actions &mdash; query Blocks, Transactions,
-            Addresses, UTxOs, Pools, Accounts, DReps and more via standard
-            <code>$filter</code>, <code>$select</code>, <code>$expand</code>,
-            <code>$orderby</code> operations.
+            <code>CardanoODataService</code>: 18 entities, 16 actions. Blocks,
+            Transactions, Addresses, UTxOs, Pools, Accounts, DReps, Protocol
+            Parameters, transaction CBOR parser. Lazy on-demand indexing with
+            TTL refresh.
           </p>
         </div>
 
@@ -265,12 +260,12 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
               <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
             </svg>
           </div>
-          <h3>Transaction Building</h3>
+          <h3>Transactions</h3>
           <p>
-            End-to-end Build → Sign → Submit flow. Simple ADA or native Token
-            transfers, minting, CIP-20 metadata, Plutus V3 smart contracts
-            interactions. All covered with ready-to-use Preview testnet
-            examples.
+            <code>CardanoTransactionService</code>: 13 actions. ADA transfers,
+            multi-asset, mint, Plutus V3 spend, CIP-20 metadata, CIP-31
+            reference inputs, CIP-33 reference scripts. Two builder engines: CSL
+            and Buildooor.
           </p>
         </div>
 
@@ -291,11 +286,11 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
               <polyline points="9 12 11 14 15 10"></polyline>
             </svg>
           </div>
-          <h3>External Signing</h3>
+          <h3>Signing</h3>
           <p>
-            Supports signing with CIP-30 browser wallets, Cardano CLI or HSM
-            integration. Flexible signing from local development to
-            enterprise-grade security.
+            <code>CardanoSignService</code>: 8 actions. External signing via
+            CIP-30 wallets or Cardano CLI; server-side signing via PKCS#11 HSM.
+            Private keys never reach the server in any flow.
           </p>
         </div>
       </div>
@@ -306,8 +301,10 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
   <section class="section section--dark">
     <div class="container">
       <div class="section__header">
-        <h2 class="section__title">Built on proven technology</h2>
-        <p class="section__subtitle">Enterprise-grade components end to end.</p>
+        <h2 class="section__title">Stack</h2>
+        <p class="section__subtitle">
+          Runtime, dependencies, and test coverage.
+        </p>
       </div>
       <div class="stack__grid">
         <div class="stack__item">
@@ -336,7 +333,7 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">Testing</span>
-          <span class="stack__value">1285 tests, 31 suites, 97% coverage</span>
+          <span class="stack__value">31 automated test suites, 1285 tests</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">License</span>
@@ -351,12 +348,15 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
     <div class="container trace-section__inner">
       <div class="trace-section__text">
         <span class="trace-section__tag">Example Application</span>
-        <h2>TRACE - Pharma Supply Chain on Cardano</h2>
+        <h2>TRACE</h2>
         <p>
-          A full-stack SAP Fiori + CAP application demonstrating batch NFT
-          minting, chain-of-custody via Plutus V3 smart contracts, document
-          anchoring, and public verification all signed from CIP-30 browser
-          wallets. TRACE and ODATANO never hold private keys.
+          SAP Fiori + CAP application built on top of <code>@odatano/core</code
+          >. Tracks pharmaceutical batches across manufacturer, distributor, and
+          pharmacy using NFTs minted under a Plutus V3 policy. Each handoff is a
+          Plutus spend with a continuing-output datum update. Document hashes
+          (certificates, lab reports, cold-chain telemetry) are anchored via
+          CIP-20 metadata. All signing happens in the user's CIP-30 browser
+          wallet.
         </p>
         <div class="trace-section__actions">
           <a href="/docs/trace/" class="btn btn--primary">Learn More</a>

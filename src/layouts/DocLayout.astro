@@ -19,18 +19,27 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '');
 const navItems = [
   { group: 'Getting Started', links: [
     { label: 'Quick Start', href: '/docs/quick-start' },
+    { label: 'Configuration', href: '/docs/configuration' },
   ]},
   { group: 'Guides', links: [
     { label: 'User Guide', href: '/docs/user-guide' },
     { label: 'Transaction Workflow', href: '/docs/transaction-workflow' },
+    { label: 'Plutus & Smart Contracts', href: '/docs/plutus' },
     { label: 'Security', href: '/docs/security' },
     { label: 'Developer Guide', href: '/docs/developer-guide' },
+  ]},
+  { group: 'Operations', links: [
+    { label: 'Backend Configuration', href: '/docs/backend-configuration' },
+    { label: 'Error Handling', href: '/docs/error-handling' },
+    { label: 'Docker Deployment', href: '/docs/docker-deployment' },
+    { label: 'Production Deployment', href: '/docs/production-deployment' },
   ]},
   { group: 'Examples', links: [
     { label: 'TRACE Example App', href: '/docs/trace' },
   ]},
   { group: 'Reference', links: [
     { label: 'API Reference', href: '/docs/reference' },
+    { label: 'Changelog', href: '/docs/changelog' },
   ]},
 ];
 ---
@@ -59,3 +68,46 @@ const navItems = [
     </article>
   </div>
 </Layout>
+
+<script>
+  const COPY_ICON = '<svg class="docs-copy-btn__icon docs-copy-btn__icon--copy" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+  const CHECK_ICON = '<svg class="docs-copy-btn__icon docs-copy-btn__icon--check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+  const addCopyButtons = () => {
+    document.querySelectorAll<HTMLPreElement>('.docs-content pre').forEach((pre) => {
+      if (pre.querySelector('.docs-copy-btn')) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'docs-copy-btn';
+      btn.setAttribute('aria-label', 'Copy code');
+      btn.innerHTML = COPY_ICON + CHECK_ICON;
+      btn.addEventListener('click', async () => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const text = (code as HTMLElement).innerText;
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); } catch {}
+          document.body.removeChild(ta);
+        }
+        btn.classList.add('is-copied');
+        btn.setAttribute('aria-label', 'Copied');
+        window.setTimeout(() => {
+          btn.classList.remove('is-copied');
+          btn.setAttribute('aria-label', 'Copy code');
+        }, 1800);
+      });
+      pre.appendChild(btn);
+    });
+  };
+
+  addCopyButtons();
+  document.addEventListener('astro:page-load', addCopyButtons);
+</script>

@@ -21,7 +21,7 @@
 
   --max-width: 1200px;
   --docs-sidebar-w: 260px;
-  --header-h: 64px;
+  --header-h: 77px;
 
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -208,9 +208,9 @@ a:hover { text-decoration: underline; }
   text-decoration: none;
   flex-shrink: 0;
 }
-.site-header__logo img { height: 56px; width: auto; }
+.site-header__logo img { height: 68px; width: auto; }
 .site-header__logo-text {
-  font-size: 1.125rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: var(--color-dark-blue);
   letter-spacing: -0.02em;
@@ -933,7 +933,7 @@ a:hover { text-decoration: underline; }
 }
 .docs-content {
   padding: 3rem;
-  max-width: 780px;
+  max-width: 920px;
   min-width: 0;
 }
 .docs-content h1 {
@@ -998,57 +998,148 @@ a:hover { text-decoration: underline; }
   overflow-wrap: anywhere;
 }
 .docs-content pre {
+  position: relative;
   background: var(--color-code-bg) !important;
   border-radius: var(--radius-lg);
-  padding: 1.5rem 1.75rem;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  padding: 0;
+  overflow: hidden !important;
   max-width: 100%;
-  margin: 1.25rem 0;
-  border: 1px solid rgba(255,255,255,0.05);
+  margin: 1.5rem 0;
+  border: 1px solid rgba(255,255,255,0.06);
   box-shadow: var(--shadow-md);
 }
+.docs-content pre::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.5rem;
+  z-index: 1;
+  background-color: rgba(255,255,255,0.025);
+  background-image:
+    radial-gradient(circle at 16px 19px, #ff5f57 5.5px, transparent 6.5px),
+    radial-gradient(circle at 36px 19px, #febc2e 5.5px, transparent 6.5px),
+    radial-gradient(circle at 56px 19px, #28c840 5.5px, transparent 6.5px);
+  background-repeat: no-repeat;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  pointer-events: none;
+}
+.docs-content pre::after {
+  content: attr(data-language);
+  position: absolute;
+  top: 0;
+  right: 2.875rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+.docs-copy-btn {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.625rem;
+  z-index: 2;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.55);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+}
+.docs-copy-btn:hover {
+  background: rgba(255,255,255,0.09);
+  color: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,0.2);
+}
+.docs-copy-btn:active { transform: scale(0.94); }
+.docs-copy-btn:focus-visible {
+  outline: 2px solid var(--color-bright-blue);
+  outline-offset: 2px;
+}
+.docs-copy-btn.is-copied {
+  background: rgba(40, 200, 100, 0.18);
+  border-color: rgba(40, 200, 100, 0.4);
+  color: #6ee7b7;
+}
+.docs-copy-btn__icon { display: block; }
+.docs-copy-btn__icon--check { display: none; }
+.docs-copy-btn.is-copied .docs-copy-btn__icon--copy { display: none; }
+.docs-copy-btn.is-copied .docs-copy-btn__icon--check { display: block; }
 .docs-content pre code {
+  display: block;
+  padding: 3rem 1.75rem 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   background: none !important;
   border: none;
-  padding: 0;
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: #e5e7eb;
-  line-height: 1.7;
+  line-height: 1.65;
 }
 .docs-content table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   margin: 1.25rem 0;
-  display: block;
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  white-space: nowrap;
-}
-.docs-content table thead,
-.docs-content table tbody,
-.docs-content table tr {
-  display: table;
-  width: 100%;
   table-layout: auto;
+}
+.docs-content th,
+.docs-content td {
+  vertical-align: top;
+  white-space: normal;
+  /* break only at natural word boundaries; do NOT use `anywhere` —
+     it tells the browser cells can shrink to 1ch and collapses code columns */
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 .docs-content th {
   text-align: left;
-  padding: 0.625rem 0.875rem;
+  padding: 0.5rem 0.75rem;
   background: var(--color-bg-alt);
   font-weight: 600;
   font-size: 0.8125rem;
   color: var(--color-text);
   border: 1px solid var(--color-border);
+  white-space: nowrap;
 }
 .docs-content td {
-  padding: 0.5rem 0.875rem;
+  padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
-  vertical-align: top;
+}
+/* Inline code in cells: keep tokens intact (e.g. `network`, `BLOCKFROST_API_KEY`)
+   so columns size to the content rather than letter-by-letter */
+.docs-content td code,
+.docs-content th code {
+  white-space: nowrap;
+}
+/* Mobile + tablet fallback: when the table is wider than the viewport, scroll */
+@media (max-width: 900px) {
+  .docs-content table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .docs-content table thead,
+  .docs-content table tbody,
+  .docs-content table tr {
+    display: table;
+    width: 100%;
+  }
 }
 .docs-content tr:hover td { background: var(--color-bg); }
 .docs-content blockquote {
@@ -1104,11 +1195,12 @@ a:hover { text-decoration: underline; }
   .docs-content h2 { font-size: 1.25rem; }
   .docs-content h3 { font-size: 1.0625rem; }
   .docs-content pre {
-    padding: 1.125rem 1rem;
-    font-size: 0.8125rem;
     border-radius: var(--radius-md);
   }
-  .docs-content pre code { font-size: 0.8125rem; }
+  .docs-content pre code {
+    padding: 2.75rem 1rem 1.125rem;
+    font-size: 0.8125rem;
+  }
   .stats-bar__item { padding: 0 1.5rem; }
 }
 
@@ -1116,7 +1208,7 @@ a:hover { text-decoration: underline; }
 @media (max-width: 768px) {
   .site-header__toggle { display: flex; }
   .site-header__nav--desktop { display: none; }
-  .site-header__logo img { height: 44px; }
+  .site-header__logo img { height: 53px; }
 }
 @media (min-width: 769px) {
   .mobile-nav { display: none !important; }

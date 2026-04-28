@@ -1,165 +1,132 @@
 ---
 layout: ../../layouts/DocLayout.astro
 title: API Reference
-description: Complete reference for all three ODATANO OData V4 services — entities and actions.
+description: Entities and actions across the three ODATANO services.
 ---
 
 # API Reference
 
-ODATANO registers three OData V4 services in your CAP application. All services support `$filter`, `$select`, `$expand`, `$top`, `$skip`, `$count`, and `$orderby`.
+## In total: 3 services, 31 entities, 37 actions
+All entity sets support `$filter`, `$select`, `$expand`, `$top`, `$skip`, `$count`, `$orderby` \
+All actions are POST with JSON body \
+All services gated by `@requires: 'authenticated-user'`
 
-## CardanoODataService
-
-**Path:** `/odata/v4/cardano-odata/`
-
-Read-only access to Cardano blockchain data via lazy on-demand indexing with TTL-based refresh.
-
-### Entities
-
-| Entity | Description |
-|--------|-------------|
-| `NetworkInformation` | Network info, genesis parameters |
-| `Blocks` | Block data (height, hash, slot, epoch, time) |
-| `Epochs` | Epoch info and protocol parameters |
-| `Transactions` | Transaction metadata |
-| `TransactionInputs` | Input UTxOs per transaction |
-| `TransactionOutputs` | Output UTxOs per transaction |
-| `TransactionInputAssets` | Native assets in inputs |
-| `TransactionOutputAssets` | Native assets in outputs |
-| `TransactionMetadata` | CIP-20 and arbitrary metadata |
-| `Addresses` | Address details and balance |
-| `AddressAssets` | Native assets held by an address |
-| `AddressUTxOs` | UTxO set for an address |
-| `AddressTransactions` | Transaction history for an address |
-| `UTxOAssets` | Assets within a specific UTxO |
-| `Pools` | Stake pool info and metrics |
-| `Accounts` | Stake account / delegation info |
-| `Dreps` | Governance DRep information |
-| `LedgerProtocolParameters` | Current protocol parameters |
-
-### Actions (POST)
-
-| Action | Parameters | Returns |
-|--------|-----------|---------|
-| `GetTransactionByHash` | `hash` | `Transactions` |
-| `GetAddressByBech32` | `address` | `Addresses` |
-| `GetUTxOsByAddress` | `address` | `AddressUTxOs[]` |
-| `GetAssetsByAddress` | `address` | `AddressAssets[]` |
-| `GetMetadataByTxHash` | `tx_hash` | `TransactionMetadata[]` |
-| `GetPoolById` | `poolId` | `Pools` |
-| `GetAccountByStakeAddress` | `stakeAddress` | `Accounts` |
-| `GetDrepById` | `drepId` | `Dreps` |
-| `GetTransactionsByAddress` | `address` | `AddressTransactions[]` |
-| `GetAssetHistory` | `unit` | Asset history |
-| `GetUTxOByRef` | `txHash`, `outputIndex` | `AddressUTxOs` |
-| `GetInputsByTxHash` | `hash` | `TransactionInputs[]` |
-| `GetOutputsByTxHash` | `hash` | `TransactionOutputs[]` |
-| `GetInputAssetsByTxHash` | `hash` | `TransactionInputAssets[]` |
-| `GetOutputAssetsByTxHash` | `hash` | `TransactionOutputAssets[]` |
-
-### OData Query Examples
-
-```bash
-# Latest block
-GET /odata/v4/cardano-odata/Blocks?$orderby=height desc&$top=1
-
-# Read by key
-GET /odata/v4/cardano-odata/Transactions('<64-hex-hash>')
-GET /odata/v4/cardano-odata/Addresses('addr_test1...')
-
-# Filter with select
-GET /odata/v4/cardano-odata/Blocks?$filter=epoch eq 500&$select=hash,height,time
-```
+| Service | Path |
+|---------|------|
+| `CardanoODataService` | `/odata/v4/cardano-odata/` |
+| `CardanoTransactionService` | `/odata/v4/cardano-transaction/` |
+| `CardanoSignService` | `/odata/v4/cardano-sign/` |
 
 ---
 
-## CardanoTransactionService
+## CardanoODataService` /odata/v4/cardano-odata/`
 
-**Path:** `/odata/v4/cardano-transaction/`
-
-Build, track, and submit Cardano transactions. Supports two builder backends: `csl` and `buildooor`.
+Read-only blockchain queries via lazy on-demand indexing with TTL refresh.
 
 ### Entities
 
-| Entity | Description |
-|--------|-------------|
-| `TransactionBuilds` | Pending/completed transaction builds |
-| `TransactionSubmissions` | Submission records and status |
-| `BuildInputs` | UTxO inputs used in a build |
-| `BuildOutputs` | Outputs in a build |
-| `BuildAssets` | Native assets in a build |
-| `BuildMetadata` | Metadata attached to a build |
-| `ProtocolParametersCache` | Cached protocol parameters |
-| `NetworkParametersCache` | Cached network parameters |
+`NetworkInformation` · `Blocks` · `Epochs` · `Pools` · `Dreps` · `Transactions` · `TransactionInputs` · `TransactionOutputs` · `TransactionInputAssets` · `TransactionOutputAssets` · `Accounts` · `Addresses` · `AddressAssets` · `AddressUTxOs` · `AddressTransactions` · `UTxOAssets` · `TransactionMetadata` · `LedgerProtocolParameters`
 
-### Actions (POST)
+### Actions
 
-| Action | Description |
-|--------|-------------|
-| `BuildSimpleAdaTransaction` | ADA transfer between two addresses |
-| `BuildMultiAssetTransaction` | Transfer native assets |
-| `BuildTokenMintTransaction` | Mint new native tokens |
-| `BuildMetadataTransaction` | Attach CIP-20 metadata |
-| `SubmitSignedTransaction` | Submit a signed transaction (CBOR) |
-| `GetBuildStatus` | Check build/submission status |
-| `GetTransactionStatus` | Check on-chain confirmation |
-| `CancelBuild` | Cancel a pending build |
-| `RebuildTransaction` | Rebuild a failed transaction |
-| `EstimateFee` | Estimate transaction fees |
-| `ValidateAddresses` | Validate address format |
+| Action | Params | Returns |
+|--------|--------|---------|
+| `GetNetworkInformation` | _-_ | `NetworkInformation` |
+| `GetBlockByHash` | `hash: Blake2b256` | `Blocks` |
+| `GetEpochByNumber` | `epochNumber: Integer` | `Epochs` |
+| `GetPoolById` | `poolId: String` | `Pools` |
+| `GetDrepById` | `drepId: String` | `Dreps` |
+| `GetAccountByStakeAddress` | `stakeAddress: Bech32` | `Accounts` |
+| `GetTransactionByHash` | `hash: Blake2b256` | `Transactions` |
+| `GetMetadataByTxHash` | `tx_hash: Blake2b256` | `TransactionMetadata[]` |
+| `GetAddressByBech32` | `address: Bech32` | `Addresses` |
+| `GetUTxOsByAddress` | `address: Bech32` | `AddressUTxOs[]` |
+| `GetAssetsByAddress` | `address: Bech32` | `AddressAssets[]` |
+| `GetLatestTransactionsByAddress` | `address: Bech32`, `limit: Integer` | `AddressTransactions[]` |
+| `GetLatestBlock` | _-_ | `Blocks` |
+| `GetLatestEpoch` | _-_ | `Epochs` |
+| `GetLedgerProtocolParameters` | _-_ | `LedgerProtocolParameters` |
+| `ParseTransactionCbor` | `cbor: LargeString` (≤ 128 KiB hex) | `ParsedTransaction` _(pure, no network/DB)_ |
 
 ---
 
-## CardanoSignService
+## CardanoTransactionService `/odata/v4/cardano-transaction/`
 
-**Path:** `/odata/v4/cardano-sign/`
-
-External signing workflow — ODATANO never holds private keys. Signing requests are created server-side and fulfilled by external signers.
+Build, track, submit. Two builders: `csl`, `buildooor`.
 
 ### Entities
 
-| Entity | Description |
-|--------|-------------|
-| `SigningRequests` | Pending signing requests |
-| `SigningAuditLog` | Immutable audit trail of signing events |
-| `HsmConfigurations` | HSM device configurations |
-| `VerifiedTransactions` | Successfully verified and submitted txs |
-| `SigningPolicies` | Authorization policies for signing |
+`TransactionBuilds` · `TransactionBuildInputs` · `TransactionBuildOutputs` · `TransactionBuildInputAssets` · `TransactionBuildOutputAssets` · `TransactionSubmissions` · `TransactionSubmissionErrors` · `AddressTransactionBuilds`
 
-### Actions (POST)
+### Actions
 
-| Action | Description |
-|--------|-------------|
-| `CreateSigningRequest` | Create a signing request from a `buildId` |
-| `SubmitVerifiedTransaction` | Submit after external signing |
-| `SignWithHsm` | Trigger HSM signing (PKCS#11) |
-| `VerifySignature` | Verify a signature without submitting |
-| `GetSigningRequest` | Retrieve a signing request by ID |
-| `CancelSigningRequest` | Cancel a pending signing request |
-| `ListPendingRequests` | List all open signing requests |
-| `GetAuditLog` | Retrieve signing audit trail |
+`BuildSimpleAdaTransaction` · `BuildTransactionWithMetadata` · `BuildMultiAssetTransaction` · `BuildMintTransaction` · `BuildPlutusSpendTransaction` · `SetCollateral`
 
-### Supported Signers
 
-| Signer Type | `signerType` value | Notes |
-|-------------|-------------------|-------|
-| CIP-30 browser wallet | `browser-wallet` | Nami, Eternl, Lace, Yoroi |
-| Cardano CLI | `cardano-cli` | Response includes CLI command |
-| YubiHSM | `hsm` | PKCS#11 via `SignWithHsm` |
-| AWS CloudHSM | `hsm` | PKCS#11 via `SignWithHsm` |
-| Thales Luna HSM | `hsm` | PKCS#11 via `SignWithHsm` |
+
+**Lookup:**
+
+| Action | Params | Returns |
+|--------|--------|---------|
+| `GetBuildDetails` | `buildId: UUID` | `TransactionBuilds` |
+| `GetTransactionBuildsByAddress` | `address: Bech32` | `AddressTransactionBuilds[]` |
+
+**Submit:**
+
+| Action | Params | Returns |
+|--------|--------|---------|
+| `SubmitTransaction` | `buildId: UUID`, `signedTxCbor: String` | `TransactionSubmissions` |
+| `SubmitSignedTransaction` | `signedTxCbor: String`, `network: String(10)` | `TransactionSubmissions` |
+| `CheckSubmissionStatus` _(bound on `TransactionSubmissions(id)`)_ | _-_ | `TransactionSubmissions` |
+
+**Utilities (v1.7.5):**
+
+| Action | Params | Returns |
+|--------|--------|---------|
+| `DeriveScriptAddress` | `validatorScript`, `scriptParamsJson?`, `network?` | `{ scriptAddress, scriptHash }` |
+| `ExtractPaymentKeyHash` | `address: Bech32` | `{ paymentKeyHash }` |
+
+Full Build-action parameter tables: [Transaction Workflow](/docs/transaction-workflow/#build-action-parameters).
 
 ---
 
-## Technology Stack
+## CardanoSignService `/odata/v4/cardano-sign/`
 
-| Component | Technology |
-|-----------|-----------|
-| Framework | SAP CAP 9.x |
-| Language | TypeScript 5.x |
-| Runtime | Node.js 20.x / 22.x |
-| Database | SQLite (dev) / SAP HANA (prod) |
-| Blockchain APIs | Blockfrost, Koios, Ogmios |
-| TX Builders | CSL (Cardano Serialization Library), Buildooor |
-| Testing | Jest — 1285 tests, 31 suites, 97% coverage |
-| License | Apache 2.0 |
+### Entities
+
+`SigningRequests` · `SignatureVerifications` · `AddressSigningRequests` · `TransactionBuilds` · `TransactionSubmissions`
+
+### Actions
+
+**Workflow:**
+
+| Action | Params | Returns |
+|--------|--------|---------|
+| `CreateSigningRequest` | `buildId: UUID`, `message: String` | `SigningRequests` |
+| `GetSigningRequest` | `signingRequestId: UUID` | `SigningRequests` |
+| `GetSigningRequestsByAddress` | `address: Bech32` | `AddressSigningRequests[]` |
+| `VerifySignature` | `signingRequestId`, `signedTxCbor`, `signerType`, `signerInfo`, `address?` | `SignatureVerifications` |
+| `SubmitVerifiedTransaction` | _(same 5 params)_ | `TransactionSubmissions` |
+
+**HSM (PKCS#11):**
+
+| Action | Params | Returns |
+|--------|--------|---------|
+| `SignWithHsm` | `buildId: UUID`, `address?: Bech32` | `SigningRequests` |
+| `SignAndSubmitWithHsm` | `buildId: UUID`, `address?: Bech32` | `TransactionSubmissions` |
+| `GetHsmStatus` | _-_ | `{ connected, keyId, keyLabel, publicKeyHash, cardanoAddress }` |
+
+Optional `address` on the four signing actions enables consumer-side ownership verification.
+
+Lifecycle: `created → pending → verified → submitted`.
+
+---
+
+## See Also
+
+- [Quick Start](/docs/quick-start/)
+- [User Guide](/docs/user-guide/)
+- [Transaction Workflow](/docs/transaction-workflow/)
+- [Plutus](/docs/plutus/)
+- [Configuration](/docs/configuration/)
+- [Error Handling](/docs/error-handling/)

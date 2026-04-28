@@ -1,78 +1,61 @@
 ---
 layout: ../../layouts/DocLayout.astro
 title: TRACE Example App
-description: Pharmaceutical supply chain tracking on Cardano — a full SAP Fiori application powered by ODATANO.
+description: Pharmaceutical supply-chain tracking on Cardano — full SAP Fiori reference app powered by ODATANO.
 ---
 
 # TRACE Example App
 
-TRACE is a full-stack SAP Fiori application demonstrating how ODATANO integrates Cardano into enterprise workflows. It tracks pharmaceutical drug batches from manufacturer to pharmacy using **NFTs as on-chain proof** and **CIP-30 browser wallets** for signing.
+Full-stack SAP Fiori app showing how ODATANO drops Cardano into enterprise workflows. Tracks pharmaceutical batches manufacturer → distributor → pharmacy with **NFTs as on-chain proof** and **CIP-30 browser wallet signing**.
 
-## What TRACE Demonstrates
+## Highlights
 
-- **Batch NFT Minting** — Manufacturer mints a unique NFT per drug batch with on-chain datum via Plutus V3
-- **Chain of Custody Transfers** — Each handoff (manufacturer → distributor → pharmacy) is a Plutus spend transaction
-- **Document Anchoring** — SHA-256 hashes of certificates, lab reports, and cold-chain telemetry anchored via CIP-20 metadata
-- **Public Verification** — Anyone can verify a batch's full custody chain against on-chain data
-- **Zero Key Custody** — TRACE/ODATANO never hold private keys; all signing happens in the user's browser wallet
+- **Batch NFT minting:** Manufacturer mints one NFT per batch with on-chain datum (Plutus V3, Aiken)
+- **Chain of custody:** Each handoff is a Plutus spend with a continuing-output datum update
+- **Document anchoring:** SHA-256 hashes of certs / lab reports / cold-chain telemetry via CIP-20 metadata
+- **Public verification:** Anyone can verify a batch's full custody chain on-chain
+- **Zero key custody:** All signing in the user's browser wallet
 
-## Tech Stack
+## Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Smart Contracts | Aiken (Plutus V3) |
-| Blockchain | Cardano preview testnet |
-| Chain Gateway | `@odatano/core` (CAP plugin) |
+| Layer | Tech |
+|-------|------|
+| Smart contract | Aiken (Plutus V3) |
+| Network | Cardano preview |
+| Chain gateway | `@odatano/core` (CAP plugin) |
 | Backend | SAP CAP v9, Node.js, TypeScript |
 | Database | SQLite (dev) / SAP HANA (prod) |
-| Frontend | Freestyle SAPUI5 (sap_horizon theme) |
-| Signing | CIP-30 browser wallets (Nami, Eternl, Lace) |
+| Frontend | Freestyle SAPUI5 (`sap_horizon`) |
+| Signing | CIP-30 (Nami, Eternl, Lace) |
 
-## Transaction Signing Flow
+## Signing Flow
 
 ```
-1. User clicks action (e.g. "Mint NFT")
-2. App calls OData action        → { unsignedCbor, buildId }
-3. App calls wallet.signTx(cbor) → browser wallet popup
-4. User confirms in wallet        → signedCbor
-5. App calls SubmitSigned         → { txHash, status: "SUBMITTED" }
-6. Background polling (30s)       → status: "CONFIRMED" | "FAILED"
+1. User clicks "Mint NFT"
+2. App → OData action            { unsignedCbor, buildId }
+3. App → wallet.signTx(cbor)     wallet popup
+4. User confirms                 { signedCbor }
+5. App → SubmitSigned            { txHash, status: "SUBMITTED" }
+6. Background poll (30 s)        status: "CONFIRMED" | "FAILED"
 ```
 
 ## Smart Contract
-
-The Aiken validator (`pharma_trace.ak`) enforces two rules on-chain:
-
-**Mint policy** — Only the manufacturer (parameterized VKH) can mint, and exactly 1 token per transaction.
-
-**Spend validator** — Transfers require the current holder's signature and a continuing output with updated datum.
 
 ```
 Datum:    ChainOfCustody { manufacturer, current_holder, batch_id, step }
 Redeemer: Action::Transfer { next_holder }
 ```
 
-## OData Actions
-
-| Action | Description |
-|--------|-------------|
-| `MintBatchNft(batchId)` | Build unsigned mint transaction |
-| `TransferBatch(batchId, toParticipantId, ...)` | Build unsigned transfer transaction |
-| `SubmitSigned(buildId, signedTxCbor)` | Submit externally signed transaction |
-| `CheckPendingTransactions()` | Poll all SUBMITTED events for confirmation |
-| `AnchorDocument(batchId, documentHash, ...)` | Anchor document hash on-chain |
-| `VerifyBatch(batchIdOrFingerprint)` | Public chain-of-custody verification |
+**Mint policy:** Only the parameterized manufacturer VKH can mint, exactly 1 token per tx. \
+**Spend validator:** Transfer requires the current holder's signature + a continuing output with updated datum.
 
 ## Quick Start
 
 ```bash
-# Prerequisites: Node.js >= 18, CIP-30 wallet on preview network
-
 git clone https://github.com/ODATANO/TRACE && cd TRACE
 npm install
-npm run deploy       # Creates SQLite DB + seed data
-
-TX_BUILDERS=buildooor npx cds watch
+# change dummy blockfrost api key in package.json
+npm run deploy                 
 ```
 
 Open `http://localhost:4004/trace/webapp/index.html`.
@@ -80,15 +63,13 @@ Open `http://localhost:4004/trace/webapp/index.html`.
 ## Data Model
 
 ```
-Participants (Manufacturer | Distributor | Pharmacy | Regulator)
-     │
-     └──< Batches (DRAFT → MINTED → IN_TRANSIT → DELIVERED | RECALLED)
-            │
-            ├──< OnChainAssets   (policyId, assetName, UTxO ref)
-            ├──< ProofEvents     (MINT, TRANSFER, VERIFY, DOCUMENT_ANCHOR)
-            └──< DocumentAnchors (doc hash, type, cold-chain temps)
+Participants  (Manufacturer | Distributor | Pharmacy | Regulator)
+   └──< Batches  (DRAFT → MINTED → IN_TRANSIT → DELIVERED | RECALLED)
+          ├──< OnChainAssets    (policyId, assetName, UTxO ref)
+          ├──< ProofEvents      (MINT, TRANSFER, VERIFY, DOCUMENT_ANCHOR)
+          └──< DocumentAnchors  (doc hash, type, cold-chain temps)
 ```
 
-## GitHub
+## Sourcecode
 
-Source code and documentation: [github.com/ODATANO/TRACE](https://github.com/ODATANO/TRACE)
+[github.com/ODATANO/TRACE](https://github.com/ODATANO/TRACE)

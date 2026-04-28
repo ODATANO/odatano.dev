@@ -1,65 +1,50 @@
 ---
 layout: ../../layouts/DocLayout.astro
 title: Quick Start
-description: Get ODATANO running in minutes — as a CAP plugin or standalone application.
+description: Get ODATANO running in minutes — as a CAP plugin or standalone.
 ---
 
 # Quick Start
 
-Get the OData V4 Cardano service running in minutes — either as a **plugin in your existing CAP project** or as a **standalone application**.
-
-## Option A: CAP Plugin (Recommended)
-
-The fastest way to add Cardano blockchain access to any SAP CAP project.
-
-### 1. Install
+## Option A: CAP Plugin (recommended)
 
 ```bash
 npm install @odatano/core @cap-js/sqlite
 ```
 
-### 2. Configure
-
-Add the `odatano-core` section to your project's `package.json`:
+Add to your project's `package.json`:
 
 ```json
 {
   "cds": {
     "requires": {
-      "db": { "kind": "sqlite" },
+      "[development]": {
+        "auth": { "kind": "dummy" }
+      },
+      "db": {
+        "kind": "sqlite",
+        "credentials": { "url": "db.sqlite" }
+      },
       "odatano-core": {
         "network": "preview",
-        "backends": ["blockfrost"],
-        "blockfrostApiKey": "preview_YOUR_BLOCKFROST_KEY"
+        "backends": ["blockfrost", "koios"],
+        "blockfrostApiKey": "preview_your_api_key",
+        "txBuilders": ["buildooor"]
       }
     }
   }
 }
 ```
 
-Get a free Blockfrost API key at [blockfrost.io](https://blockfrost.io).
+All three services are gated by `@requires: 'authenticated-user'` - the `[development] auth dummy` block lets local `cds watch` accept requests without a JWT. Persistent SQLite (`db.sqlite`) keeps the index cache across restarts.
 
-#### Configuration Reference
-
-| Key | Default | Description |
-|-----|---------|-------------|
-| `network` | `preview` | `mainnet`, `preview`, or `preprod` |
-| `backends` | `["koios"]` | `blockfrost`, `koios`, `ogmios` (array — failover order) |
-| `blockfrostApiKey` | | Required if using `blockfrost` backend |
-| `koiosApiKey` | | Optional for Koios authenticated tier |
-| `ogmiosUrl` | | Required if using `ogmios` (e.g. `ws://localhost:1337`) |
-| `txBuilders` | `["csl"]` | `csl` or `buildooor` |
-| `primaryTimeoutMs` | `30000` | Timeout for primary backend |
-| `fallbackTimeoutMs` | `60000` | Timeout for fallback backends |
-| `indexTtlMs` | `3600000` | Lazy index cache TTL (1 hour) |
-
-### 3. Run
+Get a free Blockfrost key at [blockfrost.io](https://blockfrost.io). Then:
 
 ```bash
 cds watch
 ```
 
-Three services auto-register:
+3 services auto-register:
 
 | Service | Path |
 |---------|------|
@@ -67,69 +52,40 @@ Three services auto-register:
 | `CardanoTransactionService` | `/odata/v4/cardano-transaction/` |
 | `CardanoSignService` | `/odata/v4/cardano-sign/` |
 
-### 4. Verify
+Verify:
 
 ```bash
 curl http://localhost:4004/odata/v4/cardano-odata/NetworkInformation
 ```
 
----
+Full key reference: [Configuration](/docs/configuration/).
 
-## Option B: Standalone Development
-
-Clone and run ODATANO as a full standalone application.
-
-### 1. Clone & Install
+## Option B: Standalone
 
 ```bash
 git clone https://github.com/ODATANO/ODATANO
 cd ODATANO
 npm ci
-```
-
-### 2. Configure Environment
-
-```bash
-cp .env.example .env
-```
-
-Open `.env` and set your Blockfrost key:
-
-```bash
-NETWORK=preview
-BLOCKFROST_KEY=your_api_key_here
-BACKENDS=koios
-LOG_LEVEL=info
-```
-
-### 3. Initialize Database
-
-```bash
+# set BLOCKFROST_API_KEY, NETWORK, BACKENDS, TX_BUILDERS
+cp .env.example .env       
 cds deploy --to sqlite
+cds watch
 ```
-
-### 4. Start Server
-
-```bash
-npm run cds:watch
-```
-
 Server runs at `http://localhost:4004`.
-
----
 
 ## First Requests
 
-```bash
-# Latest block
-curl "http://localhost:4004/odata/v4/cardano-odata/Blocks?$orderby=height desc&$top=1"
+### Address UTxOs
 
-# Address UTxOs
+```bash
 curl -X POST http://localhost:4004/odata/v4/cardano-odata/GetUTxOsByAddress \
   -H "Content-Type: application/json" \
   -d '{"address":"addr_test1..."}'
+```
 
-# Build a transaction
+### Build a transaction
+
+```bash
 curl -X POST http://localhost:4004/odata/v4/cardano-transaction/BuildSimpleAdaTransaction \
   -H "Content-Type: application/json" \
   -d '{
@@ -141,6 +97,8 @@ curl -X POST http://localhost:4004/odata/v4/cardano-transaction/BuildSimpleAdaTr
 
 ## Next Steps
 
-- [TRACE Example App](/docs/trace/) — Full SAP Fiori app with Plutus smart contracts
-- [API Reference](/docs/reference/) — All 3 services, entities, and actions
-- [GitHub](https://github.com/ODATANO/ODATANO) — Source code, issues, and Postman collections
+- [User Guide:](/docs/user-guide/) Query patterns and OData basics
+- [Transaction Workflow:](/docs/transaction-workflow/) Full Build → Sign → Submit flows
+- [Plutus:](/docs/plutus/) Smart-contract flows
+- [API Reference:](/docs/reference/) All entities and actions
+- [GitHub:](https://github.com/ODATANO/ODATANO) Source, Issues, Postman collections

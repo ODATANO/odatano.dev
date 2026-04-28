@@ -1,4 +1,4 @@
-# ODATANO — Official Website
+# ODATANO - Official Website
 
 Landing page and documentation for [ODATANO](https://github.com/ODATANO/ODATANO), the enterprise OData V4 service for the Cardano blockchain.
 

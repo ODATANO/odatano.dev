@@ -1,0 +1,70 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: Docker Deployment
+description: Run ODATANO standalone via the bundled docker-compose.yml.
+---
+
+# Docker Deployment
+
+## Build from Source
+
+```bash
+git clone https://github.com/ODATANO/ODATANO
+cd ODATANO
+# set BLOCKFROST_API_KEY / TX_BUILDERS etc.
+cp .env.example .env
+docker-compose up -d
+curl http://localhost:4004/odata/v4/cardano-odata/NetworkInformation
+```
+
+## Pre-built Image
+
+```bash
+curl -O https://raw.githubusercontent.com/ODATANO/ODATANO/main/docker-compose.yml
+
+cat > .env <<'EOF'
+BLOCKFROST_API_KEY=preview_your_api_key
+NETWORK=preview
+BACKENDS=blockfrost,koios
+EOF
+
+docker-compose up -d
+```
+
+## Essentials
+
+```bash
+BLOCKFROST_API_KEY=preview_your_api_key  # required if BACKENDS contains blockfrost
+NETWORK=preview                          # mainnet | preview | preprod
+BACKENDS=blockfrost,koios                # priority order
+TX_BUILDERS=buildooor                    # csl | buildooor
+INDEX_TTL_MS=600000                      # 10 min cache (default 1 h)
+PRIMARY_TIMEOUT_MS=30000
+FALLBACK_TIMEOUT_MS=60000
+```
+
+Full key reference: [Configuration](/docs/configuration/).
+
+## Commands
+
+```bash
+docker-compose up -d         # start
+docker-compose logs -f       # follow logs
+docker-compose restart       # apply .env changes
+docker-compose down          # stop
+docker-compose down -v       # stop + wipe SQLite cache
+```
+
+The compose file mounts a volume for the SQLite index cache. `docker-compose down -v` wipes it (forces re-indexing on next start). \
+For HANA-backed prod, drop the SQLite volume and configure `cds.requires.db` for HANA: see [Production Deployment](/docs/production-deployment/).
+
+## Authentication
+
+The container image runs with CAP's default `dummy` auth in dev profile, so all 3 services (which declare `@requires: 'authenticated-user'`) accept requests without a JWT. \
+For any deployment that's reachable beyond `localhost` switch to `auth: { kind: "xsuaa" }` and bind the container behind an AppRouter, or front it with your own reverse-proxy auth layer. See [Security › Authentication](/docs/security/#authentication-xsuaa).
+
+## See Also
+
+- [Production Deployment](/docs/production-deployment/)
+- [Backend Configuration](/docs/backend-configuration/) 
+- [Example Docker Compose](https://github.com/ODATANO/ODATANO/blob/main/docker-compose.yml)

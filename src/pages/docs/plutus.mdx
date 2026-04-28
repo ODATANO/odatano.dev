@@ -1,0 +1,164 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: Plutus & Smart Contracts
+description: Locking, spending, minting, ref-scripts, validity windows, combined spend+mint with Plutus V3.
+---
+
+# Plutus & Smart Contracts
+
+> **Use Buildooor for Plutus Smart Contract interactions.** CSL still has a open `PPViewHashesDontMatch` bug, ignores validity bounds, and rejects `__INPUT_IDX__` placeholders. Set `txBuilders: ["buildooor"]`.
+
+## Lifecycle
+
+### Lock
+BuildSimpleAdaTransaction(lockOnScript=true, outputDatumJson= new_state )  → Sign → Submit 
+
+### Spend
+BuildPlutusSpendTransaction(validatorScript, redeemerJson, scriptTxHash, scriptOutputIndex) → Sign → Submit
+
+### Mint
+BuildMintTransaction(lockOnScript=true, inlineDatumJson=…)  → Sign → Submit
+
+## Lock ADA at a Script
+
+```bash
+curl -X POST http://localhost:4004/odata/v4/cardano-transaction/BuildSimpleAdaTransaction \
+  -H "Content-Type: application/json" \
+  -d '{
+    "senderAddress":   "addr_test1qq...",
+    "recipientAddress": "addr_test1qq...",
+    "lovelaceAmount":   5000000,
+    "validatorScript":  "59021d59021a01...",
+    "scriptParamsJson": "[\"0x<owner_pkh>\"]",
+    "outputDatumJson":  "{\"int\": 0}",
+    "lockOnScript":     true
+  }'
+```
+
+Response carries `scriptAddress` + `scriptHash`. To compute the address client-side first, call **`DeriveScriptAddress`** see [API Reference](/docs/reference/).
+
+## Spend a Locked UTxO
+
+```bash
+# 1. Make sure collateral exists (Plutus requires it)
+POST /odata/v4/cardano-transaction/SetCollateral  {"address": "addr_test1qq..."}
+
+# 2. Build the spend
+POST /odata/v4/cardano-transaction/BuildPlutusSpendTransaction
+{
+  "senderAddress":     "addr_test1qq...",
+  "recipientAddress":  "addr_test1qq...",
+  "lovelaceAmount":    5000000,
+  "validatorScript":   "59021d59021a01...",
+  "scriptParamsJson":  "[\"0x<owner_pkh>\"]",
+  "scriptTxHash":      "abc...",
+  "scriptOutputIndex": 0,
+  "redeemerJson":      "{\"constructor\": 0, \"fields\": []}"
+}
+```
+
+## Required Signers (`extra_signatories`)
+
+```json
+{ "requiredSignersJson": "[\"<28-byte-hex-key-hash>\"]" }
+```
+
+Get the key hash for an address with **`ExtractPaymentKeyHash`**.
+
+## State-Machine Re-locking
+
+Re-lock the output at the same script address with the next datum:
+
+```json
+{
+  "validatorScript":   "...",
+  "redeemerJson":      "{\"constructor\": 1, \"fields\": [{\"int\": 1}]}",
+  "scriptTxHash":      "<previous state>",
+  "scriptOutputIndex": 0,
+  "lockOnScript":      true,
+  "inlineDatumJson":   "{\"int\": 1}",
+  "lovelaceAmount":    5000000
+}
+```
+
+Multi-output transitions (counter + per-batch NFT) → `extraOutputsJson`:
+
+```json
+{
+  "extraOutputsJson": "[
+    { \"address\": \"addr_test1q...\", \"lovelaceAmount\": 1500000,
+      \"assets\": [{ \"unit\": \"<policyId>424154434831\", \"quantity\": \"1\" }] }
+  ]"
+}
+```
+
+Each extra output is independently min-ADA validated.
+
+## Combined Spend + Mint (Atomic)
+
+Add `mintActionsJson` + `mintingPolicyScript` to `BuildPlutusSpendTransaction`:
+
+```json
+{
+  "validatorScript":     "<state machine>",
+  "redeemerJson":        "{\"constructor\": 0, \"fields\": []}",
+  "scriptTxHash":        "abc...", "scriptOutputIndex": 0,
+  "mintingPolicyScript": "<minting policy>",
+  "mintActionsJson":     "[{ \"assetUnit\": \"<policyId>424154434831\", \"quantity\": \"1\" }]",
+  "mintRedeemerJson":    "{\"constructor\": 0, \"fields\": []}"
+}
+```
+
+If `mintingPolicyScript` is byte-equal to `validatorScript`, `scriptParamsJson` applies to both — typical for multi-purpose scripts.
+
+## CIP-31 Reference Inputs (Buildooor)
+
+Read on-chain state without consuming it (oracles, shared config, ref-scripts):
+
+```json
+{ "referenceInputsJson": "[ { \"txHash\": \"abc...\", \"outputIndex\": 0 } ]" }
+```
+
+Available on `BuildMintTransaction` and `BuildPlutusSpendTransaction`. CSL ignores.
+
+## CIP-33 Reference Scripts
+
+Deploy a Plutus V3 script as a referenceScript on an output, then ref-input it later instead of including the bytes:
+
+```json
+{ "referenceScriptHex": "<full script CBOR hex>" }
+```
+
+Available on all four Build actions and per-entry inside `extraOutputsJson`.
+
+## Validity Windows
+
+```json
+{ "validityStartMs": "1717000000000", "validityEndMs": "1717000300000" }
+```
+
+Buildooor converts via `posixToSlot()`; CSL ignores. Defaults: `now − 120 s` / `now + 1 h`. Bounds must be numeric, non-negative, ≤ 13 digits, `start ≤ end`.
+
+## Forced Inputs & `__INPUT_IDX__`
+
+`forceInputsJson` consumes a specific UTxO regardless of coin selection - required for one-shot mint seeds.
+
+For validators that need the input index inside their redeemer, use the placeholder `__INPUT_IDX:<txHash>#<outputIndex>__` in `redeemerJson` / `mintRedeemerJson` / `inlineDatumJson`. Buildooor substitutes it after coin selection finalizes input ordering. CSL rejects placeholders.
+
+## CSL → Plutus Compatibility
+
+| Feature | CSL | Buildooor |
+|---------|-----|-----------|
+| Plutus V3 spend / mint | open bug | ✅ |
+| `referenceScriptHex` (CIP-33) | ✅ | ✅ |
+| `referenceInputsJson` (CIP-31) | ❌ | ✅ |
+| `__INPUT_IDX__` placeholders | ❌ | ✅ |
+| Validity bounds | ❌ ignored | ✅ |
+| Combined spend+mint | ❌ | ✅ |
+| `extraOutputsJson` | ❌ | ✅ |
+
+## See Also
+
+- [Transaction Workflow](/docs/transaction-workflow/) 
+- [API Reference](/docs/reference/)
+- [TRACE](/docs/trace/)
