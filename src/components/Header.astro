@@ -7,7 +7,7 @@ import logoUrl from '../assets/logo_O_v6_split.svg?url';
     <a href="/" class="site-header__logo">
       <img src={logoUrl} alt="ODATANO" height="56" />
     </a>
-    <nav class="site-header__nav" id="site-nav">
+    <nav class="site-header__nav site-header__nav--desktop">
       <div class="nav-links">
         <a href="/docs/quick-start/">Docs</a>
         <a href="https://github.com/ODATANO/ODATANO" target="_blank" rel="noopener">GitHub</a>
@@ -19,7 +19,7 @@ import logoUrl from '../assets/logo_O_v6_split.svg?url';
       type="button"
       aria-label="Toggle navigation menu"
       aria-expanded="false"
-      aria-controls="site-nav"
+      aria-controls="mobile-nav"
       data-nav-toggle
     >
       <span class="site-header__toggle-bar"></span>
@@ -29,40 +29,74 @@ import logoUrl from '../assets/logo_O_v6_split.svg?url';
   </div>
 </header>
 
-<script>
-  const toggle = document.querySelector('[data-nav-toggle]');
-  const nav = document.getElementById('site-nav');
-  const header = document.querySelector('.site-header');
+<!-- Mobile menu lives OUTSIDE .site-header to escape its stacking context -->
+<div class="mobile-nav" id="mobile-nav" role="dialog" aria-modal="true" aria-label="Site navigation" hidden>
+  <div class="mobile-nav__panel">
+    <a href="/docs/quick-start/" class="mobile-nav__link">Docs</a>
+    <a href="https://github.com/ODATANO/ODATANO" target="_blank" rel="noopener" class="mobile-nav__link">GitHub</a>
+    <a href="/docs/quick-start/" class="btn btn--primary mobile-nav__cta">Get Started</a>
+  </div>
+</div>
 
-  function closeNav() {
-    if (!toggle || !nav || !header) return;
-    toggle.setAttribute('aria-expanded', 'false');
-    nav.classList.remove('is-open');
-    header.classList.remove('is-nav-open');
-    document.body.classList.remove('nav-locked');
-  }
+<script is:inline>
+  (function () {
+    var toggle = document.querySelector('[data-nav-toggle]');
+    var nav = document.getElementById('mobile-nav');
+    if (!toggle || !nav) return;
 
-  if (toggle && nav && header) {
-    toggle.addEventListener('click', () => {
-      const open = toggle.getAttribute('aria-expanded') === 'true';
-      const next = !open;
-      toggle.setAttribute('aria-expanded', String(next));
-      nav.classList.toggle('is-open', next);
-      header.classList.toggle('is-nav-open', next);
-      document.body.classList.toggle('nav-locked', next);
+    var savedScrollY = 0;
+
+    function lockScroll() {
+      savedScrollY = window.scrollY || window.pageYOffset || 0;
+      document.body.style.top = '-' + savedScrollY + 'px';
+      document.body.classList.add('nav-locked');
+    }
+
+    function unlockScroll() {
+      document.body.classList.remove('nav-locked');
+      document.body.style.top = '';
+      window.scrollTo(0, savedScrollY);
+    }
+
+    function openNav() {
+      toggle.setAttribute('aria-expanded', 'true');
+      nav.hidden = false;
+      // Force reflow so the transition runs
+      void nav.offsetWidth;
+      nav.classList.add('is-open');
+      lockScroll();
+    }
+
+    function closeNav() {
+      if (toggle.getAttribute('aria-expanded') !== 'true') return;
+      toggle.setAttribute('aria-expanded', 'false');
+      nav.classList.remove('is-open');
+      unlockScroll();
+      // Hide after transition completes
+      setTimeout(function () {
+        if (toggle.getAttribute('aria-expanded') === 'false') nav.hidden = true;
+      }, 220);
+    }
+
+    toggle.addEventListener('click', function () {
+      var open = toggle.getAttribute('aria-expanded') === 'true';
+      if (open) closeNav(); else openNav();
     });
 
-    nav.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'A') closeNav();
+    nav.addEventListener('click', function (e) {
+      var t = e.target;
+      while (t && t !== nav) {
+        if (t.tagName === 'A') { closeNav(); return; }
+        t = t.parentNode;
+      }
     });
 
-    window.addEventListener('resize', () => {
+    window.addEventListener('resize', function () {
       if (window.innerWidth > 768) closeNav();
     });
 
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeNav();
     });
-  }
+  })();
 </script>
