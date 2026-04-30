@@ -21,7 +21,7 @@
 
   --max-width: 1200px;
   --docs-sidebar-w: 260px;
-  --header-h: 77px;
+  --header-h: 116px;
 
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -208,7 +208,7 @@ a:hover { text-decoration: underline; }
   text-decoration: none;
   flex-shrink: 0;
 }
-.site-header__logo img { height: 68px; width: auto; }
+.site-header__logo img { height: 102px; width: auto; }
 .site-header__logo-text {
   font-size: 1.375rem;
   font-weight: 700;
