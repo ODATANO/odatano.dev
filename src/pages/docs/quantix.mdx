@@ -8,17 +8,17 @@ description: On-chain settlement of B2B raw-material orders against attested Cha
 
 **Delivery commitments that enforce themselves on-chain.**
 
-QUANTIX is a SAP Fiori + CAP application built on top of `@odatano/core`. It demonstrates a B2B raw-materials buying flow where the order contract itself enforces the match between requested quantity, attested inventory, attested price, and supplier payment — atomically, in a single transaction signed once by the buyer's CIP-30 wallet.
+QUANTIX is a SAP Fiori + CAP application built on top of `@odatano/core`. It demonstrates a B2B raw-materials buying flow where the order contract itself enforces the match between requested quantity, attested inventory, attested price, and supplier payment atomically, in a single transaction signed once by the buyer's CIP-30 wallet.
 
 QUANTIX won the **Grand Prize (Best Overall)** at the Charli3 Hackathon 2026 as a solo entry.
 
 ## Thesis
 
-In real-world B2B supply chains, the two numbers a buyer most needs to trust — **what is actually in stock** and **what it costs right now** — are often stored in different systems that drift apart over the course of a workday. QUANTIX does not tokenize the goods themselves; it tokenizes the *facts about them* (inventory, price, timestamp, signer set) so that purchase commitments can be enforced against attested oracle data instead of stale ERP screenshots or PDF quotes.
+In real-world B2B supply chains, the two numbers a buyer most needs to trust - **what is actually in stock** and **what it costs right now** - are often stored in different systems that drift apart over the course of a workday. QUANTIX does not tokenize the goods themselves; it tokenizes the *facts about them* (inventory, price, timestamp, signer set) so that purchase commitments can be enforced against attested oracle data instead of stale ERP screenshots or PDF quotes.
 
 ## How it works
 
-A buyer picks a supplier and a quantity of a raw material (e.g. lithium carbonate, in grams) and clicks **Buy**. The CAP service builds a single atomic Cardano transaction that — in one step, signed once by the buyer's CIP-30 wallet — mints a per-order receipt NFT under a Plutus V3 minting policy parameterised for that supplier.
+A buyer picks a supplier and a quantity of a raw material (e.g. lithium carbonate, in grams) and clicks **Buy**. The CAP service builds a single atomic Cardano transaction that, in one step, signed once by the buyer's CIP-30 wallet, mints a per-order receipt NFT under a Plutus V3 minting policy parameterised for that supplier.
 
 The mint is valid only if the same transaction:
 
