@@ -8,9 +8,13 @@ import logoUrl from "../assets/logo_O_v6_split.svg?url";
       <img src={logoUrl} alt="ODATANO" height="28" />
       <p>Enterprise OData V4 for the Cardano Blockchain</p>
     </div>
-    <nav class="site-footer__links">
+    <nav
+      class="site-footer__links site-footer__links--content"
+      aria-label="Site navigation"
+    >
       <a href="/docs/quick-start/">Quick Start</a>
       <a href="/docs/trace/">TRACE App</a>
+      <a href="/docs/quantix/">QUANTIX App</a>
       <a href="/docs/reference/">API Reference</a>
       <a
         href="https://github.com/ODATANO/ODATANO"
@@ -18,8 +22,13 @@ import logoUrl from "../assets/logo_O_v6_split.svg?url";
         rel="noopener">GitHub</a
       >
     </nav>
-    <p class="site-footer__copy">
-      &copy; 2026 ODATANO - Apache 2.0 - Funded by Cardano Catalyst Fund 14
-    </p>
+    <nav
+      class="site-footer__links site-footer__links--legal"
+      aria-label="Legal"
+    >
+      <a href="/imprint/">Imprint</a>
+      <a href="/privacy/">Privacy</a>
+    </nav>
+    <p class="site-footer__copy">&copy; 2026 ODATANO</p>
   </div>
 </footer>

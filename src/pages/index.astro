@@ -343,149 +343,80 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
     </div>
   </section>
 
-  <!-- ── TRACE Section ─────────────────────────────────────── -->
+  <!-- ── Example Applications ──────────────────────────────── -->
   <section class="section">
-    <div class="container trace-section__inner">
-      <div class="trace-section__text">
-        <span class="trace-section__tag">Example Application</span>
-        <h2>TRACE</h2>
-        <p>
-          SAP Fiori + CAP application built on top of <code>@odatano/core</code
-          >. Tracks pharmaceutical batches across manufacturer, distributor, and
-          pharmacy using NFTs minted under a Plutus V3 policy. Each handoff is a
-          Plutus spend with a continuing-output datum update. Document hashes
-          (certificates, lab reports, cold-chain telemetry) are anchored via
-          CIP-20 metadata. All signing happens in the user's CIP-30 browser
-          wallet.
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">Example Applications</h2>
+        <p class="section__subtitle">
+          Reference implementations built on top of <code>@odatano/core</code>.
+          Both ship as full SAP Fiori + CAP apps with browser-wallet signing and
+          custom Plutus V3 validators.
         </p>
-        <div class="trace-section__actions">
-          <a href="/docs/trace/" class="btn btn--primary">Learn More</a>
-          <a
-            href="https://github.com/ODATANO/TRACE"
-            class="btn btn--outline"
-            target="_blank"
-            rel="noopener"
-          >
-            View Source
-          </a>
-        </div>
       </div>
-      <div class="trace-flow">
-        <div class="trace-flow__step">
-          <span class="trace-flow__step-icon">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"
-              ></path></svg
+      <div class="example-apps__grid">
+        <article class="example-card">
+          <span class="example-card__tag">Pharmaceutical Supply Chain</span>
+          <h3>TRACE</h3>
+          <p class="example-card__desc">
+            SAP Fiori + CAP application built on top of <code
+              >@odatano/core</code
+            >. Tracks pharmaceutical batches across manufacturer, distributor,
+            and pharmacy using NFTs minted under a Plutus V3 policy. Each
+            handoff is a Plutus spend with a continuing-output datum update,
+            anchoring certificates and cold-chain telemetry on-chain.
+          </p>
+          <ul class="example-card__bullets">
+            <li>Batch NFT Mint Policy (Plutus V3)</li>
+            <li>Continuing-Output Datum Custody Chain</li>
+            <li>CIP-20 Document Anchoring</li>
+            <li>CIP-30 Browser Wallet Signing</li>
+          </ul>
+          <div class="example-card__actions">
+            <a href="/docs/trace/" class="btn btn--primary">Learn More</a>
+            <a
+              href="https://github.com/ODATANO/TRACE"
+              class="btn btn--outline"
+              target="_blank"
+              rel="noopener"
             >
+              View Source
+            </a>
+          </div>
+        </article>
+
+        <article class="example-card">
+          <span class="example-card__tag example-card__tag--accent">
+            Grand Prize · Charli3 Hackathon 2026
           </span>
-          Mint Batch NFT (Plutus V3)
-        </div>
-        <div class="trace-flow__arrow">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><line x1="12" y1="5" x2="12" y2="19"></line><polyline
-              points="19 12 12 19 5 12"></polyline></svg
-          >
-        </div>
-        <div class="trace-flow__step">
-          <span class="trace-flow__step-icon">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 014-4h14"
-              ></path><path d="M7 23l-4-4 4-4"></path><path
-                d="M21 13v2a4 4 0 01-4 4H3"></path></svg
+          <h3>QUANTIX</h3>
+          <p class="example-card__desc">
+            SAP Fiori + CAP application built on top of <code
+              >@odatano/core</code
+            >. On-chain settlement of B2B raw-material orders against attested
+            inventory and price feeds from a forked Charli3 multi-feed oracle
+            stack. A custom Plutus V3 minting policy enforces inventory
+            availability, price ceiling, payment, and deadline atomically. One
+            CIP-30 wallet signature, one transaction, no escrow.
+          </p>
+          <ul class="example-card__bullets">
+            <li>Atomic Mint Validator (Plutus V3)</li>
+            <li>Charli3 Multi-Feed Oracle Integration</li>
+            <li>Per-Supplier Reference Scripts on Cardano Preprod</li>
+            <li>Best Overall Project · Charli3 Oracle Hackathon 2026</li>
+          </ul>
+          <div class="example-card__actions">
+            <a href="/docs/quantix/" class="btn btn--primary">Learn More</a>
+            <a
+              href="https://github.com/maxalexweber1/QUANTIX"
+              class="btn btn--outline"
+              target="_blank"
+              rel="noopener"
             >
-          </span>
-          Transfer Custody
-        </div>
-        <div class="trace-flow__arrow">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><line x1="12" y1="5" x2="12" y2="19"></line><polyline
-              points="19 12 12 19 5 12"></polyline></svg
-          >
-        </div>
-        <div class="trace-flow__step">
-          <span class="trace-flow__step-icon">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
-              ></path><polyline points="14 2 14 8 20 8"></polyline><line
-                x1="16"
-                y1="13"
-                x2="8"
-                y2="13"></line><line x1="16" y1="17" x2="8" y2="17"
-              ></line><polyline points="10 9 9 9 8 9"></polyline></svg
-            >
-          </span>
-          Anchor Documents
-        </div>
-        <div class="trace-flow__arrow">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><line x1="12" y1="5" x2="12" y2="19"></line><polyline
-              points="19 12 12 19 5 12"></polyline></svg
-          >
-        </div>
-        <div class="trace-flow__step trace-flow__step--success">
-          <span class="trace-flow__step-icon">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><polyline points="20 6 9 17 4 12"></polyline></svg
-            >
-          </span>
-          Public Verification
-        </div>
+              View Source
+            </a>
+          </div>
+        </article>
       </div>
     </div>
   </section>

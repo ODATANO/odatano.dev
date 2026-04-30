@@ -1,0 +1,71 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: QUANTIX
+description: On-chain settlement of B2B raw-material orders against attested Charli3 oracle feeds. Built on @odatano/core. Grand Prize winner, Charli3 Hackathon 2026.
+---
+
+# QUANTIX
+
+**Delivery commitments that enforce themselves on-chain.**
+
+QUANTIX is a SAP Fiori + CAP application built on top of `@odatano/core`. It demonstrates a B2B raw-materials buying flow where the order contract itself enforces the match between requested quantity, attested inventory, attested price, and supplier payment — atomically, in a single transaction signed once by the buyer's CIP-30 wallet.
+
+QUANTIX won the **Grand Prize (Best Overall)** at the Charli3 Hackathon 2026 as a solo entry.
+
+## Thesis
+
+In real-world B2B supply chains, the two numbers a buyer most needs to trust — **what is actually in stock** and **what it costs right now** — are often stored in different systems that drift apart over the course of a workday. QUANTIX does not tokenize the goods themselves; it tokenizes the *facts about them* (inventory, price, timestamp, signer set) so that purchase commitments can be enforced against attested oracle data instead of stale ERP screenshots or PDF quotes.
+
+## How it works
+
+A buyer picks a supplier and a quantity of a raw material (e.g. lithium carbonate, in grams) and clicks **Buy**. The CAP service builds a single atomic Cardano transaction that — in one step, signed once by the buyer's CIP-30 wallet — mints a per-order receipt NFT under a Plutus V3 minting policy parameterised for that supplier.
+
+The mint is valid only if the same transaction:
+
+- References the supplier's `inventory` and `price` AggState UTxOs as reference inputs
+- Both feeds are still inside their validity window
+- Inventory feed value ≥ requested quantity
+- Price feed value ≤ buyer's `max_price_lovelace`
+- Transaction upper bound ≤ buyer's `deadline_ms`
+- One output pays the supplier at least `requested × price` lovelace
+
+Either the whole transaction settles atomically or nothing happens. The receipt NFT is the on-chain proof-of-purchase.
+
+## Architecture
+
+Three parallel tracks:
+
+- **Oracle track:** 3 Charli3 oracle deployments on `preprod` (one per supplier), each with two distinct AggState UTxOs (`C3AS_inventory`, `C3AS_price`). Built on a fork of the upstream Charli3 stack (Aiken validator, Python node, off-chain SDK) extended for multi-feed deployments.
+- **App track:** SAP CAP service exposing `Suppliers`, `Orders`, and OData actions, using `@odatano/core` as the CDS plugin for all Cardano I/O. Fiori UI shows live inventory and price, a Refresh-Feed button that triggers an ODV round end-to-end in ~3 seconds, and a Buy button that round-trips through the user's CIP-30 wallet.
+- **Contract track:** Custom `order_mint.ak` Plutus V3 minting policy, parameterised per supplier with `(inventory_policy, inventory_asset, price_policy, price_asset, supplier_payment_hash)`, reading both AggStates as reference inputs.
+
+## Charli3 extension story
+
+The upstream Charli3 stack was designed for single-feed financial oracles. Multi-feed supply-chain data required four connected changes, all implemented as public forks and candidates for upstream PRs:
+
+| Repo | Branch | Purpose |
+|------|--------|---------|
+| [`charli3-pull-oracle-contracts`](https://github.com/maxalexweber1/charli3-pull-oracle-contracts) | `c3-supply/asset-prefix` | Prefix-match AggState beacon (54+2 tests green) |
+| [`charli3-pull-oracle-node`](https://github.com/maxalexweber1/charli3-pull-oracle-node) | `c3-supply/multi-feed` | Multi-feed runtime + per-feed ODV services |
+| [`charli3-pull-oracle-sdk`](https://github.com/maxalexweber1/charli3-pull-oracle-sdk) | `c3-supply/multi-aggstate` | `aggstate_asset_name` plumbing in tx builder |
+
+## Tech stack
+
+- **Framework:** SAP CAP (Node.js, CDS), Fiori/UI5 frontend
+- **Cardano I/O:** [`@odatano/core`](https://www.npmjs.com/package/@odatano/core) CDS plugin
+- **Oracle:** Charli3 pull-oracle stack (forked for multi-feed)
+- **Contract:** Custom Plutus V3 validator in Aiken (12 unit tests)
+- **Wallet:** CIP-30 (Eternl, Lace)
+- **Network:** Cardano `preprod`
+
+## Live deployments on `preprod`
+
+Three oracle deployments, six live feeds (inventory + price per supplier), three per-supplier order-mint policies deployed as reference scripts.
+
+- **Example oracle address:** [`addr_test1wqww3xgvvt09y826qq5xqj8267yvhaq7xprdeeyrhw7a6dq2fszvh`](https://preprod.cardanoscan.io/address/addr_test1wqww3xgvvt09y826qq5xqj8267yvhaq7xprdeeyrhw7a6dq2fszvh)
+- **Example order transaction:** [`b901a4b28b8ec124d6db601891c694c346a5f69371104e09f5e3169105722c21`](https://preprod.cardanoscan.io/transaction/b901a4b28b8ec124d6db601891c694c346a5f69371104e09f5e3169105722c21)
+
+## Demo
+
+- **Walkthrough video:** [youtu.be/g3_FExeFyH4](https://youtu.be/g3_FExeFyH4)
+- **Source:** [github.com/maxalexweber1/QUANTIX](https://github.com/maxalexweber1/QUANTIX)
