@@ -6,10 +6,10 @@ Landing page and documentation for [ODATANO](https://github.com/ODATANO/ODATANO)
 
 ## Tech Stack
 
-- [Astro](https://astro.build) — Static site generator
-- [MDX](https://mdxjs.com) — Documentation pages
-- GitHub Pages — Hosting
-- GitHub Actions — CI/CD
+- [Astro:](https://astro.build) Static site generator
+- [MDX:](https://mdxjs.com) Documentation pages
+- [GitHub Pages:](https://pages.github.com) Hosting
+- [GitHub Actions:](https://github.com/features/actions) CI/CD
 
 ## Development
 
