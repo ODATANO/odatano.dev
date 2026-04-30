@@ -99,12 +99,14 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
       <div class="section__header">
         <h2 class="section__title">Architecture</h2>
         <p class="section__subtitle">
-          Any OData V4 client connects to ODATANO's three CDS services. ODATANO
-          orchestrates Blockfrost, Koios, and Ogmios with automatic failover,
-          indexes results into SQLite or HANA, and routes transaction submission
-          to the configured backend. Three Cardano networks supported: <code
-            >mainnet</code
-          >, <code>preview</code>, <code>preprod</code>.
+          ODATANO is a bridge between business applications and the Cardano
+          blockchain. Tools enterprises already use like SAP Fiori, Excel, Power
+          BI, or any OData-aware client can read on-chain data and trigger
+          transactions without learning complex blockchain APIs. ODATANO takes
+          care of the hard parts like talking to multiple blockchain data
+          providers, caching of the data, and safely building and submitting
+          transactions on your behalf. Cardano as an OData service - it's that
+          simple.
         </p>
       </div>
       <div class="arch">
@@ -211,7 +213,9 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
           Cardano core usage is exposed as OData V4 entities and actions.
           Standard query options (<code>$filter</code>, <code>$select</code>,
           <code>$expand</code>, <code>$orderby</code>) work as in any OData
-          service. Full metadata available at <code>$metadata</code>.
+          service after fetching the Blockchain data once. OData Actions for all
+          kinds of Transaction operations with full Plutus V3 support. Full
+          service metadata available at <code>$metadata</code>.
         </p>
       </div>
       <div class="features__grid">

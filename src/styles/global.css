@@ -1269,7 +1269,7 @@ a:hover { text-decoration: underline; }
 @media (max-width: 768px) {
   .site-header__toggle { display: flex; }
   .site-header__nav--desktop { display: none; }
-  .site-header__logo img { height: 53px; }
+  .site-header__logo img { height: 80px; }
 }
 @media (min-width: 769px) {
   .mobile-nav { display: none !important; }
