@@ -8,6 +8,21 @@ description: ODATANO release history. Full notes in the source CHANGELOG.
 
 Concise release summary. Full notes: [`CHANGELOG.md`](https://github.com/ODATANO/ODATANO/blob/main/CHANGELOG.md).
 
+## v1.7.8 - 2026-05-13 - Slot + UTxO Convenience Methods
+
+**Added** `CardanoClient.getCurrentSlot()` (non-null slot, throws `ProviderUnavailableError` on null) and `CardanoClient.isUtxoUnspent(txHash, outputIndex)` with per-backend implementations (Blockfrost `consumed_by_tx`, Koios `/utxo_info`, Ogmios `queryLedgerState/utxo`).
+**Changed** Generic `Error` throws upgraded to typed `ProviderUnavailableError` / `TransactionValidationError` so the circuit breaker registers backend failures and builders surface HTTP 400 instead of 500.
+
+## v1.7.7 - 2026-05-06 - Self-Hosted Blockfrost-Compatible Backends
+
+**Added** `blockfrostCustomBackend` config option / `BLOCKFROST_CUSTOM_BACKEND` env var to point the Blockfrost backend at a self-hosted node (Dolos MiniBF, Demeter Self-Hosted, or compatible proxy); API key becomes optional, `'self-hosted'` sent as `project_id`.
+**Changed** `BLOCKFROST_API_KEY is not set` warning fires only when both key and custom backend URL are empty.
+
+## v1.7.6 - 2026-05-02 - Inline Datums + Credential Queries + Asset Info
+
+**Added** inline-datum hydration on `AddressUTxOs` (`inlineDatumToHex` normalizes across backends), `GetUTxOsByCredential` (UTxOs across all bech32 forms of a payment credential), `Assets` entity + `GetAssetInfo`, `AssetHistory` entity + `GetAssetHistory`, `Addresses.utxoCount`.
+**Changed** inline-datum format harmonized across backends; removed Buildooor `_parseInlineDatum` dead code.
+
 ## v1.7.5 - 2026-04-27 - CBOR Parsing + Script Address Utilities + Validity Bounds
 
 **Added** `ParseTransactionCbor`, `DeriveScriptAddress`, `ExtractPaymentKeyHash`, `lockOnScript` on Plutus spend, validity-window bounds (`validityStartMs` / `validityEndMs`).

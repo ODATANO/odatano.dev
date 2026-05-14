@@ -86,7 +86,7 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
           <span class="stats-bar__label">License</span>
         </li>
         <li class="stats-bar__item">
-          <span class="stats-bar__value">v1.7.5</span>
+          <span class="stats-bar__value">v1.7.8</span>
           <span class="stats-bar__label">NPM Package</span>
         </li>
       </ul>
@@ -353,9 +353,9 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
       <div class="section__header">
         <h2 class="section__title">Example Applications</h2>
         <p class="section__subtitle">
-          Reference implementations built on top of <code>@odatano/core</code>.
-          Both ship as full SAP Fiori + CAP apps with browser-wallet signing and
-          custom Plutus V3 validators.
+          Reference implementations built on top of <code>@odatano/core</code> -
+          from full SAP Fiori + CAP apps with custom Plutus V3 validators to
+          on-chain metadata anchoring and HTTP 402 payment gating.
         </p>
       </div>
       <div class="example-apps__grid">
@@ -413,6 +413,68 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
             <a href="/docs/quantix/" class="btn btn--primary">Learn More</a>
             <a
               href="https://github.com/maxalexweber1/QUANTIX"
+              class="btn btn--outline"
+              target="_blank"
+              rel="noopener"
+            >
+              View Source
+            </a>
+          </div>
+        </article>
+
+        <article class="example-card">
+          <span class="example-card__tag">Financial Data Anchoring</span>
+          <h3>FINCA</h3>
+          <p class="example-card__desc">
+            SAP Fiori + CAP application built on top of <code
+              >@odatano/core</code
+            >. Anchors accounting data and financial reports - Balance Sheets
+            and Income Statements - on Cardano as CIP-10 label-1447 metadata,
+            following the Cardano Foundation Reeve specification. Verifiable
+            accounting without a smart contract: one CIP-30 signature per
+            anchor.
+          </p>
+          <ul class="example-card__bullets">
+            <li>CIP-10 Label-1447 Metadata (Reeve Spec)</li>
+            <li>Double-Entry Journal · Decimal(23,2) Ledger Math</li>
+            <li>On-Chain Verification of Reports &amp; Transactions</li>
+            <li>Excel / OData Spreadsheet Integration</li>
+          </ul>
+          <div class="example-card__actions">
+            <a href="/docs/finca/" class="btn btn--primary">Learn More</a>
+            <a
+              href="https://github.com/ODATANO/FINCA"
+              class="btn btn--outline"
+              target="_blank"
+              rel="noopener"
+            >
+              View Source
+            </a>
+          </div>
+        </article>
+
+        <article class="example-card">
+          <span class="example-card__tag">HTTP 402 Payment Gating</span>
+          <h3>x402</h3>
+          <p class="example-card__desc">
+            Payment-gating library for SAP CAP built on top of <code
+              >@odatano/core</code
+            >. Implements the Cardano-x402-v2 spec - gated OData endpoints
+            return HTTP 402 until the caller proves on-chain settlement.
+            Asset-agnostic, no database, no smart contract: replay defense is
+            the Cardano UTxO model itself. Ships with a working example CAP
+            app.
+          </p>
+          <ul class="example-card__bullets">
+            <li>Cardano-x402-v2 Protocol (HTTP 402)</li>
+            <li>Nonce-UTxO Replay Defense - No Database</li>
+            <li>CAP Service Gating + Express Middleware</li>
+            <li>ADA or Any Native Token Pricing</li>
+          </ul>
+          <div class="example-card__actions">
+            <a href="/docs/x402/" class="btn btn--primary">Learn More</a>
+            <a
+              href="https://github.com/ODATANO/x402"
               class="btn btn--outline"
               target="_blank"
               rel="noopener"

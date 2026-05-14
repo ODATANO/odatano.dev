@@ -1,0 +1,110 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: x402 Example App
+description: HTTP 402 payment gating for SAP CAP - protect OData endpoints behind on-chain Cardano settlement. Built on @odatano/core.
+---
+
+# x402 Example App
+
+`@odatano/x402` is a **payment-gating library** for SAP CAP applications, built on top of `@odatano/core`. It implements the **Cardano-x402-v2** specification: every gated request returns `HTTP 402 Payment Required` until the caller proves on-chain settlement. The library is asset-agnostic - gate with ADA (lovelace) or any native Cardano token.
+
+The repository ships a working example CAP app that gates a synthetic price-feed service, so you can see the full request → 402 → pay → retry → 200 loop end to end.
+
+## Highlights
+
+- **HTTP 402 gating:** Clients get machine-readable payment instructions, build and sign a transaction, then retry with a `PAYMENT-SIGNATURE` header
+- **No database, no smart contract:** Replay defense is the Cardano UTxO model itself - each payment must consume a nonce UTxO that becomes unspendable once on-chain
+- **Six-check verification:** Network match, recipient address, sufficient amount, exact asset policy/name, nonce UTxO unspent, valid time bounds
+- **Four integration patterns:** CAP service gating, Express middleware, programmatic verification, and a server-side unsigned-tx builder for wallets without coin selection
+- **Flexible pricing:** One global price or granular per-entity / per-action pricing, in ADA or custom tokens
+
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Protocol | Cardano-x402-v2 (`exact` scheme) |
+| Network | Cardano mainnet / preprod / preview |
+| Chain gateway | `@odatano/core` ≥ 1.7.8 (CAP plugin) |
+| Backend | SAP CAP ≥ 9, Node.js 22+, TypeScript |
+| HTTP | Express 4+ (middleware mode) |
+| Signing | CIP-30 wallet (browser) or direct key (CLI) |
+| Tests | Jest - 144 unit tests |
+
+## Payment Flow
+
+```
+1. Client → GET /protected            (no payment)
+2. Server → 402 Payment Required      { accepts: [{ network, asset, amount, payTo, nonce, ttl }] }
+3. Client builds a Cardano TX:        pays `amount` to `payTo`, consumes the nonce UTxO as input
+4. Client → wallet.signTx(cbor)       CIP-30 popup, or CLI key
+5. Client → GET /protected            header: PAYMENT-SIGNATURE { txBytes (base64 CBOR), nonce }
+6. Server runs the six checks + signature integrity
+7. Server submits the TX on-chain and polls for confirmation
+8. Server → onAccepted audit hook (optional)
+9. Server → 200 OK                    + X-PAYMENT-RESPONSE header
+```
+
+## Integrate
+
+`gateService()` wires payment gating into a CAP service via a before-hook:
+
+```typescript
+import cds from '@sap/cds';
+import { gateService } from '@odatano/x402';
+
+export class PricesService extends cds.ApplicationService {
+  async init() {
+    gateService(this, {
+      payTo: 'addr_test1...your-preprod-address...',
+      network: 'cardano:preprod',
+      asset: 'lovelace',
+      routePricing: {
+        Quotes: '500000',        // 0.5 ADA
+        getBestPrice: '1000000', // 1 ADA
+      },
+      description: 'Synthetic price feed',
+    });
+    return super.init();
+  }
+}
+```
+
+`@odatano/core` is configured as usual in `package.json`:
+
+```json
+{
+  "cds": {
+    "requires": {
+      "odatano-core": {
+        "network": "preprod",
+        "backends": ["blockfrost"],
+        "blockfrostApiKey": "preprodXXXXXXXXXXXXXXXXX"
+      }
+    }
+  }
+}
+```
+
+## Example App
+
+`examples/cap-app` is a minimal CAP service that demonstrates the plugin via automatic discovery - no explicit import needed:
+
+| Route | Gate |
+|-------|------|
+| `GET /odata/v4/prices/Health` | Free - excluded from the gate |
+| `GET /odata/v4/prices/Quotes` | 402 - gated at 0.5 ADA |
+| `POST /odata/v4/prices/getBestPrice` | 402 - gated at 1 ADA |
+| `$metadata` + built-in health checks | Free - bypass the gate |
+
+```bash
+git clone https://github.com/ODATANO/x402 && cd x402/examples/cap-app
+npm install
+npm run watch                  # cds watch on :4004
+
+curl http://localhost:4004/odata/v4/prices/Health   # 200 OK
+curl http://localhost:4004/odata/v4/prices/Quotes    # 402 Payment Required
+```
+
+## Sourcecode
+
+[github.com/ODATANO/x402](https://github.com/ODATANO/x402)

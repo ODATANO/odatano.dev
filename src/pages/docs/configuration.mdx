@@ -49,9 +49,9 @@ All three services declare `@requires: 'authenticated-user'` at service level, s
 
 | Profile | `auth.kind` | When to use |
 |---------|-------------|-------------|
-| `[development]` | `dummy` | Local `cds watch`. Always returns an authenticated user — no JWT needed. |
+| `[development]` | `dummy` | Local `cds watch`. Always returns an authenticated user - no JWT needed. |
 | `[development]` | `mocked` | Local dev with mock users defined in `.cdsrc.json` for role-based testing. |
-| `[production]` | `xsuaa` | SAP BTP — JWT validated via XSUAA service binding. |
+| `[production]` | `xsuaa` | SAP BTP - JWT validated via XSUAA service binding. |
 
 Without an explicit `auth` block in dev, requests can be rejected with **401**. See [Security › Authentication](/docs/security/#authentication-xsuaa) for the production XSUAA setup.
 

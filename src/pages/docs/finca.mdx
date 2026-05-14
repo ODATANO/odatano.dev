@@ -1,0 +1,87 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: FINCA Example App
+description: Cryptographically verifiable anchoring of accounting and financial-report data on Cardano - full SAP Fiori reference app powered by ODATANO.
+---
+
+# FINCA Example App
+
+Full-stack SAP Fiori app showing how ODATANO anchors **financial data** on Cardano. FINCA (Financial Data Anchoring) manages organisations, journal transactions, and financial reports, then anchors them on-chain as **CIP-10 label-1447 metadata** following the Cardano Foundation's [Reeve](https://github.com/cardano-foundation/cf-reeve-platform) specification - verifiable accounting without a smart contract.
+
+## Highlights
+
+- **Metadata anchoring:** Balance Sheets and Income Statements serialized to CIP-10 label-1447 (Reeve format, v1.1)
+- **Journal model:** Organisations → Accounting Periods → Transactions → debit/credit items with exact `Decimal(23,2)` ledger math
+- **Public verification:** `VerifyTransaction` / `VerifyReport` re-derive the metadata and confirm on-chain data matches local records
+- **Excel integration:** ODC file, Power Query M template, and a native OData feed URL for spreadsheet reporting
+- **Zero key custody:** All signing in the user's browser wallet via CIP-30
+
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| On-chain format | CIP-10 label-1447 metadata (Reeve spec) |
+| Network | Cardano preview |
+| Chain gateway | `@odatano/core` (CAP plugin) |
+| TX builder | Buildooor · Koios backend |
+| Backend | SAP CAP v9, Node.js, TypeScript |
+| Database | SQLite (dev) / SAP HANA (prod) |
+| Frontend | Freestyle SAPUI5 (`sap_horizon`) |
+| Signing | CIP-30 (Nami, Eternl, Lace) |
+
+## Signing Flow
+
+```
+1. User publishes a transaction or report
+2. App → ValidateBatch              double-entry + required-field checks
+3. App → PublishTransactions        { buildId, unsignedCbor, txBodyHash, anchorId }
+4. App → wallet.signTx(cbor)        wallet popup (CIP-30)
+5. App → SubmitSigned               { txHash, status: "SUBMITTED" }
+6. CheckPendingAnchors (30 s poll)  status: "CONFIRMED" | "FAILED"
+```
+
+## OData Actions
+
+`FinanceService` at `/odata/v4/finance/`:
+
+| Action | Purpose |
+|--------|---------|
+| `ValidateBatch` | Check double-entry compliance and required fields |
+| `PublishTransactions` | Build unsigned label-1447 metadata TX for journal transactions |
+| `PublishReport` | Build unsigned label-1447 metadata TX for a financial report |
+| `SubmitSigned` | Submit the CIP-30-signed CBOR, returns `txHash` + `status` |
+| `CheckPendingAnchors` | Poll submitted anchors for confirmation (runs every 30 s) |
+| `RetryFailed` | Rebuild the transaction for failed anchors |
+| `VerifyTransaction` / `VerifyReport` | Confirm on-chain metadata matches local records |
+
+## Data Model
+
+```
+Organisations      (bech32 wallet, currency, country, tax id)
+   └──< AccountingPeriods  (monthly | quarterly | annual)
+          └──< Transactions       (JOURNAL | PAYMENT | INVOICE)
+                 │                 DRAFT → VALIDATED → PUBLISHED → CONFIRMED
+                 └──< TransactionItems  (debit/credit, Decimal(23,2), account code, VAT)
+Organisations
+   └──< FinancialReports  (Balance Sheet | Income Statement, subType, interval, version)
+          └──< ReportEntries     (category → subcategory → lineItem hierarchy)
+OnChainAnchors     (buildId, unsigned/signed CBOR, txHash, slot)
+                    PENDING → SUBMITTED → CONFIRMED | FAILED
+```
+
+## Quick Start
+
+```bash
+git clone https://github.com/ODATANO/FINCA && cd FINCA
+npm install
+# set your Blockfrost/Koios key + network in package.json
+npm run deploy                 # SQLite + schema + plugin tables + CSV seeds
+npm start                      # cds-serve on :4004
+npm test                       # Jest (41 tests)
+```
+
+Open `http://localhost:4004/finance/webapp/index.html`.
+
+## Sourcecode
+
+[github.com/ODATANO/FINCA](https://github.com/ODATANO/FINCA)
