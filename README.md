@@ -19,7 +19,3 @@ npm run dev       # Dev server at localhost:4321
 npm run build     # Production build to ./dist/
 npm run preview   # Preview production build
 ```
-
-## License
-
-Apache 2.0
