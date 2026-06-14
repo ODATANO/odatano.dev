@@ -11,7 +11,7 @@ description: SAP BTP / HANA deployment essentials and tuning.
 - `NETWORK` matches target (`mainnet` / `preview` / `preprod`)
 - `BLOCKFROST_API_KEY` prefix matches network (`mainnetXXX`, etc.)
 - `NODE_ENV=production` (activates HANA + XSUAA profiles)
-- `TX_BUILDERS=buildooor` (recommended)
+- `TX_BUILDERS=buildooor` (optional; backward-compat no-op — Buildooor is the sole builder)
 - TLS terminated upstream (BTP automatic; Docker → reverse proxy)
 - Outbound HTTPS to backend APIs allowed
 - Tests green: `npm run build && npm run typecheck && npm test`

@@ -10,11 +10,11 @@ For contributors and consumers extending ODATANO.
 
 ## Service Surface
 
-Three CDS services, ~31 entities (some shared via re-projection), 37 actions:
+Three CDS services, ~31 entities (some shared via re-projection), 40 actions:
 
 | Service | Path | Entities | Actions |
 |---------|------|---------:|--------:|
-| `CardanoODataService` | `/odata/v4/cardano-odata/` | 18 | 16 read |
+| `CardanoODataService` | `/odata/v4/cardano-odata/` | 20 | 19 read |
 | `CardanoTransactionService` | `/odata/v4/cardano-transaction/` | 8 | 12 unbound + 1 bound |
 | `CardanoSignService` | `/odata/v4/cardano-sign/` | 5 | 8 |
 
@@ -96,7 +96,7 @@ cd ODATANO
 npm ci
 cp .env.example .env       # set BLOCKFROST_API_KEY, NETWORK
 npm run cds:watch          # dev (ts-node, hot reload)
-npm test                   # 1285 tests
+npm test                   # 1549 tests
 ```
 
 `npm start` runs the compiled production build.
@@ -127,7 +127,7 @@ test('GetTransactionByHash returns 400 on invalid hash', async () => {
 });
 ```
 
-For test contexts that skip CAP bootstrap, use `SKIP_AUTO_INIT=true` + `createTestContext(['koios'], 'csl')`.
+For test contexts that skip CAP bootstrap, use `SKIP_AUTO_INIT=true` + `createTestContext(['koios'], 'buildooor')`.
 
 ## Deployment
 

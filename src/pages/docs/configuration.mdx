@@ -19,7 +19,7 @@ ODATANO supports two configuration paths:
 |---------|---------|------|---------|-------------|
 | `network` | `NETWORK` | `mainnet` `preview` `preprod` | `preview` | Target Cardano network |
 | `backends` | `BACKENDS` | `blockforst` `koios   ` `ogmios` | `["koios"]` | Backend priority order - first one is the live backend |
-| `txBuilders` | `TX_BUILDERS` | `buildooor` `csl` | `["buildooor"]` | Transaction builder engines |
+| `txBuilders` | `TX_BUILDERS` | `buildooor` | `["buildooor"]` | Kept for backward compatibility; **no-op** since v1.8.0 — Buildooor is the sole builder, any value resolves to it |
 | `blockfrostApiKey` | `BLOCKFROST_API_KEY` | string | _(empty)_ | Required if backends includes blockfrost. |
 | `koiosApiKey` | `KOIOS_API_KEY` | string | _(empty)_ | Optional Koios bearer token |
 | `ogmiosUrl` | `OGMIOS_URL` | string | ws://localhost:1337 | Required if backends includes ogmios|

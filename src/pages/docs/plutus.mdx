@@ -6,7 +6,7 @@ description: Locking, spending, minting, ref-scripts, validity windows, combined
 
 # Plutus & Smart Contracts
 
-> **Use Buildooor for Plutus Smart Contract interactions.** CSL still has a open `PPViewHashesDontMatch` bug, ignores validity bounds, and rejects `__INPUT_IDX__` placeholders. Set `txBuilders: ["buildooor"]`.
+> **Buildooor is the sole transaction builder** (CSL was removed in v1.8.0). It computes the correct `scriptDataHash` for Plutus V3 mint and spend by construction — the old `PPViewHashesDontMatch` bug is resolved — and supports validity bounds, CIP-31 reference inputs, and `__INPUT_IDX__` placeholders. No builder configuration is needed.
 
 ## Lifecycle
 
@@ -119,7 +119,7 @@ Read on-chain state without consuming it (oracles, shared config, ref-scripts):
 { "referenceInputsJson": "[ { \"txHash\": \"abc...\", \"outputIndex\": 0 } ]" }
 ```
 
-Available on `BuildMintTransaction` and `BuildPlutusSpendTransaction`. CSL ignores.
+Available on `BuildMintTransaction` and `BuildPlutusSpendTransaction`.
 
 ## CIP-33 Reference Scripts
 
@@ -137,25 +137,26 @@ Available on all four Build actions and per-entry inside `extraOutputsJson`.
 { "validityStartMs": "1717000000000", "validityEndMs": "1717000300000" }
 ```
 
-Buildooor converts via `posixToSlot()`; CSL ignores. Defaults: `now − 120 s` / `now + 1 h`. Bounds must be numeric, non-negative, ≤ 13 digits, `start ≤ end`.
+Buildooor converts via `posixToSlot()`. Defaults: `now − 120 s` / `now + 1 h`. Bounds must be numeric, non-negative, ≤ 13 digits, `start ≤ end`.
 
 ## Forced Inputs & `__INPUT_IDX__`
 
 `forceInputsJson` consumes a specific UTxO regardless of coin selection - required for one-shot mint seeds.
 
-For validators that need the input index inside their redeemer, use the placeholder `__INPUT_IDX:<txHash>#<outputIndex>__` in `redeemerJson` / `mintRedeemerJson` / `inlineDatumJson`. Buildooor substitutes it after coin selection finalizes input ordering. CSL rejects placeholders.
+For validators that need the input index inside their redeemer, use the placeholder `__INPUT_IDX:<txHash>#<outputIndex>__` in `redeemerJson` / `mintRedeemerJson` / `inlineDatumJson`. Buildooor substitutes it after coin selection finalizes input ordering.
 
-## CSL → Plutus Compatibility
+## Plutus Feature Support (Buildooor)
 
-| Feature | CSL | Buildooor |
-|---------|-----|-----------|
-| Plutus V3 spend / mint | open bug | ✅ |
-| `referenceScriptHex` (CIP-33) | ✅ | ✅ |
-| `referenceInputsJson` (CIP-31) | ❌ | ✅ |
-| `__INPUT_IDX__` placeholders | ❌ | ✅ |
-| Validity bounds | ❌ ignored | ✅ |
-| Combined spend+mint | ❌ | ✅ |
-| `extraOutputsJson` | ❌ | ✅ |
+| Feature | Supported |
+|---------|-----------|
+| Plutus V3 spend / mint | ✅ |
+| `referenceScriptHex` (CIP-33) | ✅ |
+| `referenceInputsJson` (CIP-31) | ✅ |
+| `__INPUT_IDX__` placeholders | ✅ |
+| Validity bounds | ✅ |
+| Combined spend+mint | ✅ |
+| `extraOutputsJson` | ✅ |
+| Plutus V1 / V2 (UPLC 1.0.0) | ❌ rejected at build time (V3 only) |
 
 ## See Also
 

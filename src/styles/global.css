@@ -1360,3 +1360,135 @@ a:hover { text-decoration: underline; }
   .container { padding-left: 1rem; padding-right: 1rem; }
   .hero__code-box pre { font-size: 0.75rem; }
 }
+
+/* ============================================================
+   Modern polish — scroll reveal, spotlight, aurora, micro-fx
+   (progressive enhancement; degrades cleanly without JS / motion)
+   ============================================================ */
+
+/* ── Scroll-reveal ──────────────────────────────────────────── */
+/* `.reveal-ready` is set on <html> by JS only when motion is allowed,
+   so without JS (or with reduced motion) content is always visible. */
+.reveal-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal-ready [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Cursor spotlight on cards ──────────────────────────────── */
+.feature-card,
+.example-card,
+.stack__item,
+.arch__col {
+  position: relative;
+  isolation: isolate;
+}
+.feature-card::after,
+.example-card::after,
+.stack__item::after,
+.arch__col::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, -20%),
+    rgba(12, 94, 207, 0.1),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.stack__item::after,
+.arch__col--plugin::after {
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, -20%),
+    rgba(59, 142, 240, 0.22),
+    transparent 65%
+  );
+}
+.feature-card:hover::after,
+.example-card:hover::after,
+.stack__item:hover::after,
+.arch__col:hover::after {
+  opacity: 1;
+}
+
+/* ── Hero aurora drift ──────────────────────────────────────── */
+.hero__bg::after {
+  content: '';
+  position: absolute;
+  top: -25%;
+  right: -10%;
+  width: 60%;
+  height: 90%;
+  z-index: -1;
+  background:
+    radial-gradient(closest-side, rgba(59, 142, 240, 0.22), transparent 70%),
+    radial-gradient(closest-side, rgba(12, 94, 207, 0.16), transparent 70%);
+  background-position: 30% 30%, 70% 70%;
+  background-size: 70% 70%, 60% 60%;
+  background-repeat: no-repeat;
+  filter: blur(28px);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero__bg::after {
+    animation: aurora-drift 16s ease-in-out infinite alternate;
+  }
+}
+@keyframes aurora-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-4%, 3%, 0) scale(1.08); }
+  100% { transform: translate3d(3%, -2%, 0) scale(1.04); }
+}
+
+/* ── Gradient stat numbers ──────────────────────────────────── */
+.stats-bar__value {
+  background: linear-gradient(135deg, #ffffff 0%, #9ec5ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ── Primary button sheen ───────────────────────────────────── */
+.btn--primary {
+  position: relative;
+  overflow: hidden;
+}
+.btn--primary > * { position: relative; z-index: 1; }
+.btn--primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -160%;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.28),
+    transparent
+  );
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn--primary:hover::after {
+    animation: btn-sheen 0.85s ease;
+  }
+}
+@keyframes btn-sheen {
+  to { left: 160%; }
+}

@@ -6,7 +6,7 @@ description: Entities and actions across the three ODATANO services.
 
 # API Reference
 
-## In total: 3 services, 31 entities, 37 actions
+## In total: 3 services, 31 entities, 40 actions
 All entity sets support `$filter`, `$select`, `$expand`, `$top`, `$skip`, `$count`, `$orderby` \
 All actions are POST with JSON body \
 All services gated by `@requires: 'authenticated-user'`
@@ -21,11 +21,11 @@ All services gated by `@requires: 'authenticated-user'`
 
 ## CardanoODataService` /odata/v4/cardano-odata/`
 
-Read-only blockchain queries via lazy on-demand indexing with TTL refresh.
+Read-only blockchain queries via lazy on-demand indexing with TTL refresh. All entity projections are `@readonly` (since v1.9.0) — external `CREATE`/`UPDATE`/`DELETE` return **HTTP 405**.
 
 ### Entities
 
-`NetworkInformation` · `Blocks` · `Epochs` · `Pools` · `Dreps` · `Transactions` · `TransactionInputs` · `TransactionOutputs` · `TransactionInputAssets` · `TransactionOutputAssets` · `Accounts` · `Addresses` · `AddressAssets` · `AddressUTxOs` · `AddressTransactions` · `UTxOAssets` · `TransactionMetadata` · `LedgerProtocolParameters`
+`NetworkInformation` · `Blocks` · `Epochs` · `Pools` · `Dreps` · `Transactions` · `TransactionInputs` · `TransactionOutputs` · `TransactionInputAssets` · `TransactionOutputAssets` · `Accounts` · `Addresses` · `AddressAssets` · `AddressUTxOs` · `AddressTransactions` · `UTxOAssets` · `TransactionMetadata` · `LedgerProtocolParameters` · `Assets` · `AssetHistory`
 
 ### Actions
 
@@ -46,13 +46,16 @@ Read-only blockchain queries via lazy on-demand indexing with TTL refresh.
 | `GetLatestBlock` | _-_ | `Blocks` |
 | `GetLatestEpoch` | _-_ | `Epochs` |
 | `GetLedgerProtocolParameters` | _-_ | `LedgerProtocolParameters` |
+| `GetUTxOsByCredential` | `credential: String` (56-char hex) | `AddressUTxOs[]` _(Koios-only)_ |
+| `GetAssetInfo` | `unit: AssetUnit` | `Assets` |
+| `GetAssetHistory` | `unit: AssetUnit`, `limit: Integer` (1-100) | `AssetHistory[]` |
 | `ParseTransactionCbor` | `cbor: LargeString` (≤ 128 KiB hex) | `ParsedTransaction` _(pure, no network/DB)_ |
 
 ---
 
 ## CardanoTransactionService `/odata/v4/cardano-transaction/`
 
-Build, track, submit. Two builders: `csl`, `buildooor`.
+Build, track, submit. Buildooor is the sole builder (CSL removed in v1.8.0).
 
 ### Entities
 

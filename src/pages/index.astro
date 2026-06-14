@@ -8,8 +8,7 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
 <span class="code-key">"odatano-core"</span>: {
   <span class="code-key">"network"</span>: <span class="code-str">"preview"</span>,
   <span class="code-key">"backends"</span>: [<span class="code-str">"blockfrost"</span>],
-  <span class="code-key">"blockfrostApiKey"</span>: <span class="code-str">"preview_api_key"</span>,
-  <span class="code-key">"txBuilders"</span>: [<span class="code-str">"buildooor"</span>]
+  <span class="code-key">"blockfrostApiKey"</span>: <span class="code-str">"preview_api_key"</span>
 }
 
 <span class="code-comment"># POST - build a simple ADA transaction</span>
@@ -74,7 +73,7 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
     <div class="container">
       <ul class="stats-bar__list">
         <li class="stats-bar__item">
-          <span class="stats-bar__value">1285</span>
+          <span class="stats-bar__value">1549</span>
           <span class="stats-bar__label">Tests</span>
         </li>
         <li class="stats-bar__item">
@@ -86,7 +85,7 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
           <span class="stats-bar__label">License</span>
         </li>
         <li class="stats-bar__item">
-          <span class="stats-bar__value">v1.7.10</span>
+          <span class="stats-bar__value">v1.9.0</span>
           <span class="stats-bar__label">NPM Package</span>
         </li>
       </ul>
@@ -268,8 +267,8 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
           <p>
             <code>CardanoTransactionService</code>: 13 actions. ADA transfers,
             multi-asset, mint, Plutus V3 spend, CIP-20 metadata, CIP-31
-            reference inputs, CIP-33 reference scripts. Two builder engines: CSL
-            and Buildooor.
+            reference inputs, CIP-33 reference scripts. Buildooor is the sole
+            transaction-building engine.
           </p>
         </div>
 
@@ -332,12 +331,12 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
           <span class="stack__value">Blockfrost · Koios · Ogmios</span>
         </div>
         <div class="stack__item">
-          <span class="stack__category">TX Builders</span>
-          <span class="stack__value">CSL · Buildooor</span>
+          <span class="stack__category">TX Builder</span>
+          <span class="stack__value">Buildooor</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">Testing</span>
-          <span class="stack__value">31 automated test suites, 1285 tests</span>
+          <span class="stack__value">35 automated test suites, 1549 tests</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">License</span>

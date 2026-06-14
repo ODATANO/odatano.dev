@@ -16,8 +16,8 @@ The server never holds private keys.
     - `SubmitTransaction(buildId, signedTxCbor)`
     - `SubmitSignedTransaction(signedTxCbor, network)`.
 
-There are two possible builder engines: `csl` and `buildooor` for transaction building available. \
-*Make sure to use Buildooor for any Plutus / mint / ref-script / validity-bound work*
+All transactions are built by **Buildooor** (`@harmoniclabs/buildooor`), the sole builder since v1.8.0 (CSL was removed). \
+The `txBuilders` config / `TX_BUILDERS` env var is still accepted for backward compatibility but is a no-op.
 
 ## Signing Methods
 

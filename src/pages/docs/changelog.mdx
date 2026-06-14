@@ -8,6 +8,24 @@ description: ODATANO release history. Full notes in the source CHANGELOG.
 
 Concise release summary. Full notes: [`CHANGELOG.md`](https://github.com/ODATANO/ODATANO/blob/main/CHANGELOG.md).
 
+## v1.9.0 - 2026-06-14 - Hardening Pass: Resilience, Schema Correctness & Durable Signing
+
+**Changed** All 20 read-service entity projections are now `@readonly` — external `CREATE`/`UPDATE`/`DELETE` return **HTTP 405** instead of mutating the authoritative cache. Schema data-type corrections visible in `$metadata`: Unix-second timestamps (`Epochs`/`Transactions`/`Assets`/`AssetHistory` time + slot columns) `Integer` → `Integer64` (fixes 2038 overflow), `TransactionMetadata.id` → `Integer64`, `MetadataLabel` `String(5)` → `String(20)`, `Assets.assetNameHex` → `String(64)`, key columns → bounded `Bech32`; `Pools`/`Dreps`/`Assets` now `temporal`. `GetAssetHistory` `limit` clamped 1-100; asset-name regex tightened to the 32-byte ledger cap; `SubmitSignedTransaction` now verifies its `network` param.
+**Added** UTxO-only indexing fallback so an **Ogmios-only deployment can serve `GetUTxOsByAddress`**; `SigningInstructions.cardanoCliCommand` recipe; `getStatus().backends`; per-backend `unsupportedMethods` capability declarations.
+**Fixed** Durable, crash-safe signing/submit (3-phase commit; atomic `pending`→`signed` claim; signature verification bound to the body's `required_signers` + fee-payer key). Buildooor hardening: null-guarded protocol params, cost-model arrays converted to named-key form, datum preimages carried into witness set, smarter collateral selection, UTF-8-safe metadata chunking, **UPLC V1/V2 scripts rejected** instead of mis-hashed as V3. Backend pagination (Blockfrost `...All` variants, Koios sort/batch) and Ogmios data-correctness fixes (Ratio parsing, account lovelace, no fabricated placeholders). Error-status corrections (404/400/503). All 4xx responses exempt from the circuit breaker; `callWithResilience` wraps single-backend paths (timeouts on `evaluateTransaction`).
+**Internal** 35 suites (25 unit + 10 integration), 1549 tests, 96.58% statement coverage. Type-aware ESLint.
+
+## v1.8.0 - 2026-06-09 - Drop CSL; Buildooor Is the Sole TX Builder
+
+**Removed** `@emurgo/cardano-serialization-lib-nodejs` (CSL) dropped entirely (−2806 lines, one fewer native WASM dep). Source `csl-tx.ts` + `tx-builder-registry.ts` and their tests removed.
+**Changed** Buildooor (`@harmoniclabs/buildooor`) is now the only transaction builder — `CardanoTransactionBuilder` constructs `BuildooorTxBuilder` directly. The `txBuilders` config / `TX_BUILDERS` env var is still accepted for backward compatibility but is a **no-op** (any value resolves to Buildooor). No public OData action signatures changed. Tx-body hashing + Ed25519 signature verification ported onto `@harmoniclabs/cbor` + `@harmoniclabs/crypto`; the body hash is `blake2b_256` over the **original** body bytes (no re-serialization), so it always matches what was signed.
+**Fixed** The long-standing Plutus V3 `PPViewHashesDontMatch` bug is **resolved by construction** — Buildooor computes the correct `scriptDataHash` for both mint and spend. Unsigned builds no longer abort on a local script-evaluation failure (on-chain validation at submit stays authoritative). Defensive witness-pair parsing; odd-length hex CBOR rejected with a clear error.
+
+## v1.7.9 - 2026-05-15 - Koios getCurrentSlot Wire-Shape Fix
+
+**Fixed** Koios `/block_info` mapper read `slot_no` / `epoch_slot_no` — keys Koios has never returned; corrected to `abs_slot` / `epoch_slot`. This had made `getCurrentSlot()` throw on every Koios chain-tip query (cascading into x402 nonce checks and ttl-bounded tx builds).
+**Changed** `KoiosBackend.getCurrentSlot()` rewritten to read `/tip` directly (one round-trip instead of two; avoids a read-replica race on freshly-minted tips).
+
 ## v1.7.8 - 2026-05-13 - Slot + UTxO Convenience Methods
 
 **Added** `CardanoClient.getCurrentSlot()` (non-null slot, throws `ProviderUnavailableError` on null) and `CardanoClient.isUtxoUnspent(txHash, outputIndex)` with per-backend implementations (Blockfrost `consumed_by_tx`, Koios `/utxo_info`, Ogmios `queryLedgerState/utxo`).
