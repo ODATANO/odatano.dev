@@ -1,0 +1,81 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: WATCH
+description: SAP CAP plugin for monitoring the Cardano blockchain - watched addresses, credentials and policies emitting rich UTxO events with replay.
+---
+
+# WATCH
+
+`@odatano/watch` is a SAP CAP plugin for monitoring the **Cardano** blockchain. It watches addresses, payment credentials, and minting policies; emits events with rich UTxO payloads (assets, inline datums, reference scripts) and persists them for replay — the deterministic backbone for verifying blockchain-backed business transactions.
+
+## Highlights
+
+- **Address watching:** New transactions per watched address with `utxosCreated[]` / `utxosSpent[]` deltas
+- **Credential + policy watching:** Opt-in via `credentialPolling` / `policyPolling`; `assetMinted` / `assetBurned` events per policy
+- **Event replay:** Persisted `BlockchainEvent` rows, cursor-paginated via `getEventsSince(scope, key, fromBlock)`
+- **Coalescing + filtering:** `coalesceMs` batches emits per window with cumulative deltas; `includesAssetsJson` allowlists assets
+- **Self-hosted backend:** `blockfrostCustomBackend` routes the SDK to a Blockfrost-compatible endpoint (e.g. Dolos MiniBF) to spare the free-tier quota
+- **Phase 2 — Ogmios chainSync:** switch from polling to a stream with native `cardano.rollback` signal; backfill from Blockfrost once per new watch
+
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Network | Cardano (preview / mainnet) |
+| Plugin | `@odatano/watch` (SAP CAP, `cds.requires.watch`) |
+| Backends | Blockfrost (polling), Koios (credentials), Ogmios (chainSync) |
+| Events | CAP event bus (`cds.on`), typed payloads |
+| Admin API | OData V4 at `/odata/v4/cardano-watcher-admin` |
+
+## Subscribe to Events
+
+```typescript
+import type { NewTransactionsEvent } from "@odatano/watch";
+
+cds.on("cardano.newTransactions", async (e: NewTransactionsEvent) => {
+  // e.address, e.tag?, e.transactions[], e.utxosCreated[], e.utxosSpent[]
+  for (const utxo of e.utxosCreated) {
+    if (utxo.inlineDatumHex) await applyDatum(utxo.inlineDatumHex);
+  }
+});
+```
+
+Also emitted: `cardano.credential.newTransactions`, `cardano.policy.assetMinted`, `cardano.policy.assetBurned`, and (Ogmios only) `cardano.rollback`. There is no cross-handler ordering, retry, or backpressure — read the event-delivery contract before building stateful consumers.
+
+## Manage Watches
+
+```
+POST /odata/v4/cardano-watcher-admin/addWatchedAddress
+{ "address": "addr_test1...", "tag": "my-pool", "coalesceMs": 2000 }
+
+POST /odata/v4/cardano-watcher-admin/getEventsSince
+{ "scope": "address", "key": "addr_test1...", "fromBlock": 12345 }
+```
+
+Plus `addWatchedCredential`, `addWatchedPolicy`, `removeWatched*`. The `tag` is echoed back on each emit for dispatch routing.
+
+## Quick Start
+
+```bash
+npm add @odatano/watch
+```
+
+```json
+{
+  "cds": {
+    "requires": {
+      "watch": {
+        "network": "preview",
+        "blockfrostApiKey": "preview_YOUR_KEY",
+        "autoStart": true
+      }
+    }
+  }
+}
+```
+
+To keep the key out of `package.json`, export `BLOCKFROST_API_KEY` instead — the plugin picks it up as a fallback.
+
+## Sourcecode
+
+[github.com/ODATANO/WATCH](https://github.com/ODATANO/WATCH)

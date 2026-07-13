@@ -28,7 +28,7 @@
   <text x="120" y="142" font-family="'Segoe UI', 'Helvetica Neue', sans-serif" font-size="50" letter-spacing="6" fill="#001840">
     <tspan font-weight="600" fill="#001840">DATA</tspan><tspan font-weight="400" fill="#0C5ECF">NO</tspan>
   </text>
-  <text x="123" y="164" font-family="'Segoe UI', 'Helvetica Neue', sans-serif" font-size="11" letter-spacing="3.5" fill="#0C5ECF" opacity="0.6" font-weight="400">
-    ODATA FOR CARDANO
+  <text x="123" y="164" font-family="'Segoe UI', 'Helvetica Neue', sans-serif" font-size="11" letter-spacing="2.6" fill="#0C5ECF" opacity="0.6" font-weight="400">
+    ODATA FOR CARDANO &amp; MIDNIGHT
   </text>
 </svg>

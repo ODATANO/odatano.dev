@@ -1,0 +1,74 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: NIGHTPASS App
+description: EU Battery Regulation 2023/1542 Digital Battery Passport on Midnight - shielded ZK attestations with three disclosure tiers.
+---
+
+# NIGHTPASS App
+
+EU Battery Regulation 2023/1542 Digital Battery Passport on **Midnight**. One dataset is exposed with a different view per audience (consumer, recycler, authority), and sensitive numbers — "recycled cobalt share is at least the legal minimum" — can be **proven without revealing the value**. Only a payload hash and public metadata are anchored on-chain; everything else stays encrypted off-chain. NIGHTPASS is the shielded twin of DAYPASS (Cardano) and consumes [`@odatano/nightgate`](https://github.com/ODATANO/NIGHTGATE) as a CAP plugin.
+
+## Highlights
+
+- **Three disclosure tiers (Annex XIII):** consumer sees public metadata, recycler adds chemistry / capacity / recycled shares, authority sees everything incl. supplier identities — enforced server-side by `after READ` handlers
+- **Field-bound ZK predicates:** `carbon footprint <= threshold` proven on-chain, bound to a Merkle root over the passport's fields anchored at attest time
+- **One contract:** `attestation-vault` (shipped by the plugin) — attest, passport binding, disclosure ACL, content-root anchoring, predicates
+- **Two submit paths:** server (NIGHTGATE worker wallet, async jobs) or the user's own Lace wallet via DApp-Connector; offline-first fallback to local log rows
+- **On-chain disclosure grants:** an active grant elevates a partner's tier per passport
+- **Catena-X export:** CX-0143 aspect JSON + Predicate Attestation Credential (PAC) with `valueDisclosed: false` — the predicate capability Tractus-X currently lacks
+
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Network | Midnight preview |
+| Chain gateway | `@odatano/nightgate` (CAP plugin, `cds.requires.nightgate`) |
+| Smart contract | Compact (`attestation-vault`) |
+| Backend | SAP CAP (`@sap/cds` ^9), Node.js >= 22, TypeScript |
+| Frontend | SAPUI5 cockpit + viewer, plain-HTML Passport Explorer |
+| Signing | NIGHTGATE worker wallet or Lace (DApp-Connector) |
+| Dataspace | Catena-X CX-0143 + PAC |
+
+## Anchor Flow
+
+```
+ERP goods receipt (signed webhook)
+  → createPassport → auto-anchor:
+     1. attest              tx on Midnight preview
+     2. bindPassport        tx
+     3. anchorContentRoot   tx
+```
+
+Live example (preview): passport `BAT-GR-0015`, vault contract `dcd297ba…9cde69`, three transactions on the preview network.
+
+## Apps and Services on :4004
+
+```
+/producer/webapp/index.html   producer cockpit (create, attest, disclose, prove)
+/passport/webapp/             consumer viewer, one app / three tiers
+/explorer/                    public Passport Explorer, live on-chain verification
+/api/v1/mock-sap              MockSapService (goods-receipt feed)
+/api/v1/producer              ProducerService
+/api/v1/passport              PassportService
+/api/v1/nightgate             NightgateService (+ indexer / analytics / admin)
+```
+
+Anonymous resolves to the consumer tier; demo users `producer` / `recycler` / `authority`. Dataspace partners log in with their BPN and see only passports granted to them, at the granted level.
+
+## Quick Start
+
+Requires Node.js >= 22.
+
+```bash
+git clone https://github.com/ODATANO/NIGHTPASS && cd NIGHTPASS
+npm install            # postinstall generates @cds-models + builds the connector lib
+cp .env.example .env   # set ENCRYPTION_KEY
+npm run deploy         # creates db/passport.db: domain + midnight_* plugin tables
+npm start              # http://localhost:4004
+```
+
+Open `http://localhost:4004/` for the launchpad.
+
+## Sourcecode
+
+[github.com/ODATANO/NIGHTPASS](https://github.com/ODATANO/NIGHTPASS)

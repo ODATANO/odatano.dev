@@ -1,0 +1,112 @@
+---
+/**
+ * Ecosystem project card. Generalizes the former `.example-card` markup —
+ * the `example-card` class is kept so existing card styles and the cursor
+ * spotlight keep working; `.project-card` adds the compact/night variants.
+ */
+interface Props {
+  name: string;
+  tag: string;
+  tagVariant?: "default" | "accent";
+  track: "day" | "night";
+  description: string;
+  bullets: string[];
+  docsHref?: string;
+  repoHref: string;
+  night?: boolean;
+  twin?: "day" | "night";
+}
+
+const {
+  name,
+  tag,
+  tagVariant = "default",
+  track,
+  description,
+  bullets,
+  docsHref,
+  repoHref,
+  night = false,
+  twin,
+} = Astro.props;
+
+const cardClass = [
+  "example-card",
+  "project-card",
+  night && "project-card--night",
+  twin && `ecosystem__twin ecosystem__twin--${twin}`,
+]
+  .filter(Boolean)
+  .join(" ");
+---
+
+<article class={cardClass}>
+  <div class="project-card__head">
+    <span
+      class={`example-card__tag${tagVariant === "accent" ? " example-card__tag--accent" : ""}`}
+    >
+      {tag}
+    </span>
+    <span
+      class={`project-card__track${track === "night" ? " project-card__track--night" : ""}`}
+    >
+      {
+        track === "day" ? (
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1" />
+          </svg>
+        ) : (
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+          </svg>
+        )
+      }
+      {track === "day" ? "Cardano" : "Midnight"}
+    </span>
+  </div>
+  <h3>{name}</h3>
+  <p class="example-card__desc" set:html={description} />
+  <ul class="example-card__bullets">
+    {bullets.map((b) => <li set:html={b} />)}
+  </ul>
+  <div class="example-card__actions">
+    {
+      docsHref && (
+        <a
+          href={docsHref}
+          class={`btn ${night ? "btn--night" : "btn--primary"}`}
+        >
+          Learn More
+        </a>
+      )
+    }
+    <a
+      href={repoHref}
+      class="btn btn--outline"
+      target="_blank"
+      rel="noopener"
+    >
+      View Source
+    </a>
+  </div>
+</article>

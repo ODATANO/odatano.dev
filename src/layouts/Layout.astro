@@ -10,7 +10,7 @@ interface Props {
 
 const {
   title,
-  description = "Enterprise OData V4 Service for the Cardano Blockchain built on SAP CAP.",
+  description = "Enterprise OData V4 services for the Cardano and Midnight blockchains, built on SAP CAP.",
 } = Astro.props;
 ---
 
@@ -37,6 +37,19 @@ const {
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script is:inline>
+      // Set the reveal gate BEFORE first paint so content doesn't flash
+      // visible and then re-animate. Safety net: if the animation module
+      // never boots (marker class missing), un-hide everything again.
+      (function () {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        var d = document.documentElement;
+        d.classList.add("reveal-ready");
+        setTimeout(function () {
+          if (!d.classList.contains("anim-booted")) d.classList.remove("reveal-ready");
+        }, 2000);
+      })();
+    </script>
   </head>
   <body>
     <Header />
@@ -46,65 +59,21 @@ const {
     <Footer />
 
     <script>
-      // Progressive enhancement: scroll-reveal + cursor spotlight.
-      // No-op (content stays fully visible) without JS or with reduced motion.
-      (() => {
-        const root = document.documentElement;
-        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      // Scroll-reveal via anime.js (no-op without JS / with reduced motion).
+      import "../scripts/reveal";
 
-        // Cursor spotlight — works regardless of motion preference.
-        const spotlightEls = document.querySelectorAll<HTMLElement>(
-          ".feature-card, .example-card, .stack__item, .arch__col"
-        );
-        spotlightEls.forEach((el) => {
-          el.addEventListener("pointermove", (ev) => {
-            const pe = ev as PointerEvent;
-            const r = el.getBoundingClientRect();
-            el.style.setProperty("--mx", pe.clientX - r.left + "px");
-            el.style.setProperty("--my", pe.clientY - r.top + "px");
-          });
+      // Cursor spotlight — works regardless of motion preference.
+      const spotlightEls = document.querySelectorAll<HTMLElement>(
+        ".feature-card, .example-card, .stack__item, .arch__col"
+      );
+      spotlightEls.forEach((el) => {
+        el.addEventListener("pointermove", (ev) => {
+          const pe = ev as PointerEvent;
+          const r = el.getBoundingClientRect();
+          el.style.setProperty("--mx", pe.clientX - r.left + "px");
+          el.style.setProperty("--my", pe.clientY - r.top + "px");
         });
-
-        if (reduce) return;
-        root.classList.add("reveal-ready");
-
-        const els = Array.from(
-          document.querySelectorAll<HTMLElement>(
-            ".section__header, .feature-card, .arch__col, .stack__item, .step, .example-card, .code-demo__panel, .stats-bar__item"
-          )
-        );
-        els.forEach((el) => el.setAttribute("data-reveal", ""));
-
-        // Stagger reveal of siblings sharing a parent.
-        const groups = new Map<Element | null, HTMLElement[]>();
-        els.forEach((el) => {
-          const arr = groups.get(el.parentElement) || [];
-          arr.push(el);
-          groups.set(el.parentElement, arr);
-        });
-        groups.forEach((arr) =>
-          arr.forEach((el, i) =>
-            el.style.setProperty("--reveal-delay", i * 70 + "ms")
-          )
-        );
-
-        if (!("IntersectionObserver" in window)) {
-          els.forEach((el) => el.classList.add("is-visible"));
-          return;
-        }
-        const io = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((e) => {
-              if (e.isIntersecting) {
-                e.target.classList.add("is-visible");
-                io.unobserve(e.target);
-              }
-            });
-          },
-          { rootMargin: "0px 0px -8% 0px", threshold: 0.08 }
-        );
-        els.forEach((el) => io.observe(el));
-      })();
+      });
     </script>
   </body>
 </html>

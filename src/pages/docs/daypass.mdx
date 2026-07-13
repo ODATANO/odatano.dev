@@ -1,0 +1,72 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: DAYPASS App
+description: EU Battery Regulation 2023/1542 Digital Battery Passport on Cardano - CIP-25 anchors, Merkle disclosure and on-chain Groth16 predicates.
+---
+
+# DAYPASS App
+
+EU Battery Regulation 2023/1542 Digital Battery Passport on **Cardano**: one CIP-25 NFT per passport plus an anchor metadata label carrying the payload hash, a Merkle content root and the public Point-1 fields. Sensitive data stays AES-encrypted off-chain; three disclosure tiers render lawful views of one backend. Threshold statements ("carbon footprint below X") are proven in zero knowledge — with the **Groth16 verification executed by the Cardano ledger itself**. DAYPASS is the transparent-chain twin of NIGHTPASS (Midnight, shielded ZK).
+
+## Highlights
+
+- **CIP-25 NFT anchor:** Mint under a policy bound to the producer key + anchor label 1155 with `payloadHash`, `contentRoot`, Point-1 cleartext
+- **Three disclosure tiers (Annex XIII):** consumer / recycler / authority — enforced in the API layer; the chain carries the evidence, not the access control
+- **Selective disclosure:** Reveal ONE field value with a Merkle inclusion proof against the anchored content root — any Cardano API can re-verify it
+- **On-chain ZK predicates:** `provePassportPredicate` mints a predicate token whose mint redeemer IS the Groth16 proof; the Plutus V3 validator runs the full pairing check
+- **Re-attest chain:** Metadata txs with new payload versions, chained via `prev`; burn nets supply to zero on revocation
+- **Catena-X export:** CX-0143 BatteryPass aspect JSON + W3C-VC Predicate Attestation Credential (PAC) verifiable portably against Cardano
+
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Network | Cardano preview |
+| Chain gateway | `@odatano/core` (CAP plugin) |
+| ZK toolkit | `@odatano/dayzero` (Groth16 over BLS12-381, Poseidon) |
+| On-chain verifier | Aiken (Plutus V3) |
+| Backend | SAP CAP, Node.js, TypeScript |
+| Signing | CIP-30 browser wallet (server key optional) |
+| Dataspace | Catena-X / Tractus-X (CX-0143, PAC) |
+
+## Metadata Labels
+
+```
+Label 721  (CIP-25)   display: name "DPP <passportId>", model, QR image
+Label 1155 (anchor)   evidence: op (mint|reattest|grant|revoke),
+                      payloadHash, contentRoot, poseidonRoot,
+                      version + prev tx hash, Point-1 cleartext
+```
+
+The mint tx carries both labels; re-attest and audit anchors are plain metadata txs with only the 1155 label. Grant/revoke anchors are pseudonymous: the grantee is `sha256(did)`, never PII.
+
+## Zero-Knowledge Predicates
+
+```
+1. Anchor commits a Poseidon Merkle root over the 9 provable fields
+2. Prover sidecar (@odatano/dayzero) builds the Groth16 proof
+3. provePassportPredicate mints a token: redeemer = proof
+4. Validator verifies the pairing on-chain; asset name commits
+   to the public inputs (blake2b-224 over the serialised datum)
+```
+
+Live on Preview: mint + anchor tx `ae0d4c2d…05af8f`, zk predicate tx `5a5c0a64…57d52c` proving `carbonFootprint lessOrEqual threshold`.
+
+## Quick Start
+
+```bash
+git clone https://github.com/ODATANO/DAYPASS && cd DAYPASS
+npm install
+cp .env.example .env                  # fill in BLOCKFROST_API_KEY (preview)
+npm run deploy                        # creates db/daypass.db + demo seeds
+docker compose up -d daypass-prover   # ZK prover sidecar on :8799
+npm start                             # http://localhost:4004
+```
+
+- Producer cockpit: `/producer/webapp/index.html` (producer/producer)
+- Consumer viewer: `/passport/webapp/index.html` (recycler/recycler, authority/authority)
+- QR landing `/p/<passportId>`, public verification JSON `/verify/<passportId>`
+
+## Sourcecode
+
+[github.com/ODATANO/DAYPASS](https://github.com/ODATANO/DAYPASS)

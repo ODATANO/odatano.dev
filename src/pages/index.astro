@@ -1,51 +1,43 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import ProjectCard from "../components/ProjectCard.astro";
 
-const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
-<span class="code-cmd">npm install @odatano/core</span>
-
-<span class="code-comment"># package.json (cds.requires)</span>
-<span class="code-key">"odatano-core"</span>: {
-  <span class="code-key">"network"</span>: <span class="code-str">"preview"</span>,
-  <span class="code-key">"backends"</span>: [<span class="code-str">"blockfrost"</span>],
-  <span class="code-key">"blockfrostApiKey"</span>: <span class="code-str">"preview_api_key"</span>
-}
-
-<span class="code-comment"># POST - build a simple ADA transaction</span>
-<span class="code-cmd">POST</span> <span class="code-val">.../cardano-transaction/BuildSimpleAdaTransaction</span>
-{ <span class="code-key">"senderAddress"</span>: <span class="code-str">"addr1..."</span>,
-  <span class="code-key">"recipientAddress"</span>: <span class="code-str">"addr1..."</span>,
-  <span class="code-key">"lovelaceAmount"</span>: <span class="code-val">5000000</span> }`;
+const heroCode = `<span class="code-line code-comment"># Day — Cardano</span><span class="code-line"><span class="code-cmd">npm install</span> @odatano/core</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># Night — Midnight</span><span class="code-line"><span class="code-cmd code-cmd--night">npm install</span> @odatano/nightgate</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># package.json</span><span class="code-line"><span class="code-key">"cds"</span>: { <span class="code-key">"requires"</span>: {</span><span class="code-line">  <span class="code-key">"odatano-core"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> },</span><span class="code-line">  <span class="code-key">"nightgate"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># services register automatically</span><span class="code-line"><span class="code-cmd">cds</span> serve<span class="hero__code-cursor" aria-hidden="true"></span></span>`;
 ---
 
 <Layout
-  title="OData for Cardano"
-  description="OData V4 service for the Cardano blockchain, packaged as a SAP CAP plugin. Three CDS services: read, transaction building, and signing."
+  title="OData for Cardano & Midnight"
+  description="OData V4 services for the Cardano and Midnight blockchains, packaged as SAP CAP plugins. Transparent on Cardano, shielded on Midnight — same integration model."
 >
+  <!-- ── Sky — fixed day→night backdrop (JS-enhanced) ─────────── -->
+  <div class="sky" aria-hidden="true">
+    <div class="sky__night"></div>
+    <div class="sky__stars"></div>
+  </div>
+
   <!-- ── Hero ─────────────────────────────────────────────── -->
   <section class="hero">
     <div class="hero__bg" aria-hidden="true"></div>
     <div class="container hero__inner">
       <div class="hero__text">
-        <span class="hero__badge">
-          <span class="hero__badge-dot" aria-hidden="true"></span>
-          Cardano Catalyst Fund 14
-        </span>
         <h1 class="hero__headline">
-          OData for<br /><span class="hero__headline-accent">Cardano</span>
+          <span class="hl-mask"><span class="hl-word">OData for</span></span><br />
+          <span class="hl-mask"><span class="hl-word hero__headline-accent">Cardano</span></span>
+          <span class="hl-mask"><span class="hl-word hero__headline-amp">&amp;</span></span>
+          <span class="hl-mask"><span class="hl-word hero__headline-accent hero__headline-accent--night">Midnight</span></span>
         </h1>
         <p class="hero__sub">
-          OData&nbsp;V4 service exposing the Cardano blockchain. Packaged as a
-          SAP&nbsp;CAP plugin - install with npm, configure via <code
-            >cds.requires</code
-          >, Cardano services register automatically.
+          OData&nbsp;V4 services exposing the Cardano and Midnight blockchains.
+          Packaged as SAP&nbsp;CAP plugins - install with npm, configure via
+          <code>cds.requires</code>, blockchain services register
+          automatically.
         </p>
         <div class="hero__actions">
           <a href="/docs/quick-start/" class="btn btn--primary btn--lg">
             Get Started
           </a>
           <a
-            href="https://github.com/ODATANO/ODATANO"
+            href="https://github.com/ODATANO"
             class="btn btn--outline btn--lg"
             target="_blank"
             rel="noopener"
@@ -73,22 +65,98 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
     <div class="container">
       <ul class="stats-bar__list">
         <li class="stats-bar__item">
-          <span class="stats-bar__value">1523</span>
-          <span class="stats-bar__label">Tests</span>
-        </li>
-        <li class="stats-bar__item">
-          <span class="stats-bar__value">96%</span>
-          <span class="stats-bar__label">Statement Coverage</span>
-        </li>
-        <li class="stats-bar__item">
           <span class="stats-bar__value">Apache 2.0</span>
           <span class="stats-bar__label">License</span>
         </li>
         <li class="stats-bar__item">
-          <span class="stats-bar__value">v1.9.1</span>
-          <span class="stats-bar__label">NPM Package</span>
+          <span class="stats-bar__value">v1.9.5</span>
+          <span class="stats-bar__label">@odatano/core on npm</span>
+        </li>
+        <li class="stats-bar__item">
+          <span class="stats-bar__value">v0.6.9</span>
+          <span class="stats-bar__label">@odatano/nightgate on npm</span>
         </li>
       </ul>
+    </div>
+  </section>
+
+  <!-- ── Duality — Day / Night ─────────────────────────────── -->
+  <section class="duality">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">
+          Build verifiable ERP workflows and apps - with the privacy you need.
+        </h2>
+        <p class="section__subtitle">
+          Anchor business data transparently on Cardano, or prove it without
+          revealing it on Midnight. Same CAP plugin model, same OData surface.
+        </p>
+      </div>
+      <div class="duality__grid">
+        <div class="duality__panel duality__panel--day">
+          <span class="duality__eyebrow">Day · Cardano</span>
+          <div class="duality__icon duality__sun" aria-hidden="true">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <circle cx="12" cy="12" r="4"></circle>
+              <path
+                d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"
+              ></path>
+            </svg>
+          </div>
+          <h3>Transparent by design.</h3>
+          <p>
+            Public, auditable, enterprise-grade. On-chain data and
+            transactions exposed as OData entities and actions - readable by
+            SAP Fiori, Excel, Power BI, or any OData client.
+          </p>
+          <div class="duality__chips">
+            <span class="duality__chip">@odatano/core</span>
+            <span class="duality__chip">DAYPASS</span>
+            <span class="duality__chip">DAYZERO</span>
+            <span class="duality__chip">x402</span>
+            <span class="duality__chip">FINCA</span>
+            <span class="duality__chip">TRACE</span>
+          </div>
+          <a href="#ecosystem" class="duality__link">Explore the Cardano track ↓</a>
+        </div>
+        <div class="duality__seam" aria-hidden="true"></div>
+        <div class="duality__panel duality__panel--night">
+          <div class="duality__night-glow" aria-hidden="true"></div>
+          <span class="duality__eyebrow">Night · Midnight</span>
+          <div class="duality__icon duality__moon" aria-hidden="true">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+            </svg>
+          </div>
+          <h3>Private by proof.</h3>
+          <p>
+            Shielded transfers, Compact smart contracts, and zero-knowledge
+            attestations - prove compliance without revealing business data.
+          </p>
+          <div class="duality__chips">
+            <span class="duality__chip">@odatano/nightgate</span>
+            <span class="duality__chip">NIGHTPASS</span>
+          </div>
+          <a href="#ecosystem" class="duality__link">Explore the Midnight track ↓</a>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -98,14 +166,13 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
       <div class="section__header">
         <h2 class="section__title">Architecture</h2>
         <p class="section__subtitle">
-          ODATANO is a bridge between business applications and the Cardano
-          blockchain. Tools enterprises already use like SAP Fiori, Excel, Power
-          BI, or any OData-aware client can read on-chain data and trigger
-          transactions without learning complex blockchain APIs. ODATANO takes
-          care of the hard parts like talking to multiple blockchain data
-          providers, caching of the data, and safely building and submitting
-          transactions on your behalf. Cardano as an OData service - it's that
-          simple.
+          ODATANO is a bridge between business applications and public
+          blockchains. Tools enterprises already use like SAP Fiori, Excel,
+          Power BI, or any OData-aware client can read on-chain data and
+          trigger transactions without learning complex blockchain APIs.
+          ODATANO talks to Cardano; NIGHTGATE talks to Midnight - both take
+          care of the hard parts like multiple data providers, caching, and
+          safely building and submitting transactions on your behalf.
         </p>
       </div>
       <div class="arch">
@@ -119,194 +186,410 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
           </div>
         </div>
 
-        <!-- Connector 1 -->
-        <div class="arch__connector">
-          <div class="arch__connector-track">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><path d="M19 12H5m7-7-7 7 7 7"></path></svg
-            >
-            <div class="arch__connector-dashes"></div>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><path d="M5 12h14m-7-7 7 7-7 7"></path></svg
-            >
+        <!-- Connector 1: app → plugins -->
+        <div class="arch__connector arch__connector--dual" aria-hidden="true">
+          <svg class="arch__flow" viewBox="0 0 100 24" preserveAspectRatio="none">
+            <path class="arch__flow-path" d="M18 12 H82"></path>
+            <polygon class="arch__flow-head" points="16,7 6,12 16,17"></polygon>
+            <polygon class="arch__flow-head" points="84,7 94,12 84,17"></polygon>
+            <circle class="arch__packet" r="3" cx="20" cy="12"></circle>
+          </svg>
+          <svg class="arch__flow arch__flow--night" viewBox="0 0 100 24" preserveAspectRatio="none">
+            <path class="arch__flow-path" d="M18 12 H82"></path>
+            <polygon class="arch__flow-head" points="16,7 6,12 16,17"></polygon>
+            <polygon class="arch__flow-head" points="84,7 94,12 84,17"></polygon>
+            <circle class="arch__packet" r="3" cx="20" cy="12"></circle>
+          </svg>
+        </div>
+
+        <!-- Center: Plugins -->
+        <div class="arch__cell">
+          <div class="arch__col arch__col--plugin">
+            <p class="arch__col-title">ODATANO</p>
+            <div class="arch__col-chips">
+              <span class="arch__chip arch__chip--white">CardanoODataService</span>
+              <span class="arch__chip arch__chip--white">CardanoTransactionService</span>
+              <span class="arch__chip arch__chip--white">CardanoSignService</span>
+            </div>
+          </div>
+          <div class="arch__col arch__col--plugin arch__col--plugin-night">
+            <p class="arch__col-title">NIGHTGATE</p>
+            <div class="arch__col-chips">
+              <span class="arch__chip arch__chip--white">NightgateService</span>
+              <span class="arch__chip arch__chip--white">NightgateIndexerService</span>
+              <span class="arch__chip arch__chip--white">NightgateAnalyticsService</span>
+            </div>
           </div>
         </div>
 
-        <!-- Center: ODATANO -->
-        <div class="arch__col arch__col--plugin">
-          <p class="arch__col-title">ODATANO</p>
-          <div class="arch__col-chips">
-            <span class="arch__chip arch__chip--white">CardanoODataService</span
-            >
-            <span class="arch__chip arch__chip--white"
-              >CardanoTransactionService</span
-            >
-            <span class="arch__chip arch__chip--white">CardanoSignService</span>
-          </div>
+        <!-- Connector 2: plugins → chains -->
+        <div class="arch__connector arch__connector--dual" aria-hidden="true">
+          <svg class="arch__flow" viewBox="0 0 100 24" preserveAspectRatio="none">
+            <path class="arch__flow-path" d="M18 12 H82"></path>
+            <polygon class="arch__flow-head" points="16,7 6,12 16,17"></polygon>
+            <polygon class="arch__flow-head" points="84,7 94,12 84,17"></polygon>
+            <circle class="arch__packet" r="3" cx="20" cy="12"></circle>
+          </svg>
+          <svg class="arch__flow arch__flow--night" viewBox="0 0 100 24" preserveAspectRatio="none">
+            <path class="arch__flow-path" d="M18 12 H82"></path>
+            <polygon class="arch__flow-head" points="16,7 6,12 16,17"></polygon>
+            <polygon class="arch__flow-head" points="84,7 94,12 84,17"></polygon>
+            <circle class="arch__packet" r="3" cx="20" cy="12"></circle>
+          </svg>
         </div>
 
-        <!-- Connector 2 -->
-        <div class="arch__connector">
-          <div class="arch__connector-track">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><path d="M19 12H5m7-7-7 7 7 7"></path></svg
-            >
-            <div class="arch__connector-dashes"></div>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><path d="M5 12h14m-7-7 7 7-7 7"></path></svg
-            >
+        <!-- Right: Chains -->
+        <div class="arch__cell">
+          <div class="arch__col arch__col--chain">
+            <p class="arch__col-eyebrow">Cardano</p>
+            <div class="arch__col-chips">
+              <span class="arch__chip">Mainnet</span>
+              <span class="arch__chip">Preview</span>
+              <span class="arch__chip">Preprod</span>
+            </div>
           </div>
-        </div>
-
-        <!-- Right: Cardano -->
-        <div class="arch__col arch__col--chain">
-          <p class="arch__col-eyebrow">Cardano Blockchain</p>
-          <div class="arch__col-chips">
-            <span class="arch__chip">Mainnet</span>
-            <span class="arch__chip">Preview</span>
-            <span class="arch__chip">Preprod</span>
+          <div class="arch__col arch__col--chain arch__col--chain-midnight">
+            <p class="arch__col-eyebrow">Midnight</p>
+            <div class="arch__col-chips">
+              <span class="arch__chip">Mainnet</span>
+              <span class="arch__chip">Preprod</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── Features ──────────────────────────────────────────── -->
+  <!-- ── Services ──────────────────────────────────────────── -->
   <section class="section">
     <div class="container">
       <div class="section__header">
-        <h2 class="section__title">CDS services</h2>
+        <h2 class="section__title">Services</h2>
         <p class="section__subtitle">
-          Cardano core usage is exposed as OData V4 entities and actions.
-          Standard query options (<code>$filter</code>, <code>$select</code>,
-          <code>$expand</code>, <code>$orderby</code>) work as in any OData
-          service after fetching the Blockchain data once. OData Actions for all
-          kinds of Transaction operations with full Plutus V3 support. Full
-          service metadata available at <code>$metadata</code>.
+          Both plugins expose their blockchain as OData V4 entities and
+          actions. Standard query options (<code>$filter</code>,
+          <code>$select</code>, <code>$expand</code>, <code>$orderby</code>)
+          work as in any OData service, and full service metadata is
+          available at <code>$metadata</code>.
         </p>
       </div>
-      <div class="features__grid">
-        <div class="feature-card">
-          <div class="feature-card__icon">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#0C5ECF"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-              <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-            </svg>
-          </div>
-          <h3>Read</h3>
-          <p>
-            <code>CardanoODataService</code>: 18 entities, 16 actions. Blocks,
-            Transactions, Addresses, UTxOs, Pools, Accounts, DReps, Protocol
-            Parameters, transaction CBOR parser. Lazy on-demand indexing with
-            TTL refresh.
-          </p>
-        </div>
 
-        <div class="feature-card">
-          <div class="feature-card__icon">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#0C5ECF"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M22 2L11 13"></path>
-              <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
-            </svg>
+      <div class="services__group">
+        <p class="services__group-title">
+          <strong>@odatano/core</strong>&nbsp;· Cardano
+        </p>
+        <div class="features__grid">
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#0C5ECF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+              </svg>
+            </div>
+            <h3>Read</h3>
+            <p>
+              <code>CardanoODataService</code>: 18 entities, 16 actions.
+              Blocks, Transactions, Addresses, UTxOs, Pools, Accounts, DReps,
+              Protocol Parameters, transaction CBOR parser. Lazy on-demand
+              indexing with TTL refresh.
+            </p>
           </div>
-          <h3>Transactions</h3>
-          <p>
-            <code>CardanoTransactionService</code>: 13 actions. ADA transfers,
-            multi-asset, mint, Plutus V3 spend, CIP-20 metadata, CIP-31
-            reference inputs, CIP-33 reference scripts. Buildooor is the sole
-            transaction-building engine.
-          </p>
-        </div>
 
-        <div class="feature-card">
-          <div class="feature-card__icon">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#0C5ECF"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              <polyline points="9 12 11 14 15 10"></polyline>
-            </svg>
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#0C5ECF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M22 2L11 13"></path>
+                <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+              </svg>
+            </div>
+            <h3>Transactions</h3>
+            <p>
+              <code>CardanoTransactionService</code>: 13 actions. ADA
+              transfers, multi-asset, mint, Plutus V3 spend, CIP-20 metadata,
+              CIP-31 reference inputs, CIP-33 reference scripts. Buildooor is
+              the sole transaction-building engine.
+            </p>
           </div>
-          <h3>Signing</h3>
-          <p>
-            <code>CardanoSignService</code>: 8 actions. External signing via
-            CIP-30 wallets or Cardano CLI; server-side signing via PKCS#11 HSM.
-            Private keys never reach the server in any flow.
-          </p>
+
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#0C5ECF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <polyline points="9 12 11 14 15 10"></polyline>
+              </svg>
+            </div>
+            <h3>Signing</h3>
+            <p>
+              <code>CardanoSignService</code>: 8 actions. External signing via
+              CIP-30 wallets or Cardano CLI; server-side signing via PKCS#11
+              HSM. Private keys never reach the server in any flow.
+            </p>
+          </div>
         </div>
+      </div>
+
+      <div class="services__group">
+        <p class="services__group-title services__group-title--night">
+          <strong>@odatano/nightgate</strong>&nbsp;· Midnight
+        </p>
+        <div class="features__grid">
+          <div class="feature-card feature-card--night">
+            <div class="feature-card__icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#A78BFF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
+                <path d="M12 12v3"></path>
+              </svg>
+            </div>
+            <h3>Chain &amp; Wallet</h3>
+            <p>
+              <code>NightgateService</code>: a built-in crawler indexes
+              Midnight blocks from Substrate RPC with reorg detection and
+              catch-up sync. Worker-thread-isolated wallet sessions - read-only
+              via viewing key or full signing.
+            </p>
+          </div>
+
+          <div class="feature-card feature-card--night">
+            <div class="feature-card__icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#A78BFF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+            </div>
+            <h3>Contracts &amp; Tokens</h3>
+            <p>
+              Deploy and call Compact-compiled smart contracts
+              (<code>deployContract</code>, <code>submitContractCall</code>),
+              send NIGHT with auto-detected receiver ledger, async job model
+              with <code>getJobStatus</code> polling.
+            </p>
+          </div>
+
+          <div class="feature-card feature-card--night">
+            <div class="feature-card__icon">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#A78BFF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <circle cx="12" cy="11" r="2.5"></circle>
+              </svg>
+            </div>
+            <h3>Privacy</h3>
+            <p>
+              ZK predicate attestations prove hidden values meet thresholds
+              without disclosure. Document anchoring with on-chain
+              verification, plus <code>shieldFunds</code> /
+              <code>unshieldFunds</code> cross-ledger shifts.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Ecosystem ─────────────────────────────────────────── -->
+  <section class="section section--night" id="ecosystem">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">Ecosystem</h2>
+        <p class="section__subtitle">
+          Applications and libraries built on the ODATANO plugins - from
+          supply-chain NFTs to zero-knowledge battery passports.
+        </p>
+      </div>
+
+      <div class="ecosystem__twins">
+        <span class="ecosystem__twins-label">Flagship Applications</span>
+        <ProjectCard
+          name="DAYPASS"
+          tag="EU Battery Passport · Reg. 2023/1542"
+          track="day"
+          twin="day"
+          description='Digital battery passports anchored on Cardano as CIP-25 NFTs. Sensitive data stays encrypted off-chain - Merkle proofs disclose single fields, and Groth16 predicates prove thresholds like carbon footprint on the Cardano ledger itself.'
+          bullets={[
+            "CIP-25 NFT Anchors + Label-1155 Evidence",
+            "AES-Encrypted Disclosure Tiers",
+            "Merkle Single-Field Disclosure",
+            "On-Chain Groth16 ZK Predicates",
+            "Catena-X PAC Export",
+          ]}
+          docsHref="/docs/daypass/"
+          repoHref="https://github.com/ODATANO/DAYPASS"
+        />
+        <ProjectCard
+          name="NIGHTPASS"
+          tag="EU Battery Passport · Reg. 2023/1542"
+          track="night"
+          twin="night"
+          night
+          description='The shielded twin of DAYPASS, running on Midnight via <code>@odatano/nightgate</code>. One dataset, three stakeholder views - sensitive metrics are proven with ZK attestations without ever revealing the values.'
+          bullets={[
+            "Three Disclosure Tiers (Consumer / Recycler / Authority)",
+            "Field-Bound ZK Predicate Attestations",
+            "Payload Hashes On-Chain, Data Encrypted Off-Chain",
+            "Server Worker or Personal Wallet Submission",
+            "Catena-X Passport + PAC Export",
+          ]}
+          docsHref="/docs/nightpass/"
+          repoHref="https://github.com/ODATANO/NIGHTPASS"
+        />
+      </div>
+
+      <div class="ecosystem__grid-label">
+        <span class="ecosystem__twins-label ecosystem__twins-label--muted">More Projects</span>
+      </div>
+      <div class="ecosystem__grid">
+        <ProjectCard
+          name="TRACE"
+          tag="Pharma Supply Chain"
+          track="day"
+          description="Tracks pharmaceutical batches across manufacturer, distributor, and pharmacy with NFTs minted under a Plutus V3 policy - each handoff anchors certificates and cold-chain telemetry on-chain."
+          bullets={[
+            "Batch NFT Mint Policy (Plutus V3)",
+            "Continuing-Output Datum Custody Chain",
+            "CIP-20 Document Anchoring",
+          ]}
+          docsHref="/docs/trace/"
+          repoHref="https://github.com/ODATANO/TRACE"
+        />
+        <ProjectCard
+          name="QUANTIX"
+          tag="Charli3 Grand Prize 2026"
+          tagVariant="accent"
+          track="day"
+          description="On-chain settlement of B2B raw-material orders against attested inventory and Charli3 oracle price feeds. A custom Plutus V3 minting policy enforces inventory, price ceiling, payment, and deadline atomically."
+          bullets={[
+            "Atomic Mint Validator (Plutus V3)",
+            "Charli3 Multi-Feed Oracle Integration",
+            "One Signature, One Transaction - No Escrow",
+          ]}
+          docsHref="/docs/quantix/"
+          repoHref="https://github.com/maxalexweber1/QUANTIX"
+        />
+        <ProjectCard
+          name="FINCA"
+          tag="Financial Data Anchoring"
+          track="day"
+          description="Anchors balance sheets and income statements on Cardano as CIP-10 label-1447 metadata following the Cardano Foundation Reeve spec - verifiable accounting without a smart contract."
+          bullets={[
+            "CIP-10 Label-1447 Metadata (Reeve Spec)",
+            "Double-Entry Journal Ledger Math",
+            "On-Chain Report Verification",
+          ]}
+          docsHref="/docs/finca/"
+          repoHref="https://github.com/ODATANO/FINCA"
+        />
+        <ProjectCard
+          name="x402"
+          tag="HTTP 402 Payment Gating"
+          track="day"
+          description="Payment-gating library for SAP CAP - gated OData endpoints return HTTP 402 until the caller proves on-chain settlement. No database, no smart contract: the UTxO model is the replay defense."
+          bullets={[
+            "Cardano-x402-v2 Protocol (HTTP 402)",
+            "Nonce-UTxO Replay Defense - No Database",
+            "ADA or Any Native Token Pricing",
+          ]}
+          docsHref="/docs/x402/"
+          repoHref="https://github.com/ODATANO/x402"
+        />
+        <ProjectCard
+          name="DAYZERO"
+          tag="Zero-Knowledge Toolkit"
+          track="day"
+          description="Pure-TypeScript zero-knowledge toolkit powering DAYPASS - Groth16 proving and verification plus Poseidon hashing on BLS12-381, with no native dependencies."
+          bullets={[
+            "Groth16 Proving & Verification",
+            "Poseidon Hashing on BLS12-381",
+            "Powers DAYPASS On-Chain Predicates",
+          ]}
+          docsHref="/docs/dayzero/"
+          repoHref="https://github.com/ODATANO/DAYZERO"
+        />
+        <ProjectCard
+          name="WATCH"
+          tag="Transaction Monitoring"
+          track="day"
+          description="Deterministic monitoring and verification of blockchain-backed business transactions for enterprise systems - confirms that what your ERP recorded is what the chain settled."
+          bullets={[
+            "Deterministic Transaction Verification",
+            "Monitoring for Blockchain-Backed Processes",
+            "Enterprise System Integration",
+          ]}
+          docsHref="/docs/watch/"
+          repoHref="https://github.com/ODATANO/WATCH"
+        />
       </div>
     </div>
   </section>
 
   <!-- ── Tech Stack ─────────────────────────────────────────── -->
-  <section class="section section--dark">
+  <section class="section section--night">
     <div class="container">
       <div class="section__header">
         <h2 class="section__title">Stack</h2>
         <p class="section__subtitle">
-          Runtime, dependencies, and test coverage.
+          Runtime and dependencies.
         </p>
       </div>
       <div class="stack__grid">
@@ -319,8 +602,8 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
           <span class="stack__value">TypeScript 5.x</span>
         </div>
         <div class="stack__item">
-          <span class="stack__category">Runtime</span>
-          <span class="stack__value">Node.js 20 / 22</span>
+          <span class="stack__category">Chains</span>
+          <span class="stack__value">Cardano · Midnight</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">Database</span>
@@ -328,15 +611,19 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">Blockchain APIs</span>
-          <span class="stack__value">Blockfrost · Koios · Ogmios</span>
+          <span class="stack__value">Blockfrost · Koios · Ogmios · Midnight RPC</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">TX Builder</span>
           <span class="stack__value">Buildooor</span>
         </div>
         <div class="stack__item">
-          <span class="stack__category">Testing</span>
-          <span class="stack__value">36 automated test suites, 1523 tests</span>
+          <span class="stack__category">Zero-Knowledge</span>
+          <span class="stack__value">Groth16 · Poseidon · BLS12-381</span>
+        </div>
+        <div class="stack__item">
+          <span class="stack__category">Runtime</span>
+          <span class="stack__value">Node.js 20 / 22</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">License</span>
@@ -346,142 +633,33 @@ const heroCode = `<span class="code-comment"># Install the CAP plugin</span>
     </div>
   </section>
 
-  <!-- ── Example Applications ──────────────────────────────── -->
-  <section class="section">
-    <div class="container">
-      <div class="section__header">
-        <h2 class="section__title">Example Applications</h2>
-        <p class="section__subtitle">
-          Reference implementations built on top of <code>@odatano/core</code> - from
-          full SAP Fiori + CAP apps with custom Plutus V3 validators to on-chain metadata
-          anchoring and HTTP 402 payment gating.
-        </p>
+  <!-- ── Closing CTA — the page ends at night ───────────────── -->
+  <section class="closing-cta">
+    <div class="container closing-cta__inner">
+      <h2 class="closing-cta__title">Start building.</h2>
+      <p class="closing-cta__sub">
+        Two chains, one integration model. Install a plugin, add one config
+        block, and your CAP service speaks blockchain.
+      </p>
+      <div class="closing-cta__install">
+        <code class="closing-cta__cmd closing-cta__cmd--day">npm install @odatano/core</code>
+        <code class="closing-cta__cmd">npm install @odatano/nightgate</code>
       </div>
-      <div class="example-apps__grid">
-        <article class="example-card">
-          <span class="example-card__tag">Pharmaceutical Supply Chain</span>
-          <h3>TRACE</h3>
-          <p class="example-card__desc">
-            SAP Fiori + CAP application built on top of <code
-              >@odatano/core</code
-            >. Tracks pharmaceutical batches across manufacturer, distributor,
-            and pharmacy using NFTs minted under a Plutus V3 policy. Each
-            handoff is a Plutus spend with a continuing-output datum update,
-            anchoring certificates and cold-chain telemetry on-chain.
-          </p>
-          <ul class="example-card__bullets">
-            <li>Batch NFT Mint Policy (Plutus V3)</li>
-            <li>Continuing-Output Datum Custody Chain</li>
-            <li>CIP-20 Document Anchoring</li>
-            <li>CIP-30 Browser Wallet Signing</li>
-          </ul>
-          <div class="example-card__actions">
-            <a href="/docs/trace/" class="btn btn--primary">Learn More</a>
-            <a
-              href="https://github.com/ODATANO/TRACE"
-              class="btn btn--outline"
-              target="_blank"
-              rel="noopener"
-            >
-              View Source
-            </a>
-          </div>
-        </article>
-
-        <article class="example-card">
-          <span class="example-card__tag example-card__tag--accent">
-            Grand Prize · Charli3 Hackathon 2026
-          </span>
-          <h3>QUANTIX</h3>
-          <p class="example-card__desc">
-            SAP Fiori + CAP application built on top of <code
-              >@odatano/core</code
-            >. On-chain settlement of B2B raw-material orders against attested
-            inventory and price feeds from a forked Charli3 multi-feed oracle
-            stack. A custom Plutus V3 minting policy enforces inventory
-            availability, price ceiling, payment, and deadline atomically. One
-            CIP-30 wallet signature, one transaction, no escrow.
-          </p>
-          <ul class="example-card__bullets">
-            <li>Atomic Mint Validator (Plutus V3)</li>
-            <li>Charli3 Multi-Feed Oracle Integration</li>
-            <li>Per-Supplier Reference Scripts on Cardano Preprod</li>
-            <li>Best Overall Project · Charli3 Oracle Hackathon 2026</li>
-          </ul>
-          <div class="example-card__actions">
-            <a href="/docs/quantix/" class="btn btn--primary">Learn More</a>
-            <a
-              href="https://github.com/maxalexweber1/QUANTIX"
-              class="btn btn--outline"
-              target="_blank"
-              rel="noopener"
-            >
-              View Source
-            </a>
-          </div>
-        </article>
-
-        <article class="example-card">
-          <span class="example-card__tag">Financial Data Anchoring</span>
-          <h3>FINCA</h3>
-          <p class="example-card__desc">
-            SAP Fiori + CAP application built on top of <code
-              >@odatano/core</code
-            >. Anchors accounting data and financial reports - Balance Sheets
-            and Income Statements - on Cardano as CIP-10 label-1447 metadata,
-            following the Cardano Foundation Reeve specification. Verifiable
-            accounting without a smart contract: one CIP-30 signature per
-            anchor.
-          </p>
-          <ul class="example-card__bullets">
-            <li>CIP-10 Label-1447 Metadata (Reeve Spec)</li>
-            <li>Double-Entry Journal · Decimal(23,2) Ledger Math</li>
-            <li>On-Chain Verification of Reports &amp; Transactions</li>
-            <li>Excel / OData Spreadsheet Integration</li>
-          </ul>
-          <div class="example-card__actions">
-            <a href="/docs/finca/" class="btn btn--primary">Learn More</a>
-            <a
-              href="https://github.com/ODATANO/FINCA"
-              class="btn btn--outline"
-              target="_blank"
-              rel="noopener"
-            >
-              View Source
-            </a>
-          </div>
-        </article>
-
-        <article class="example-card">
-          <span class="example-card__tag">HTTP 402 Payment Gating</span>
-          <h3>x402</h3>
-          <p class="example-card__desc">
-            Payment-gating library for SAP CAP built on top of <code
-              >@odatano/core</code
-            >. Implements the Cardano-x402-v2 spec - gated OData endpoints
-            return HTTP 402 until the caller proves on-chain settlement.
-            Asset-agnostic, no database, no smart contract: replay defense is
-            the Cardano UTxO model itself. Ships with a working example CAP app.
-          </p>
-          <ul class="example-card__bullets">
-            <li>Cardano-x402-v2 Protocol (HTTP 402)</li>
-            <li>Nonce-UTxO Replay Defense - No Database</li>
-            <li>CAP Service Gating + Express Middleware</li>
-            <li>ADA or Any Native Token Pricing</li>
-          </ul>
-          <div class="example-card__actions">
-            <a href="/docs/x402/" class="btn btn--primary">Learn More</a>
-            <a
-              href="https://github.com/ODATANO/x402"
-              class="btn btn--outline"
-              target="_blank"
-              rel="noopener"
-            >
-              View Source
-            </a>
-          </div>
-        </article>
+      <div class="closing-cta__actions">
+        <a href="/docs/quick-start/" class="btn btn--night btn--lg">Read the Docs</a>
+        <a
+          href="https://github.com/ODATANO"
+          class="btn btn--outline-white btn--lg"
+          target="_blank"
+          rel="noopener"
+        >
+          GitHub
+        </a>
       </div>
     </div>
   </section>
 </Layout>
+
+<script>
+  import "../scripts/home";
+</script>

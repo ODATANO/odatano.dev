@@ -1,0 +1,93 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: NIGHTGATE Plugin
+description: SAP CAP plugin for the Midnight blockchain - indexer, worker-thread wallet stack and ZK-aware transaction submission over OData V4.
+---
+
+# NIGHTGATE Plugin
+
+`@odatano/nightgate` ties a SAP CAP runtime directly to the **Midnight** blockchain. A built-in crawler indexes blocks from a Substrate RPC node into CAP entities; a worker-thread-isolated wallet stack handles ZK-aware transaction submission — deploy/call Compact contracts, send NIGHT, shield/unshield, dust generation. The whole surface is standard OData V4: no GraphQL, no SDK lock-in for consumers.
+
+## Highlights
+
+- **Block-level indexing:** Live + catch-up crawler with reorg detection
+- **Wallet sessions:** Read-only (viewing key) + signing (seed), AES-256-GCM at rest
+- **Contract deploy / call:** Compact-compiled contracts via `deployContract` / `submitContractCall`
+- **ZK predicate attestations:** `issuePredicateAttestation` proves `value ≤/≥ threshold` without revealing the value
+- **Document anchoring:** `anchorDocument` / `verifyDocument` — hash on-chain, caller-managed storage
+- **Shield / unshield:** `shieldFunds` / `unshieldFunds` move NIGHT between ledgers; `sendNight` auto-detects the receiver ledger
+- **Browser connector surface:** `@odatano/nightgate/browser` + `/zk-config` + `/contract-manifest` for wallet-driven (Lace) contract calls
+- **Offline mode:** the CAP app starts even if the upstream node is unreachable
+
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Network | Midnight preprod / mainnet |
+| Chain access | Substrate RPC (wss) + GraphQL indexer |
+| Backend | SAP CAP, Node.js, TypeScript |
+| Wallet SDK | Midnight SDK in `worker_threads` (Effect.ts fibers) |
+| Database | SQLite / SAP HANA |
+| API | OData V4 |
+| Tests | Jest — 49 suites, 688 tests |
+
+## Architecture
+
+```
+Main thread                       Worker thread
+┌────────────────────┐            ┌────────────────────────┐
+│ Crawler            │            │ Wallet SDK             │
+│ - BlockProcessor   │            │ - facade.start (sync)  │
+│ - reorg detection  │            │ - transferTransaction  │
+└────────┬───────────┘            │ - deployContract       │
+         ▼  atomic writes         │ - submitContractCall   │
+┌────────────────────┐            └───────────┬────────────┘
+│ CAP DB             │◄────state-save─────────┘
+└────────┬───────────┘
+         ▼  OData V4
+4 services on /api/v1/{nightgate, indexer, analytics, admin}
+```
+
+The wallet SDK lives in `worker_threads` because Midnight's Effect.ts fiber scheduler saturates the microtask queue during sync — isolation keeps the main CAP request pipeline responsive.
+
+## Service Surface
+
+| Service | Path | What |
+|---------|------|------|
+| `NightgateService` | `/api/v1/nightgate` | Blocks / transactions / wallet sessions / token + contract ops |
+| `NightgateIndexerService` | `/api/v1/indexer` | Sync state, health, reorg history, Prometheus metrics, crawler control |
+| `NightgateAnalyticsService` | `/api/v1/analytics` | Aggregate counts |
+| `NightgateAdminService` | `/api/v1/admin` | Session invalidation |
+
+Submit actions are async: they return `{ jobId, status }`; poll `getJobStatus(jobId, sessionId)` for the result.
+
+## Use as a CAP Plugin
+
+```json
+{
+  "cds": {
+    "requires": {
+      "db": { "kind": "sqlite" },
+      "nightgate": { "kind": "nightgate" }
+    }
+  }
+}
+```
+
+Then `cds watch` — defaults to Preprod with public RPC + hosted indexer.
+
+## Quick Start
+
+```bash
+npm install @odatano/nightgate @cap-js/sqlite
+npm ci
+npm run dev            # connects to public preprod RPC + hosted indexer
+
+# for wallet signing + submission:
+docker compose -f docker/docker-compose.yml up -d proof-server
+npm run serve:sync     # sets the ~12 GB heap (override via NIGHTGATE_HEAP_MB)
+```
+
+## Sourcecode
+
+[github.com/ODATANO/NIGHTGATE](https://github.com/ODATANO/NIGHTGATE)

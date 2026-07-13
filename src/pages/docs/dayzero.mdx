@@ -1,0 +1,74 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: DAYZERO Toolkit
+description: Pure-TypeScript zero-knowledge toolkit - Groth16 proving and verification plus Poseidon hashing on BLS12-381, with an Aiken on-chain verifier.
+---
+
+# DAYZERO Toolkit
+
+`@odatano/dayzero` is the pure-TypeScript zero-knowledge toolkit that powers DAYPASS: Groth16 proving and verification plus Poseidon hashing on BLS12-381, paired with a hand-written Aiken on-chain verifier so proofs are checked by the **Cardano** ledger itself.
+
+## Highlights
+
+- **Poseidon BLS12-381 (t=3, alpha=5, RF=8, RP=57):** Grain-LFSR instantiation from the Poseidon paper, params machine-generated and regression-locked, plus a generic field→leaf Merkle tree
+- **Groth16 verification on `@noble/curves`:** batched Miller loops, compressed ZCash point encodings (G1 48 B / G2 96 B) matching blst and the Cardano Plutus builtins
+- **CRS setup + prover:** radix-2 FFT domain (coset-FFT quotient), secret-free proving keys (toxic waste generated and discarded), multi-core MSM prover via `worker_threads`
+- **Circuit toolkit:** small R1CS `CircuitBuilder`, Poseidon hash/Merkle gadgets, bounded comparators, reusable field-threshold predicate circuit
+- **Aiken on-chain verifier:** Plutus V3 Groth16 verification, VK applied as script params — measured on Preview: mem 173k / steps 2.71B per verify (~27% of a tx budget), 1797 bytes with the VK applied
+- **Portable verification:** `scripts/verify-zk-mint.mjs` re-verifies a live zk mint from public chain data only
+
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Language | Pure TypeScript |
+| Curve | BLS12-381 (`@noble/curves`, `@noble/hashes`) |
+| Proof system | Groth16 (CRS setup, prover, verifier) |
+| Hashing | Poseidon (Grain-LFSR params) |
+| On-chain verifier | Aiken (Plutus V3), Cardano |
+| Parallelism | `worker_threads` multi-core MSM |
+| Tests | 76 unit tests + 34 Aiken contract tests incl. fuzz |
+
+## API
+
+```ts
+import {
+  POSEIDON_BLS12_381_T3 as P, poseidonHash,
+  setupGroth16, createGroth16WorkerProver, verifyGroth16,
+} from '@odatano/dayzero';
+
+const leaf = poseidonHash(P, fieldKey, value);
+
+const { provingKey, verificationKey } = setupGroth16(r1cs);  // toxic waste discarded
+const prover = createGroth16WorkerProver(provingKey);        // multi-core MSM
+const { proof, publicInputs } = await prover.prove(witness);
+verifyGroth16(verificationKey, proof, publicInputs);         // true
+```
+
+## DAYPASS Sidecar
+
+A small HTTP server (`/health`, `/commit`, `/prove`, `/validator`) that DAYPASS mounts as its prover:
+
+```bash
+node --import tsx scripts/build-daypass-validator-registry.mjs --crs
+DAYZERO_DAYPASS_PROVING_KEYS=artifacts \
+DAYZERO_DAYPASS_VALIDATOR_ARTIFACTS=artifacts/daypass-validator-registry.crs.json \
+npm run daypass:server        # 127.0.0.1:8799
+```
+
+Startup refuses footgun configurations: without proving keys it only starts with the explicit `DAYZERO_ALLOW_DEV_PROVER=1` opt-in (never in production — the dev setup's toxic waste is public, its proofs are forgeable).
+
+**Trust roots:** the npm package deliberately ships code and contracts only, NOT `artifacts/` — proving keys and the validator registry are active trust roots; regenerating them silently changes the VK and the policyIds. Work in progress, unaudited, do not use on mainnet.
+
+## Quick Start
+
+```bash
+git clone https://github.com/ODATANO/DAYZERO && cd DAYZERO
+npm install
+npm test            # 76 unit tests
+npm run typecheck
+```
+
+## Sourcecode
+
+[github.com/ODATANO/DAYZERO](https://github.com/ODATANO/DAYZERO)

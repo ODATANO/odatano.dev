@@ -35,6 +35,18 @@
   --gradient-brand: linear-gradient(135deg, #0C5ECF 0%, #3B8EF0 100%);
   --gradient-text:  linear-gradient(135deg, #0C5ECF 0%, #3B8EF0 60%, #8ab8ff 100%);
 
+  /* Night palette — Midnight track (day = Cardano, night = Midnight) */
+  --color-night-950:    #0A0618;
+  --color-night-900:    #140B2E;
+  --color-night-800:    #1F1347;
+  --color-violet:       #7C5CFF;
+  --color-violet-light: #A78BFF;
+  --color-moon:         #CFC3FF;
+  --gradient-night:      linear-gradient(135deg, #7C5CFF 0%, #A78BFF 100%);
+  --gradient-night-text: linear-gradient(135deg, #050308 0%, #0A0618 55%, #2B1580 100%);
+  --gradient-dusk:       linear-gradient(160deg, var(--color-dark-blue) 0%, var(--color-night-950) 100%);
+  --shadow-night: 0 24px 60px -20px rgba(20, 11, 46, 0.5), 0 8px 24px -8px rgba(124, 92, 255, 0.25);
+
   /* Shiki syntax highlighting — matches hero code block */
   --astro-code-foreground:              #e5e7eb;
   --astro-code-background:              #0b1220;
@@ -546,6 +558,7 @@ a:hover { text-decoration: underline; }
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   gap: 1.25rem;
   padding: 2rem 1.75rem;
@@ -640,7 +653,7 @@ a:hover { text-decoration: underline; }
 /* ── Tech Stack ─────────────────────────────────────────────── */
 .stack__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
 .stack__item {
@@ -1368,19 +1381,13 @@ a:hover { text-decoration: underline; }
 
 /* ── Scroll-reveal ──────────────────────────────────────────── */
 /* `.reveal-ready` is set on <html> by JS only when motion is allowed,
-   so without JS (or with reduced motion) content is always visible. */
+   so without JS (or with reduced motion) content is always visible.
+   The animation itself is driven by anime.js (src/scripts/reveal.ts);
+   this rule only provides the hidden initial state. */
 .reveal-ready [data-reveal] {
   opacity: 0;
   transform: translateY(20px);
-  transition:
-    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
-}
-.reveal-ready [data-reveal].is-visible {
-  opacity: 1;
-  transform: none;
 }
 
 /* ── Cursor spotlight on cards ──────────────────────────────── */
@@ -1491,4 +1498,662 @@ a:hover { text-decoration: underline; }
 }
 @keyframes btn-sheen {
   to { left: 160%; }
+}
+
+/* ============================================================
+   Day → Night redesign — sky narrative, duality, night surfaces
+   (progressive enhancement; degrades cleanly without JS / motion)
+   ============================================================ */
+
+/* ── Sky — fixed background stack behind the whole page ─────── */
+/* Hidden by default. JS adds `sky-active` to <html> only when motion
+   is allowed; sections then go transparent and the sky shows through.
+   Without JS each section keeps its own static day/dusk/night background. */
+.sky {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
+}
+html.sky-active .sky { display: block; }
+.sky__night {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: linear-gradient(180deg, #17224e 0%, var(--color-night-900) 45%, var(--color-night-950) 100%);
+  will-change: opacity;
+}
+.sky__stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 18%, rgba(255,255,255,0.9), transparent 100%),
+    radial-gradient(1px 1px at 28% 64%, rgba(255,255,255,0.7), transparent 100%),
+    radial-gradient(1.5px 1.5px at 41% 32%, rgba(207,195,255,0.8), transparent 100%),
+    radial-gradient(1px 1px at 57% 76%, rgba(255,255,255,0.6), transparent 100%),
+    radial-gradient(2px 2px at 66% 14%, rgba(255,255,255,0.85), transparent 100%),
+    radial-gradient(1px 1px at 74% 48%, rgba(207,195,255,0.7), transparent 100%),
+    radial-gradient(1.5px 1.5px at 83% 27%, rgba(255,255,255,0.8), transparent 100%),
+    radial-gradient(1px 1px at 91% 62%, rgba(255,255,255,0.65), transparent 100%),
+    radial-gradient(1px 1px at 8% 84%, rgba(207,195,255,0.6), transparent 100%),
+    radial-gradient(1.5px 1.5px at 49% 9%, rgba(255,255,255,0.75), transparent 100%);
+  will-change: opacity;
+}
+
+/* Sections go transparent when the sky takes over */
+html.sky-active body { background: transparent; }
+html.sky-active .hero { background: transparent; }
+html.sky-active .hero__bg {
+  background:
+    radial-gradient(900px 500px at 85% 10%, rgba(59, 142, 240, 0.18), transparent 60%),
+    radial-gradient(700px 460px at 5% 80%, rgba(12, 94, 207, 0.12), transparent 60%);
+}
+html.sky-active .arch-section { background: transparent; }
+html.sky-active .section--night {
+  background: none;
+  background-image:
+    radial-gradient(900px 400px at 100% 0%, rgba(124, 92, 255, 0.14), transparent 60%),
+    radial-gradient(700px 360px at 0% 100%, rgba(124, 92, 255, 0.1), transparent 60%);
+}
+html.sky-active .closing-cta {
+  background: none;
+  background-image:
+    radial-gradient(800px 380px at 50% 100%, rgba(124, 92, 255, 0.22), transparent 65%);
+}
+
+/* ── Night section (peer of .section--dark, violet flavored) ── */
+.section--night {
+  background: var(--color-night-900);
+  background-image:
+    radial-gradient(900px 400px at 100% 0%, rgba(124, 92, 255, 0.14), transparent 60%),
+    radial-gradient(700px 360px at 0% 100%, rgba(124, 92, 255, 0.1), transparent 60%);
+  color: #fff;
+}
+.section--night .section__title { color: #fff; }
+.section--night .section__subtitle { color: rgba(255,255,255,0.72); }
+.section--night .section__subtitle code {
+  background: rgba(255,255,255,0.08);
+  color: var(--color-moon);
+  border-radius: var(--radius-sm);
+  padding: 0.1rem 0.35rem;
+}
+
+/* ── Hero — dual badges, night accent, terminal cursor ──────── */
+.hero__badges {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.hero__badges .hero__badge { margin-bottom: 0; }
+.hero__badge--night {
+  background: rgba(124, 92, 255, 0.1);
+  color: var(--color-violet);
+  border-color: rgba(124, 92, 255, 0.25);
+}
+.hero__badge--night .hero__badge-dot { background: var(--color-violet); }
+.hero__badge--night .hero__badge-dot::after { background: var(--color-violet); }
+.hero__headline-accent--night {
+  background: var(--gradient-night-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.hero__headline-amp {
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.hero__code-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--color-light-blue);
+  border-radius: 1px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero__code-cursor { animation: cursor-blink 1.1s steps(2, jump-none) infinite; }
+}
+@keyframes cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* Hero headline — masked word reveal (animated by home.ts) */
+.hl-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.22em;
+  margin-bottom: -0.22em;
+}
+.hl-word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Initial hidden states for home.ts animations — gated behind
+   `.reveal-ready` so no-JS / reduced-motion users see everything. */
+.reveal-ready .hl-word {
+  opacity: 0;
+  transform: translateY(110%);
+}
+.reveal-ready .hero__sub { opacity: 0; }
+.reveal-ready .hero__actions { opacity: 0; }
+.reveal-ready .hero__code-box { opacity: 0; }
+.reveal-ready .hero__code-box .code-line { opacity: 0; }
+.reveal-ready .ecosystem__twin { opacity: 0; }
+.reveal-ready .ecosystem__twins-label { opacity: 0; }
+.hero__code-box .code-line { display: block; }
+.hero__code-box .code-line--gap { min-height: 0.85em; }
+.hero__code-box .code-cmd--night { color: var(--color-violet-light); }
+
+/* ── Stats bar — 5 items, counter-safe numerals ─────────────── */
+.stats-bar__value {
+  font-variant-numeric: tabular-nums;
+  min-height: 1.5em;
+}
+
+/* ── Duality — the day/night split ──────────────────────────── */
+.duality { padding: 5rem 0; }
+.duality__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+.duality__panel {
+  position: relative;
+  padding: 3rem 2.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+.duality__panel--day {
+  background:
+    radial-gradient(600px 300px at 20% 0%, rgba(59, 142, 240, 0.14), transparent 65%),
+    linear-gradient(180deg, #ffffff 0%, #eef4ff 100%);
+}
+.duality__panel--night {
+  background:
+    radial-gradient(600px 300px at 80% 0%, rgba(124, 92, 255, 0.22), transparent 65%),
+    linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-950) 100%);
+  color: #fff;
+}
+.duality__night-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  background: radial-gradient(500px 340px at 50% 110%, rgba(124, 92, 255, 0.35), transparent 70%);
+  pointer-events: none;
+}
+html.sky-active .duality__night-glow { opacity: 0; }
+.duality__seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, var(--color-bright-blue), var(--color-violet));
+  opacity: 0.7;
+  z-index: 1;
+}
+.duality__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-bright-blue);
+}
+.duality__panel--night .duality__eyebrow { color: var(--color-violet-light); }
+.duality__icon {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.duality__panel--day .duality__icon {
+  background: linear-gradient(135deg, rgba(12, 94, 207, 0.1), rgba(59, 142, 240, 0.18));
+  color: var(--color-bright-blue);
+}
+.duality__panel--night .duality__icon {
+  background: rgba(124, 92, 255, 0.16);
+  color: var(--color-moon);
+}
+.duality__panel h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-dark-blue);
+}
+.duality__panel--night h3 { color: #fff; }
+.duality__panel p {
+  font-size: 0.9875rem;
+  line-height: 1.7;
+  color: var(--color-text-muted);
+  max-width: 44ch;
+}
+.duality__panel--night p { color: rgba(255,255,255,0.75); }
+.duality__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+.duality__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.55rem;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: rgba(12, 94, 207, 0.07);
+  border: 1px solid rgba(12, 94, 207, 0.18);
+  color: var(--color-bright-blue);
+}
+.duality__panel--night .duality__chip {
+  background: rgba(124, 92, 255, 0.12);
+  border-color: rgba(124, 92, 255, 0.3);
+  color: var(--color-moon);
+}
+.duality__link {
+  padding-top: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-bright-blue);
+  width: fit-content;
+}
+.duality__panel--night .duality__link { color: var(--color-violet-light); }
+
+/* ── Architecture — dual chain rows + drawable flow SVG ─────── */
+.arch__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+  justify-content: center;
+}
+.arch__cell .arch__col { height: auto; flex: 1; }
+.arch__col--plugin-night {
+  background: var(--color-night-800);
+  background-image:
+    radial-gradient(360px 200px at 50% 0%, rgba(124, 92, 255, 0.3), transparent 60%);
+  border-color: var(--color-night-800);
+  box-shadow: var(--shadow-md);
+}
+.arch__col--plugin-night:hover { border-color: var(--color-violet); }
+.arch__col--plugin-night .arch__col-eyebrow { color: rgba(255,255,255,0.55); }
+.arch__col--plugin-night::after {
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, -20%),
+    rgba(124, 92, 255, 0.28),
+    transparent 65%
+  );
+}
+.arch__col--chain-midnight {
+  background: linear-gradient(180deg, #f4f1ff 0%, #ece6ff 100%);
+  border-color: rgba(124, 92, 255, 0.3);
+}
+.arch__col--chain-midnight .arch__col-eyebrow { color: var(--color-violet); }
+.arch__col--chain-midnight .arch__chip {
+  background: rgba(124, 92, 255, 0.08);
+  border-color: rgba(124, 92, 255, 0.24);
+  color: var(--color-night-800);
+}
+.arch__col--chain-midnight::after {
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, -20%),
+    rgba(124, 92, 255, 0.16),
+    transparent 65%
+  );
+}
+.arch__flow {
+  width: 100%;
+  height: 24px;
+  overflow: visible;
+  color: var(--color-bright-blue);
+}
+.arch__flow--night { color: var(--color-violet); }
+.arch__flow-path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+.arch__flow-head { fill: currentColor; opacity: 0.75; }
+.arch__packet {
+  fill: currentColor;
+  opacity: 0;
+}
+.arch__connector--dual {
+  flex-direction: column;
+  justify-content: space-around;
+  align-self: stretch;
+  gap: 0;
+}
+
+/* ── Services — grouped by plugin ───────────────────────────── */
+.services__group { margin-bottom: 3rem; }
+.services__group:last-child { margin-bottom: 0; }
+.services__group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+.services__group-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+.services__group-title strong {
+  color: var(--color-bright-blue);
+  font-weight: 600;
+}
+.services__group-title--night strong { color: var(--color-violet); }
+
+/* Night feature cards (NIGHTGATE services on light section) */
+.feature-card--night {
+  background: linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-900) 100%);
+  border-color: rgba(124, 92, 255, 0.3);
+}
+.feature-card--night:hover {
+  border-color: var(--color-violet);
+  box-shadow: var(--shadow-night);
+}
+.feature-card--night h3 { color: #fff; }
+.feature-card--night p { color: rgba(255,255,255,0.72); }
+.feature-card--night code {
+  background: rgba(124, 92, 255, 0.14);
+  color: var(--color-moon);
+}
+.feature-card--night .feature-card__icon {
+  background: rgba(124, 92, 255, 0.16);
+}
+.feature-card--night::after {
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, -20%),
+    rgba(124, 92, 255, 0.24),
+    transparent 65%
+  );
+}
+
+/* ── Ecosystem — twin passports + project grid ──────────────── */
+.ecosystem__twins {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.ecosystem__grid-label {
+  display: flex;
+  justify-content: center;
+  margin: 2.5rem 0 1.5rem;
+}
+.ecosystem__twins-label--muted {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(124, 92, 255, 0.35);
+  box-shadow: none;
+}
+.ecosystem__twins-label {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  justify-self: center;
+  padding: 0.45rem 1rem;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-bright-blue), var(--color-violet));
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+}
+.ecosystem__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.ecosystem__grid .project-card { padding: 1.75rem; }
+.ecosystem__grid .project-card h3 { font-size: 1.375rem; margin-bottom: 0.75rem; }
+.ecosystem__grid .project-card .example-card__desc {
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+.ecosystem__grid .project-card .example-card__bullets {
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.ecosystem__grid .project-card .example-card__bullets li { font-size: 0.875rem; }
+
+/* Track marker (☀ Cardano / ☾ Midnight) */
+.project-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+}
+.project-card__head .example-card__tag {
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+}
+.project-card__track {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 100px;
+  color: var(--color-bright-blue);
+  background: rgba(12, 94, 207, 0.07);
+  border: 1px solid rgba(12, 94, 207, 0.16);
+}
+.project-card__track--night {
+  color: var(--color-violet);
+  background: rgba(124, 92, 255, 0.1);
+  border-color: rgba(124, 92, 255, 0.26);
+}
+
+/* Night project card (NIGHTPASS twin) */
+.project-card--night {
+  background: linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-900) 100%);
+  border-color: rgba(124, 92, 255, 0.32);
+}
+.project-card--night:hover {
+  border-color: var(--color-violet);
+  box-shadow: var(--shadow-night);
+}
+.project-card--night h3 { color: #fff; }
+.project-card--night .example-card__desc { color: rgba(255,255,255,0.75); }
+.project-card--night .example-card__bullets li { color: rgba(255,255,255,0.88); }
+.project-card--night .example-card__bullets li::before { background: var(--color-violet-light); }
+.project-card--night .example-card__bullets code,
+.project-card--night .example-card__desc code {
+  background: rgba(124, 92, 255, 0.14);
+  color: var(--color-moon);
+}
+.project-card--night .example-card__tag {
+  color: var(--color-moon);
+  background: rgba(124, 92, 255, 0.12);
+  border-color: rgba(124, 92, 255, 0.3);
+}
+.project-card--night .project-card__track--night {
+  color: var(--color-moon);
+  background: rgba(124, 92, 255, 0.16);
+  border-color: rgba(124, 92, 255, 0.35);
+}
+.project-card--night::after {
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, -20%),
+    rgba(124, 92, 255, 0.22),
+    transparent 65%
+  );
+}
+.project-card--night .btn--outline {
+  color: var(--color-violet-light);
+  border-color: rgba(167, 139, 255, 0.6);
+}
+.project-card--night .btn--outline:hover {
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+  color: #fff;
+}
+
+/* Night-flavored primary button */
+.btn--night {
+  background: var(--gradient-night);
+  color: #fff;
+  box-shadow: 0 4px 14px -4px rgba(124, 92, 255, 0.55);
+}
+.btn--night:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px -6px rgba(124, 92, 255, 0.6);
+  text-decoration: none;
+}
+
+/* Cards on night sections keep readable light surfaces */
+.section--night .example-card:not(.project-card--night) {
+  border-color: rgba(255,255,255,0.14);
+}
+
+/* ── Closing CTA — the page ends at night ───────────────────── */
+.closing-cta {
+  position: relative;
+  padding: 6rem 0;
+  background: var(--color-night-950);
+  background-image:
+    radial-gradient(800px 380px at 50% 100%, rgba(124, 92, 255, 0.22), transparent 65%),
+    radial-gradient(600px 300px at 15% 0%, rgba(12, 94, 207, 0.14), transparent 60%);
+  color: #fff;
+  text-align: center;
+  overflow: hidden;
+}
+.closing-cta__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+.closing-cta__title {
+  font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #ffffff 0%, var(--color-moon) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.closing-cta__sub {
+  font-size: 1.0625rem;
+  color: rgba(255,255,255,0.7);
+  max-width: 560px;
+  line-height: 1.7;
+}
+.closing-cta__install {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 1rem 0 1.5rem;
+  width: 100%;
+  max-width: 460px;
+}
+.closing-cta__cmd {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1.25rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: #e5e7eb;
+  text-align: left;
+}
+.closing-cta__cmd::before {
+  content: '$';
+  color: var(--color-violet-light);
+  font-weight: 600;
+}
+.closing-cta__cmd--day::before { color: var(--color-light-blue); }
+.closing-cta__actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ── Footer — continues the night ───────────────────────────── */
+.site-footer--night {
+  background: var(--color-night-950);
+  background-image:
+    radial-gradient(700px 300px at 0% 0%, rgba(124, 92, 255, 0.12), transparent 60%);
+}
+
+/* ── Responsive for new sections ────────────────────────────── */
+@media (max-width: 1240px) {
+  .ecosystem__grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 1024px) {
+  .stats-bar__item { padding: 0 2rem; }
+}
+@media (max-width: 900px) {
+  .duality__grid { grid-template-columns: 1fr; }
+  .duality__seam { display: none; }
+  .ecosystem__twins { grid-template-columns: 1fr; }
+  .ecosystem__twins-label { grid-row: auto; }
+  .arch__connector--dual {
+    flex-direction: row;
+    justify-content: space-around;
+    align-self: auto;
+    height: 56px;
+  }
+  .arch__flow {
+    width: 56px;
+    height: 24px;
+    transform: rotate(90deg);
+  }
+}
+@media (max-width: 600px) {
+  .duality { padding: 3rem 0; }
+  .duality__panel { padding: 2rem 1.5rem; }
+  .ecosystem__grid { grid-template-columns: 1fr; gap: 1rem; }
+  .ecosystem__grid .project-card { padding: 1.5rem; }
+  .closing-cta { padding: 4rem 0; }
+  .closing-cta__cmd { font-size: 0.8rem; }
+  .hero__badges { gap: 0.5rem; }
+  .hero__badges .hero__badge { font-size: 0.75rem; }
 }
