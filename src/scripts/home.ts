@@ -31,15 +31,15 @@ if (document.querySelector(".hero")) {
 
     /* ── Sky — the page scrolls from day into night ─────────────
        The night overlay's opacity is synced to overall scroll
-       progress. Keyframe proportions keep the top half of the page
-       in daylight (dark text sections) and ramp into night from the
-       Ecosystem section onward. */
+       progress. Keyframe proportions keep the hero in daylight, start
+       dusk around the Services section, and ramp fully into night from
+       the Ecosystem section onward. */
     animate(".sky__night", {
       opacity: [
-        { to: 0.04, duration: 20 },
-        { to: 0.2, duration: 25 },
-        { to: 0.8, duration: 30 },
-        { to: 1, duration: 25 },
+        { to: 0.08, duration: 15 },
+        { to: 0.35, duration: 25 },
+        { to: 0.9, duration: 30 },
+        { to: 1, duration: 30 },
       ],
       ease: "linear",
       autoplay: onScroll({
@@ -51,8 +51,8 @@ if (document.querySelector(".hero")) {
     });
     animate(".sky__stars", {
       opacity: [
-        { to: 0, duration: 55 },
-        { to: 0.9, duration: 45 },
+        { to: 0, duration: 42 },
+        { to: 0.95, duration: 58 },
       ],
       ease: "linear",
       autoplay: onScroll({

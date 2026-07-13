@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 
-const heroCode = `<span class="code-line code-comment"># Day — Cardano</span><span class="code-line"><span class="code-cmd">npm install</span> @odatano/core</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># Night — Midnight</span><span class="code-line"><span class="code-cmd code-cmd--night">npm install</span> @odatano/nightgate</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># package.json</span><span class="code-line"><span class="code-key">"cds"</span>: { <span class="code-key">"requires"</span>: {</span><span class="code-line">  <span class="code-key">"odatano-core"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> },</span><span class="code-line">  <span class="code-key">"nightgate"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># services register automatically</span><span class="code-line"><span class="code-cmd">cds</span> serve<span class="hero__code-cursor" aria-hidden="true"></span></span>`;
+const heroCode = `<span class="code-line"><span class="code-cmd">npm install</span> @odatano/core</span><span class="code-line"><span class="code-cmd code-cmd--night">npm install</span> @odatano/nightgate</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># package.json</span><span class="code-line"><span class="code-key">"cds"</span>: { <span class="code-key">"requires"</span>: {</span><span class="code-line">  <span class="code-key">"odatano-core"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> },</span><span class="code-line">  <span class="code-key">"nightgate"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># services register automatically</span><span class="code-line"><span class="code-cmd">cds</span> serve<span class="hero__code-cursor" aria-hidden="true"></span></span>`;
 ---
 
 <Layout
@@ -187,7 +187,7 @@ const heroCode = `<span class="code-line code-comment"># Day — Cardano</span><
         </div>
 
         <!-- Connector 1: app → plugins -->
-        <div class="arch__connector arch__connector--dual" aria-hidden="true">
+        <div class="arch__connector arch__connector--dual arch__connector--first" aria-hidden="true">
           <svg class="arch__flow" viewBox="0 0 100 24" preserveAspectRatio="none">
             <path class="arch__flow-path" d="M18 12 H82"></path>
             <polygon class="arch__flow-head" points="16,7 6,12 16,17"></polygon>
@@ -223,7 +223,7 @@ const heroCode = `<span class="code-line code-comment"># Day — Cardano</span><
         </div>
 
         <!-- Connector 2: plugins → chains -->
-        <div class="arch__connector arch__connector--dual" aria-hidden="true">
+        <div class="arch__connector arch__connector--dual arch__connector--second" aria-hidden="true">
           <svg class="arch__flow" viewBox="0 0 100 24" preserveAspectRatio="none">
             <path class="arch__flow-path" d="M18 12 H82"></path>
             <polygon class="arch__flow-head" points="16,7 6,12 16,17"></polygon>
@@ -252,6 +252,7 @@ const heroCode = `<span class="code-line code-comment"># Day — Cardano</span><
             <p class="arch__col-eyebrow">Midnight</p>
             <div class="arch__col-chips">
               <span class="arch__chip">Mainnet</span>
+              <span class="arch__chip">Preview</span>
               <span class="arch__chip">Preprod</span>
             </div>
           </div>

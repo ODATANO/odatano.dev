@@ -34,6 +34,10 @@
 
   --gradient-brand: linear-gradient(135deg, #0C5ECF 0%, #3B8EF0 100%);
   --gradient-text:  linear-gradient(135deg, #0C5ECF 0%, #3B8EF0 60%, #8ab8ff 100%);
+  /* Card surfaces — soft blue tint + top glow, like the Day duality panel */
+  --gradient-card:
+    radial-gradient(420px 220px at 20% 0%, rgba(59, 142, 240, 0.14), transparent 65%),
+    linear-gradient(180deg, #e6effd 0%, #d0e0f6 100%);
 
   /* Night palette — Midnight track (day = Cardano, night = Midnight) */
   --color-night-950:    #0A0618;
@@ -486,7 +490,7 @@ a:hover { text-decoration: underline; }
   gap: 1.5rem;
 }
 .feature-card {
-  background: var(--color-surface);
+  background: var(--gradient-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: 2rem;
@@ -564,7 +568,7 @@ a:hover { text-decoration: underline; }
   padding: 2rem 1.75rem;
   border-radius: var(--radius-xl);
   border: 1px solid var(--color-border);
-  background: var(--color-surface);
+  background: var(--gradient-card);
   box-shadow: var(--shadow-sm);
   height: 100%;
   transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
@@ -785,7 +789,7 @@ a:hover { text-decoration: underline; }
 .example-card {
   display: flex;
   flex-direction: column;
-  background: var(--color-surface);
+  background: var(--gradient-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: 2.25rem;
@@ -1682,7 +1686,7 @@ html.sky-active .closing-cta {
 .duality__panel--day {
   background:
     radial-gradient(600px 300px at 20% 0%, rgba(59, 142, 240, 0.14), transparent 65%),
-    linear-gradient(180deg, #ffffff 0%, #eef4ff 100%);
+    linear-gradient(180deg, #e6effd 0%, #cbdcf5 100%);
 }
 .duality__panel--night {
   background:
@@ -2135,17 +2139,34 @@ html.sky-active .duality__night-glow { opacity: 0; }
   .duality__seam { display: none; }
   .ecosystem__twins { grid-template-columns: 1fr; }
   .ecosystem__twins-label { grid-row: auto; }
+  /* Stacked layout reads as two tracks: App → ODATANO → Cardano,
+     then NIGHTGATE → Midnight. Cells and connectors dissolve via
+     display:contents so each box/arrow can be reordered individually. */
+  .arch {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .arch__cell,
   .arch__connector--dual {
-    flex-direction: row;
-    justify-content: space-around;
-    align-self: auto;
-    height: 56px;
+    display: contents;
   }
   .arch__flow {
     width: 56px;
     height: 24px;
+    margin: 0.875rem auto;
     transform: rotate(90deg);
   }
+  .arch__col--app { order: 1; }
+  .arch__connector--first .arch__flow:not(.arch__flow--night) { order: 2; }
+  .arch__col--plugin { order: 3; }
+  .arch__connector--second .arch__flow:not(.arch__flow--night) { order: 4; }
+  .arch__col--chain { order: 5; }
+  .arch__col--plugin-night { order: 6; margin-top: 2rem; }
+  .arch__connector--second .arch__flow--night { order: 7; }
+  .arch__col--chain-midnight { order: 8; }
+  /* App ↔ NIGHTGATE arrow has no sensible slot in the stacked flow */
+  .arch__connector--first .arch__flow--night { display: none; }
 }
 @media (max-width: 600px) {
   .duality { padding: 3rem 0; }
