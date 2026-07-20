@@ -13,6 +13,8 @@ interface Props {
   bullets: string[];
   docsHref?: string;
   repoHref: string;
+  demoHref?: string;
+  explorerHref?: string;
   night?: boolean;
   twin?: "day" | "night";
 }
@@ -26,6 +28,8 @@ const {
   bullets,
   docsHref,
   repoHref,
+  demoHref,
+  explorerHref,
   night = false,
   twin,
 } = Astro.props;
@@ -91,10 +95,34 @@ const cardClass = [
   </ul>
   <div class="example-card__actions">
     {
+      demoHref && (
+        <a
+          href={demoHref}
+          class={`btn ${night ? "btn--night" : "btn--primary"}`}
+          target="_blank"
+          rel="noopener"
+        >
+          Live Demo ↗
+        </a>
+      )
+    }
+    {
+      explorerHref && (
+        <a
+          href={explorerHref}
+          class="btn btn--outline"
+          target="_blank"
+          rel="noopener"
+        >
+          Explorer ↗
+        </a>
+      )
+    }
+    {
       docsHref && (
         <a
           href={docsHref}
-          class={`btn ${night ? "btn--night" : "btn--primary"}`}
+          class={`btn ${demoHref ? "btn--outline" : night ? "btn--night" : "btn--primary"}`}
         >
           Learn More
         </a>

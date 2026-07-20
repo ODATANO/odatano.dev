@@ -3,6 +3,12 @@ import Layout from "../layouts/Layout.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 
 const heroCode = `<span class="code-line"><span class="code-cmd">npm install</span> @odatano/core</span><span class="code-line"><span class="code-cmd code-cmd--night">npm install</span> @odatano/nightgate</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># package.json</span><span class="code-line"><span class="code-key">"cds"</span>: { <span class="code-key">"requires"</span>: {</span><span class="code-line">  <span class="code-key">"odatano-core"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> },</span><span class="code-line">  <span class="code-key">"nightgate"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># services register automatically</span><span class="code-line"><span class="code-cmd">cds</span> serve<span class="hero__code-cursor" aria-hidden="true"></span></span>`;
+
+/* Contact form backend (Web3Forms). Get a free access key at
+   https://web3forms.com — enter the email you want messages delivered to,
+   then paste the key below. The form posts to Web3Forms, which emails you;
+   no server of our own is involved (the site is static). */
+const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
 ---
 
 <Layout
@@ -33,7 +39,7 @@ const heroCode = `<span class="code-line"><span class="code-cmd">npm install</sp
           automatically.
         </p>
         <div class="hero__actions">
-          <a href="/docs/quick-start/" class="btn btn--primary btn--lg">
+          <a href="/docs/get-started/" class="btn btn--primary btn--lg">
             Get Started
           </a>
           <a
@@ -69,11 +75,11 @@ const heroCode = `<span class="code-line"><span class="code-cmd">npm install</sp
           <span class="stats-bar__label">License</span>
         </li>
         <li class="stats-bar__item">
-          <span class="stats-bar__value">v1.9.5</span>
+          <span class="stats-bar__value">v1.10.0</span>
           <span class="stats-bar__label">@odatano/core on npm</span>
         </li>
         <li class="stats-bar__item">
-          <span class="stats-bar__value">v0.6.9</span>
+          <span class="stats-bar__value">v0.8.3</span>
           <span class="stats-bar__label">@odatano/nightgate on npm</span>
         </li>
       </ul>
@@ -125,6 +131,11 @@ const heroCode = `<span class="code-line"><span class="code-cmd">npm install</sp
             <span class="duality__chip">FINCA</span>
             <span class="duality__chip">TRACE</span>
           </div>
+          <div class="duality__links">
+            <a href="https://www.npmjs.com/package/@odatano/core" target="_blank" rel="noopener">npm ↗</a>
+            <a href="https://github.com/ODATANO/ODATANO" target="_blank" rel="noopener">GitHub ↗</a>
+            <a href="/docs/quick-start/">Docs</a>
+          </div>
           <a href="#ecosystem" class="duality__link">Explore the Cardano track ↓</a>
         </div>
         <div class="duality__seam" aria-hidden="true"></div>
@@ -153,6 +164,11 @@ const heroCode = `<span class="code-line"><span class="code-cmd">npm install</sp
           <div class="duality__chips">
             <span class="duality__chip">@odatano/nightgate</span>
             <span class="duality__chip">NIGHTPASS</span>
+          </div>
+          <div class="duality__links">
+            <a href="https://www.npmjs.com/package/@odatano/nightgate" target="_blank" rel="noopener">npm ↗</a>
+            <a href="https://github.com/ODATANO/NIGHTGATE" target="_blank" rel="noopener">GitHub ↗</a>
+            <a href="/docs/nightgate/">Docs</a>
           </div>
           <a href="#ecosystem" class="duality__link">Explore the Midnight track ↓</a>
         </div>
@@ -494,6 +510,8 @@ const heroCode = `<span class="code-line"><span class="code-cmd">npm install</sp
           ]}
           docsHref="/docs/nightpass/"
           repoHref="https://github.com/ODATANO/NIGHTPASS"
+          demoHref="https://demo.zkpassport.eu"
+          explorerHref="https://zkpassport.eu"
         />
       </div>
 
@@ -596,7 +614,7 @@ const heroCode = `<span class="code-line"><span class="code-cmd">npm install</sp
       <div class="stack__grid">
         <div class="stack__item">
           <span class="stack__category">Framework</span>
-          <span class="stack__value">SAP CAP 9.x</span>
+          <span class="stack__value">SAP CAP 10.x</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">Language</span>
@@ -616,15 +634,15 @@ const heroCode = `<span class="code-line"><span class="code-cmd">npm install</sp
         </div>
         <div class="stack__item">
           <span class="stack__category">TX Builder</span>
-          <span class="stack__value">Buildooor</span>
+          <span class="stack__value">Buildooor · Midnight SDK</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">Zero-Knowledge</span>
-          <span class="stack__value">Groth16 · Poseidon · BLS12-381</span>
+          <span class="stack__value">Groth16 · Halo2 · Poseidon · BLS12-381</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">Runtime</span>
-          <span class="stack__value">Node.js 20 / 22</span>
+          <span class="stack__value">Node.js 22 / 24</span>
         </div>
         <div class="stack__item">
           <span class="stack__category">License</span>
@@ -636,31 +654,71 @@ const heroCode = `<span class="code-line"><span class="code-cmd">npm install</sp
 
   <!-- ── Closing CTA — the page ends at night ───────────────── -->
   <section class="closing-cta">
-    <div class="container closing-cta__inner">
-      <h2 class="closing-cta__title">Start building.</h2>
-      <p class="closing-cta__sub">
-        Two chains, one integration model. Install a plugin, add one config
-        block, and your CAP service speaks blockchain.
-      </p>
-      <div class="closing-cta__install">
-        <code class="closing-cta__cmd closing-cta__cmd--day">npm install @odatano/core</code>
-        <code class="closing-cta__cmd">npm install @odatano/nightgate</code>
+    <div class="container closing-cta__grid">
+      <div class="closing-cta__inner">
+        <h2 class="closing-cta__title">Start building.</h2>
+        <p class="closing-cta__sub">
+          Two chains, one integration model. Install a plugin, add one config
+          block, and your CAP service speaks blockchain. Run it standalone on
+          your own server, inside SAP BTP, or inside your existing CAP
+          application.
+        </p>
+        <div class="closing-cta__install">
+          <code class="closing-cta__cmd closing-cta__cmd--day">npm install @odatano/core</code>
+          <code class="closing-cta__cmd">npm install @odatano/nightgate</code>
+        </div>
+        <div class="closing-cta__actions">
+          <a href="/docs/quick-start/" class="btn btn--night btn--lg">Read the Docs</a>
+          <a
+            href="https://github.com/ODATANO"
+            class="btn btn--outline-white btn--lg"
+            target="_blank"
+            rel="noopener"
+          >
+            GitHub
+          </a>
+        </div>
       </div>
-      <div class="closing-cta__actions">
-        <a href="/docs/quick-start/" class="btn btn--night btn--lg">Read the Docs</a>
-        <a
-          href="https://github.com/ODATANO"
-          class="btn btn--outline-white btn--lg"
-          target="_blank"
-          rel="noopener"
+
+      <!-- Contact form. Posts to Web3Forms (static-site friendly): it emails
+           the address configured behind the access key. Progressive: without
+           JS it does a normal POST; the script adds an inline success state. -->
+      <div class="contact" id="contact">
+        <h2 class="contact__title">Get in touch</h2>
+        <p class="contact__sub">
+          Questions, an integration, or a custom implementation needed? Send a
+          message and we will get back to you.
+        </p>
+        <form
+          class="contact__form"
+          id="contactForm"
+          action="https://api.web3forms.com/submit"
+          method="POST"
         >
-          GitHub
-        </a>
+          <input type="hidden" name="access_key" value={WEB3FORMS_KEY} />
+          <input type="hidden" name="subject" value="New contact from odatano.dev" />
+          <input type="hidden" name="from_name" value="odatano.dev" />
+          <input
+            class="contact__hp"
+            type="checkbox"
+            name="botcheck"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+          <input type="text" name="name" placeholder="Your name" required autocomplete="name" aria-label="Your name" />
+          <input type="email" name="email" placeholder="Your email" required autocomplete="email" aria-label="Your email" />
+          <textarea name="message" placeholder="Your message" rows="4" required aria-label="Your message"></textarea>
+          <button type="submit" class="btn btn--night btn--lg">Send message</button>
+          <p class="contact__status" role="status" aria-live="polite"></p>
+        </form>
       </div>
     </div>
   </section>
+
 </Layout>
 
 <script>
   import "../scripts/home";
+  import "../scripts/contact";
 </script>

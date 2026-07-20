@@ -1,0 +1,146 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: Get Started
+description: Get started with ODATANO on Cardano (@odatano/core) or Midnight (@odatano/nightgate). Both install as SAP CAP plugins.
+---
+
+# Get Started
+
+ODATANO exposes public blockchains as OData V4 through SAP CAP plugins. Pick your chain, install one package, add one config block, and the blockchain services register automatically. One CAP app can also speak both chains at once.
+
+- **Cardano, transparent:** `@odatano/core` (ODATANO)
+- **Midnight, shielded:** `@odatano/nightgate` (NIGHTGATE)
+
+Both need a SAP CAP project. If you do not have one yet:
+
+```bash
+npm i -g @sap/cds-dk
+cds init my-app && cd my-app
+```
+
+## ODATANO on Cardano
+
+`@odatano/core` gives you transparent, auditable on-chain data and native transaction building, exposed as OData entities and actions. Readable by SAP Fiori, Excel, Power BI, or any OData client.
+
+### 1. Install
+
+```bash
+npm install @odatano/core @cap-js/sqlite
+```
+
+### 2. Configure
+
+Add to your project's `package.json`:
+
+```json
+{
+  "cds": {
+    "requires": {
+      "[development]": { "auth": { "kind": "dummy" } },
+      "db": { "kind": "sqlite", "credentials": { "url": "db.sqlite" } },
+      "odatano-core": {
+        "network": "preview",
+        "backends": ["blockfrost", "koios"],
+        "blockfrostApiKey": "preview_your_api_key",
+        "txBuilders": ["buildooor"]
+      }
+    }
+  }
+}
+```
+
+Get a free Blockfrost key at [blockfrost.io](https://blockfrost.io). The `[development] auth dummy` block lets local `cds watch` accept requests without a JWT.
+
+### 3. Run
+
+```bash
+cds watch
+```
+
+Three services auto-register:
+
+| Service | Path |
+|---------|------|
+| `CardanoODataService` | `/odata/v4/cardano-odata/` |
+| `CardanoTransactionService` | `/odata/v4/cardano-transaction/` |
+| `CardanoSignService` | `/odata/v4/cardano-sign/` |
+
+Verify:
+
+```bash
+curl http://localhost:4004/odata/v4/cardano-odata/NetworkInformation
+```
+
+Go deeper: [Quick Start](/docs/quick-start/), [Configuration](/docs/configuration/), [Transaction Workflow](/docs/transaction-workflow/).
+
+## NIGHTGATE on Midnight
+
+`@odatano/nightgate` ties the same CAP runtime to the **Midnight** blockchain: a block indexer plus a worker-thread wallet stack for ZK-aware transaction submission. Shielded transfers, Compact smart contracts, and zero-knowledge attestations that prove a value meets a threshold without revealing it.
+
+### 1. Install
+
+```bash
+npm install @odatano/nightgate @cap-js/sqlite
+```
+
+### 2. Configure
+
+```json
+{
+  "cds": {
+    "requires": {
+      "db": { "kind": "sqlite" },
+      "nightgate": { "network": "preview" }
+    }
+  }
+}
+```
+
+### 3. Run
+
+```bash
+cds watch
+```
+
+Defaults to a public RPC node and a hosted indexer. Four services auto-register:
+
+| Service | Path |
+|---------|------|
+| `NightgateService` | `/api/v1/nightgate` |
+| `NightgateIndexerService` | `/api/v1/indexer` |
+| `NightgateAnalyticsService` | `/api/v1/analytics` |
+| `NightgateAdminService` | `/api/v1/admin` |
+
+Submit actions are async: they return `{ jobId, status }`, then you poll `getJobStatus(jobId, sessionId)`. For wallet signing and submission you also run a local proof server:
+
+```bash
+docker compose -f docker/docker-compose.yml up -d proof-server
+```
+
+Go deeper: [NIGHTGATE Plugin](/docs/nightgate/), [NIGHTPASS](/docs/nightpass/).
+
+## Run both together
+
+The two plugins are independent CAP requires, so a single app can serve Cardano and Midnight next to each other:
+
+```json
+{
+  "cds": {
+    "requires": {
+      "db": { "kind": "sqlite" },
+      "odatano-core": { "network": "preview" },
+      "nightgate": { "network": "preview" }
+    }
+  }
+}
+```
+
+Then `cds watch`, and all services from both plugins register on their own paths.
+
+## Next steps
+
+- [Configuration:](/docs/configuration/) All `@odatano/core` keys
+- [NIGHTGATE Plugin:](/docs/nightgate/) Midnight services, wallet, and ZK surface
+- [NIGHTPASS:](/docs/nightpass/) A full app built on NIGHTGATE, the EU battery passport
+- [API Reference:](/docs/reference/) All entities and actions
+- [GitHub:](https://github.com/ODATANO) Source, issues, and packages
