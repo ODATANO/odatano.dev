@@ -6,16 +6,20 @@ description: SAP CAP plugin for the Midnight blockchain - indexer, worker-thread
 
 # NIGHTGATE Plugin
 
-`@odatano/nightgate` ties a SAP CAP runtime directly to the **Midnight** blockchain. A built-in crawler indexes blocks from a Substrate RPC node into CAP entities; a worker-thread-isolated wallet stack handles ZK-aware transaction submission — deploy/call Compact contracts, send NIGHT, shield/unshield, dust generation. The whole surface is standard OData V4: no GraphQL, no SDK lock-in for consumers.
+`@odatano/nightgate` ties a SAP CAP runtime directly to the **Midnight** blockchain. A built-in crawler indexes blocks from a Substrate RPC node into CAP entities; a worker-thread-isolated wallet stack handles ZK-aware transaction submission — deploy/call Compact contracts, send NIGHT and custom tokens, fee sponsoring, dust generation. The whole surface is standard OData V4: no GraphQL, no SDK lock-in for consumers.
 
 ## Highlights
 
 - **Block-level indexing:** Live + catch-up crawler with reorg detection
-- **Wallet sessions:** Read-only (viewing key) + signing (seed), AES-256-GCM at rest
-- **Contract deploy / call:** Compact-compiled contracts via `deployContract` / `submitContractCall`
-- **ZK predicate attestations:** `issuePredicateAttestation` proves `value ≤/≥ threshold` without revealing the value
+- **Wallet sessions:** Read-only (viewing key) + signing (seed), AES-256-GCM at rest; `deriveWalletInfo` creates wallets programmatically (multi-account via `accountIndex`) — no Lace needed
+- **Contract deploy / call:** Compact-compiled contracts via `deployContract` / `submitContractCall`; `submitContractCallBatch` bundles up to 8 dependent calls in one tx with deterministic apply order
+- **In-process WASM proving:** `NIGHTGATE_PROVING_MODE=wasm` is the zero-config default — no proof-server container for dev/test/CI (external proof server recommended for production)
+- **Fee sponsoring:** `sponsorSessionId` on all submission actions — the caller wallet needs neither NIGHT nor dust
+- **ZK predicate attestations:** `issuePredicateAttestation` / `issueFieldPredicateAttestation` prove `value ≤/≥ threshold` without revealing the value; `verifyAttestationState` / `verifyPredicateState` verify crawler-free, cross-network
 - **Document anchoring:** `anchorDocument` / `verifyDocument` — hash on-chain, caller-managed storage
-- **Shield / unshield:** `shieldFunds` / `unshieldFunds` move NIGHT between ledgers; `sendNight` auto-detects the receiver ledger
+- **Disclosure ACLs:** `grantDisclosure` / `revokeDisclosure` + `registerGranteeIdentity` gate who can read disclosed values
+- **Passport registrar:** `registerPassport` with bind-takeover guard
+- **Token transfers:** `sendNight` auto-detects the receiver ledger and moves NIGHT or custom tokens (`tokenTypeHex`); `getWalletBalance` / `estimateSendNightFee` for diagnostics
 - **Browser connector surface:** `@odatano/nightgate/browser` + `/zk-config` + `/contract-manifest` for wallet-driven (Lace) contract calls
 - **Offline mode:** the CAP app starts even if the upstream node is unreachable
 
@@ -23,13 +27,13 @@ description: SAP CAP plugin for the Midnight blockchain - indexer, worker-thread
 
 | Layer | Tech |
 |-------|------|
-| Network | Midnight preprod / mainnet |
+| Network | Midnight preview / preprod / mainnet (plus testnet, undeployed) |
 | Chain access | Substrate RPC (wss) + GraphQL indexer |
-| Backend | SAP CAP, Node.js, TypeScript |
+| Backend | SAP CAP (`@sap/cds` ≥ 10), Node.js ≥ 22, TypeScript |
 | Wallet SDK | Midnight SDK in `worker_threads` (Effect.ts fibers) |
-| Database | SQLite / SAP HANA |
+| Database | SQLite (dev) / PostgreSQL or SAP HANA (prod — SQLite is rejected in production) |
 | API | OData V4 |
-| Tests | Jest — 49 suites, 688 tests |
+| Tests | Vitest — 68 suites, ~1,230 tests |
 
 ## Architecture
 
@@ -57,9 +61,9 @@ The wallet SDK lives in `worker_threads` because Midnight's Effect.ts fiber sche
 | `NightgateService` | `/api/v1/nightgate` | Blocks / transactions / wallet sessions / token + contract ops |
 | `NightgateIndexerService` | `/api/v1/indexer` | Sync state, health, reorg history, Prometheus metrics, crawler control |
 | `NightgateAnalyticsService` | `/api/v1/analytics` | Aggregate counts |
-| `NightgateAdminService` | `/api/v1/admin` | Session invalidation |
+| `NightgateAdminService` | `/api/v1/admin` | Session invalidation, role grants |
 
-Submit actions are async: they return `{ jobId, status }`; poll `getJobStatus(jobId, sessionId)` for the result.
+Submit actions are async: they return `{ jobId, status }`; poll `getJobStatus(jobId, sessionId)` for the result. The job model is a durable, restart-safe state machine — idempotency keys, lease/heartbeat, on-chain `chainStatus` tracked separately from the job status, Prometheus job gauges.
 
 ## Use as a CAP Plugin
 
@@ -68,13 +72,13 @@ Submit actions are async: they return `{ jobId, status }`; poll `getJobStatus(jo
   "cds": {
     "requires": {
       "db": { "kind": "sqlite" },
-      "nightgate": { "kind": "nightgate" }
+      "nightgate": { "network": "preprod" }
     }
   }
 }
 ```
 
-Then `cds watch` — defaults to Preprod with public RPC + hosted indexer.
+Then `cds watch` — `network` is the only required key; defaults use the public RPC + hosted indexer.
 
 ## Quick Start
 
@@ -83,9 +87,11 @@ npm install @odatano/nightgate @cap-js/sqlite
 npm ci
 npm run dev            # connects to public preprod RPC + hosted indexer
 
-# for wallet signing + submission:
-docker compose -f docker/docker-compose.yml up -d proof-server
+# wallet signing + submission — proving runs in-process by default (WASM):
 npm run serve:sync     # sets the ~12 GB heap (override via NIGHTGATE_HEAP_MB)
+
+# optional, recommended for production — external proof server:
+docker compose -f docker/docker-compose.yml up -d proof-server
 ```
 
 ## Sourcecode
