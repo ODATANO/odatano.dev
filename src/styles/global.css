@@ -1682,8 +1682,8 @@ html.sky-active .site-footer--night {
 }
 .reveal-ready .hero__sub { opacity: 0; }
 .reveal-ready .hero__actions { opacity: 0; }
-.reveal-ready .hero__code-box { opacity: 0; }
-.reveal-ready .hero__code-box .code-line { opacity: 0; }
+.reveal-ready .hero .hero__code-box { opacity: 0; }
+.reveal-ready .hero .hero__code-box .code-line { opacity: 0; }
 .reveal-ready .ecosystem__twin { opacity: 0; }
 .reveal-ready .ecosystem__twins-label { opacity: 0; }
 .hero__code-box .code-line { display: block; }
@@ -2101,6 +2101,151 @@ html.sky-active .duality__night-glow { opacity: 0; }
   border-color: rgba(255,255,255,0.14);
 }
 
+/* ── AI Agents — NIGHTGATE-MCP (text + .mcp.json code box) ────
+   Sits in the dusk zone of the scroll-driven sky, so it carries its own
+   night panel (same treatment as the duality night panel) instead of
+   relying on the section backdrop for contrast. */
+.agents { padding-top: 0; }
+.agents__panel {
+  position: relative;
+  padding: 3.5rem 3rem 3rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(124, 92, 255, 0.28);
+  box-shadow: var(--shadow-night, var(--shadow-md));
+  background:
+    radial-gradient(700px 320px at 85% 0%, rgba(124, 92, 255, 0.22), transparent 65%),
+    radial-gradient(500px 300px at 0% 100%, rgba(124, 92, 255, 0.12), transparent 65%),
+    linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-950) 100%);
+  color: #fff;
+  overflow: hidden;
+}
+.agents__panel .section__header { margin-bottom: 2.5rem; }
+.agents__panel .section__title { color: #fff; }
+.agents__panel .section__subtitle { color: rgba(255,255,255,0.72); }
+.agents__panel .section__subtitle code {
+  background: rgba(255,255,255,0.08);
+  color: var(--color-moon);
+  border-radius: var(--radius-sm);
+  padding: 0.1rem 0.35rem;
+}
+.agents__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+}
+.agents__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.agents__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-violet-light);
+}
+.agents__eyebrow-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-violet);
+  box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.22);
+}
+.agents__text h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.agents__text > p {
+  font-size: 0.9875rem;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.75);
+  max-width: 52ch;
+}
+.agents__text > p code,
+.agents__note code {
+  background: rgba(255,255,255,0.08);
+  color: var(--color-moon);
+  border-radius: var(--radius-sm);
+  padding: 0.1rem 0.35rem;
+  font-size: 0.85em;
+}
+.agents__tools {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0.25rem 0 0;
+  padding: 0;
+}
+.agents__tool-group {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+.agents__tool-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.55);
+}
+.agents__tool-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.agents__tool-chips code {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.55rem;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: rgba(124, 92, 255, 0.12);
+  border: 1px solid rgba(124, 92, 255, 0.3);
+  color: var(--color-moon);
+}
+.agents__links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+.agents__links a {
+  color: var(--color-violet-light);
+  font-weight: 600;
+}
+.agents__links a:hover { text-decoration: underline; }
+.agents__visual {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+}
+.agents__code { max-width: none; }
+.agents__code::before {
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.5), transparent 40%, rgba(124, 92, 255, 0.3));
+}
+.agents__code pre { font-size: 0.82rem; }
+.agents__note {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.6);
+}
+
 /* ── Closing CTA — the page ends at night ───────────────────── */
 .closing-cta {
   position: relative;
@@ -2260,6 +2405,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
   .duality__seam { display: none; }
   .ecosystem__twins { grid-template-columns: 1fr; }
   .ecosystem__twins-label { grid-row: auto; }
+  .agents__grid { grid-template-columns: 1fr; gap: 2rem; }
   /* Stacked layout reads as two tracks: App → ODATANO → Cardano,
      then NIGHTGATE → Midnight. Cells and connectors dissolve via
      display:contents so each box/arrow can be reordered individually. */
@@ -2296,6 +2442,9 @@ html.sky-active .duality__night-glow { opacity: 0; }
   .ecosystem__grid .project-card { padding: 1.5rem; }
   .closing-cta { padding: 4rem 0; }
   .closing-cta__cmd { font-size: 0.8rem; }
+  .agents__panel { padding: 2.25rem 1.5rem; }
+  .agents__tool-group { grid-template-columns: 1fr; gap: 0.35rem; }
+  .agents__code pre { font-size: 0.75rem; padding: 1.25rem 1.25rem; }
   .hero__badges { gap: 0.5rem; }
   .hero__badges .hero__badge { font-size: 0.75rem; }
 }

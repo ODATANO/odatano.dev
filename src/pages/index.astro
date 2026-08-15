@@ -4,6 +4,9 @@ import ProjectCard from "../components/ProjectCard.astro";
 
 const heroCode = `<span class="code-line"><span class="code-cmd">npm install</span> @odatano/core</span><span class="code-line"><span class="code-cmd code-cmd--night">npm install</span> @odatano/nightgate</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># package.json</span><span class="code-line"><span class="code-key">"cds"</span>: { <span class="code-key">"requires"</span>: {</span><span class="code-line">  <span class="code-key">"odatano-core"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> },</span><span class="code-line">  <span class="code-key">"nightgate"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># services register automatically</span><span class="code-line"><span class="code-cmd">cds</span> serve<span class="hero__code-cursor" aria-hidden="true"></span></span>`;
 
+/* NIGHTGATE-MCP `.mcp.json` snippet for the AI Agents section. */
+const mcpCode = `<span class="code-line"><span class="code-cmd code-cmd--night">npx</span> @odatano/nightgate-mcp</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># .mcp.json - Claude Code / Cursor / any MCP client</span><span class="code-line">{ <span class="code-key">"mcpServers"</span>: {</span><span class="code-line">  <span class="code-key">"nightgate"</span>: {</span><span class="code-line">    <span class="code-key">"command"</span>: <span class="code-str">"npx"</span>,</span><span class="code-line">    <span class="code-key">"args"</span>: [<span class="code-str">"-y"</span>, <span class="code-str">"@odatano/nightgate-mcp"</span>],</span><span class="code-line">    <span class="code-key">"env"</span>: {</span><span class="code-line">      <span class="code-key">"NIGHTGATE_BASE_URL"</span>: <span class="code-str">"http://localhost:4004"</span>,</span><span class="code-line">      <span class="code-key">"NIGHTGATE_TOKEN"</span>: <span class="code-str">"ngat_…"</span></span><span class="code-line">    }</span><span class="code-line">  }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># 15 tools: verify · prove · anchor · grant</span>`;
+
 /* Contact form backend (Web3Forms). Get a free access key at
    https://web3forms.com — enter the email you want messages delivered to,
    then paste the key below. The form posts to Web3Forms, which emails you;
@@ -75,12 +78,16 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
           <span class="stats-bar__label">License</span>
         </li>
         <li class="stats-bar__item">
-          <span class="stats-bar__value">v1.10.0</span>
+          <span class="stats-bar__value">v2.0.0-rc.1</span>
           <span class="stats-bar__label">@odatano/core on npm</span>
         </li>
         <li class="stats-bar__item">
-          <span class="stats-bar__value">v0.11.1</span>
+          <span class="stats-bar__value">v0.15.3</span>
           <span class="stats-bar__label">@odatano/nightgate on npm</span>
+        </li>
+        <li class="stats-bar__item">
+          <span class="stats-bar__value">v0.2.0</span>
+          <span class="stats-bar__label">@odatano/nightgate-mcp on npm</span>
         </li>
       </ul>
     </div>
@@ -163,6 +170,7 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
           </p>
           <div class="duality__chips">
             <span class="duality__chip">@odatano/nightgate</span>
+            <span class="duality__chip">@odatano/nightgate-mcp</span>
             <span class="duality__chip">NIGHTPASS</span>
           </div>
           <div class="duality__links">
@@ -199,6 +207,7 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
             <span class="arch__chip">SAP Fiori / UI5</span>
             <span class="arch__chip">Any OData Client</span>
             <span class="arch__chip">REST / curl</span>
+            <span class="arch__chip">AI Agents via MCP</span>
           </div>
         </div>
 
@@ -465,6 +474,103 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
     </div>
   </section>
 
+  <!-- ── AI Agents — NIGHTGATE-MCP ─────────────────────────── -->
+  <section class="section agents" id="mcp">
+    <div class="container">
+      <div class="agents__panel">
+      <div class="section__header">
+        <h2 class="section__title">AI Agents</h2>
+        <p class="section__subtitle">
+          <code>@odatano/nightgate-mcp</code> is a Model Context Protocol
+          server that lets AI agents use NIGHTGATE - anchor documents, prove
+          zero-knowledge predicates over hidden fields, manage disclosure
+          grants and verify everything against live Midnight contract state.
+          Works with Claude Code, Claude Desktop, Cursor or any MCP client.
+        </p>
+      </div>
+
+      <div class="agents__grid">
+        <div class="agents__text">
+          <span class="agents__eyebrow">
+            <span class="agents__eyebrow-dot" aria-hidden="true"></span>
+            NIGHTGATE-MCP · v0.2.0
+          </span>
+          <h3>Give your agent a notary, not a wallet.</h3>
+          <p>
+            Fifteen tools cover the attestation layer end to end. Wallet
+            lifecycle - connect, send, deploy - is deliberately not exposed;
+            write tools run against a pinned wallet session and can be
+            scoped by an <code>ngat_…</code> agent-grant token with allowlist
+            and budget. Verifications return <code>verified: false</code> as a
+            clean negative, never an error.
+          </p>
+
+          <ul class="agents__tools">
+            <li class="agents__tool-group">
+              <span class="agents__tool-label">Verify</span>
+              <span class="agents__tool-chips">
+                <code>verify_attestation</code>
+                <code>verify_predicate</code>
+                <code>verify_document</code>
+                <code>verify_predicate_attestation</code>
+              </span>
+            </li>
+            <li class="agents__tool-group">
+              <span class="agents__tool-label">Prove</span>
+              <span class="agents__tool-chips">
+                <code>prove_field_predicate</code>
+                <code>prove_field_equality</code>
+                <code>prove_field_membership</code>
+                <code>prove_field_predicates_batch</code>
+              </span>
+            </li>
+            <li class="agents__tool-group">
+              <span class="agents__tool-label">Anchor</span>
+              <span class="agents__tool-chips">
+                <code>anchor_document</code>
+                <code>attest_agent_output</code>
+                <code>prepare_document_proof</code>
+                <code>prepare_membership_set</code>
+              </span>
+            </li>
+            <li class="agents__tool-group">
+              <span class="agents__tool-label">Grant</span>
+              <span class="agents__tool-chips">
+                <code>grant_disclosure</code>
+                <code>revoke_disclosure</code>
+                <code>get_job_status</code>
+              </span>
+            </li>
+          </ul>
+
+          <div class="agents__links">
+            <a href="https://www.npmjs.com/package/@odatano/nightgate-mcp" target="_blank" rel="noopener">npm ↗</a>
+            <a href="https://github.com/ODATANO/NIGHTGATE-MCP" target="_blank" rel="noopener">GitHub ↗</a>
+            <a href="/docs/nightgate-mcp/">Docs</a>
+          </div>
+        </div>
+
+        <div class="agents__visual">
+          <div class="hero__code-box agents__code">
+            <div class="hero__code-chrome" aria-hidden="true">
+              <span class="hero__code-dot" style="background:#ff5f57"></span>
+              <span class="hero__code-dot" style="background:#febc2e"></span>
+              <span class="hero__code-dot" style="background:#28c840"></span>
+              <span class="hero__code-filename">.mcp.json</span>
+            </div>
+            <pre set:html={mcpCode} />
+          </div>
+          <p class="agents__note">
+            Requires a running NIGHTGATE ≥ 0.15.0 - e.g. the official Docker
+            image <code>ghcr.io/odatano/nightgate</code> or any CAP app with
+            the <code>@odatano/nightgate</code> plugin.
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ── Ecosystem ─────────────────────────────────────────── -->
   <section class="section section--night" id="ecosystem">
     <div class="container">
@@ -666,6 +772,7 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
         <div class="closing-cta__install">
           <code class="closing-cta__cmd closing-cta__cmd--day">npm install @odatano/core</code>
           <code class="closing-cta__cmd">npm install @odatano/nightgate</code>
+          <code class="closing-cta__cmd">npx @odatano/nightgate-mcp</code>
         </div>
         <div class="closing-cta__actions">
           <a href="/docs/quick-start/" class="btn btn--night btn--lg">Read the Docs</a>

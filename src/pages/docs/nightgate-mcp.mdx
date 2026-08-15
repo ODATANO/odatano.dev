@@ -1,0 +1,132 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: NIGHTGATE-MCP
+description: MCP server that lets AI agents use NIGHTGATE - anchor documents, prove zero-knowledge predicates over hidden fields, manage disclosure grants and verify against live Midnight contract state.
+---
+
+# NIGHTGATE-MCP
+
+`@odatano/nightgate-mcp` is a **Model Context Protocol (MCP) server** that exposes NIGHTGATE, the Midnight blockchain attestation layer, to AI agents. An agent connected to it can anchor documents on-chain, prove zero-knowledge predicates over hidden document fields, manage disclosure grants, verify everything against live contract state, and poll async jobs — through plain MCP tool calls, without knowing anything about OData, Compact or Midnight.
+
+Wallet lifecycle (connect, send, deploy) is **deliberately not exposed**: the agent gets a notary, not a wallet.
+
+## Highlights
+
+- **15 tools** covering verify, prove, anchor and grant — the full NIGHTGATE attestation surface
+- **Clean negatives:** every verification tool returns `verified: false` when an attestation or proof is absent, never an error
+- **Scoped agent access:** write tools run against a pinned wallet session and can be restricted by an `ngat_…` agent-grant token (tool allowlist, budget, pinned session)
+- **Async job model:** anchor / prove / grant tools return a job id; `get_job_status` polls until `succeeded` / `failed`
+- **Zero-install:** ships a `nightgate-mcp` binary — `npx @odatano/nightgate-mcp` is enough
+- **Any MCP client:** Claude Code, Claude Desktop, Cursor, or a custom `@modelcontextprotocol/sdk` client
+
+## Requirements
+
+| Requirement | Version |
+|-------------|---------|
+| Node.js | ≥ 20 |
+| NIGHTGATE instance | ≥ 0.15.0 for the full tool set (0.14.0 works without the equality / membership tools) |
+
+## Getting a NIGHTGATE instance
+
+The fastest way is the official Docker image published from the NIGHTGATE repo — no Node setup, no host app:
+
+```bash
+docker run -d --name nightgate -p 4004:4004 \
+  -e ENCRYPTION_KEY=$(openssl rand -hex 32) \
+  -e NIGHTGATE_HTTP_PASSWORD=change-me \
+  -v nightgate-data:/data \
+  ghcr.io/odatano/nightgate:latest
+```
+
+The container targets Midnight preprod by default, serves with HTTP basic auth (`nightgate` / your password), persists its database in the `nightgate-data` volume, and proves in-process (WASM), so no proof server is needed to start.
+
+Alternatively, any CAP app using the [`@odatano/nightgate`](/docs/nightgate/) plugin works — e.g. the NIGHTGATE repo itself via `npm run dev`.
+
+## Configuration
+
+Configuration is environment-driven so the same binary works for local dev (basic auth against a `cds watch` instance) and for a deployed NIGHTGATE behind a reverse proxy (bearer token / agent grants).
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `NIGHTGATE_BASE_URL` | `http://localhost:4004` | NIGHTGATE host app |
+| `NIGHTGATE_USERNAME` / `NIGHTGATE_PASSWORD` | unset | Basic auth (CAP dev / mocked auth) |
+| `NIGHTGATE_TOKEN` | unset | `ngat_…` agent-grant token (sent as `x-agent-token`, combinable with basic auth) or a plain bearer token |
+| `NIGHTGATE_SERVICE_PATH` | `/api/v1/nightgate` | OData service path |
+| `NIGHTGATE_TIMEOUT_MS` | `30000` | Per-request timeout |
+
+For agent operation, create a scoped grant once as the operator (e.g. via `curl` against NIGHTGATE's `createAgentGrant` action) and hand the returned `ngat_…` token to the agent as `NIGHTGATE_TOKEN`. The write tools are then limited to the grant's allowlist, budget and pinned session.
+
+## Use with Claude Code
+
+```bash
+claude mcp add nightgate \
+  --env NIGHTGATE_BASE_URL=http://localhost:4004 \
+  --env NIGHTGATE_TOKEN=ngat_... \
+  -- npx -y @odatano/nightgate-mcp
+```
+
+Or in a project `.mcp.json` (Claude Code, Cursor and most MCP clients share this shape):
+
+```json
+{
+  "mcpServers": {
+    "nightgate": {
+      "command": "npx",
+      "args": ["-y", "@odatano/nightgate-mcp"],
+      "env": {
+        "NIGHTGATE_BASE_URL": "http://localhost:4004",
+        "NIGHTGATE_TOKEN": "ngat_..."
+      }
+    }
+  }
+}
+```
+
+For a local dev instance with mocked CAP auth, replace `NIGHTGATE_TOKEN` with `NIGHTGATE_USERNAME` / `NIGHTGATE_PASSWORD`.
+
+## Tools
+
+| Tool | What it does |
+|------|--------------|
+| `verify_attestation` | Live-state check that a payload hash is attested in an AttestationVault (crawler-free, optional content-root check, optional cross-network read) |
+| `verify_predicate` | Live-state check that a ZK claim was recorded true on-chain, id-free: numeric predicates, `bytesEquality` (+ `expectedDigest`) and `setMembership` (+ `setRoot`) |
+| `verify_predicate_attestation` | Verify a server-issued predicate attestation by its row id |
+| `verify_document` | Verify an anchored document by document id + sha256 |
+| `prepare_document_proof` | Canonicalize a document into `payloadHash` + Merkle `contentRoot` + per-field proof inputs — numeric and `kind: "bytes"` string fields (synchronous) |
+| `prepare_membership_set` | Build the canonical allow-list set tree: `setRoot` for verifiers, inclusion path for provers (synchronous) |
+| `attest_agent_output` | Anchor agent-output provenance as a canonical, third-party-verifiable envelope (async job) |
+| `anchor_document` | Anchor a document content hash on-chain (async job) |
+| `prove_field_predicate` | ZK proof that a hidden document field satisfies a threshold, without revealing it (async job) |
+| `prove_field_equality` | ZK proof that a string field carries exactly the value behind a public digest (async job) |
+| `prove_field_membership` | ZK proof that a hidden string field is one of a public allow-list, without revealing which (async job) |
+| `prove_field_predicates_batch` | Up to 8 field claims on one document in **one** transaction — any mix of numeric / equality / membership (async job) |
+| `grant_disclosure` / `revoke_disclosure` | Attester-only on-chain disclosure ACL (async jobs) |
+| `get_job_status` | Poll an async NIGHTGATE job until `succeeded` / `failed` |
+
+Write tools require a connected wallet session (`sessionId`); creating sessions stays outside MCP by design.
+
+## Typical agent flow
+
+```
+1. prepare_document_proof   → payloadHash, contentRoot, per-field proof inputs
+2. anchor_document          → { jobId }        (async)
+3. get_job_status           → succeeded, on-chain tx
+4. prove_field_predicate    → { jobId }        e.g. "carbon_footprint ≤ 80"
+5. get_job_status           → succeeded, attestation id
+6. verify_predicate         → verified: true   (anyone, crawler-free)
+```
+
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Protocol | Model Context Protocol (`@modelcontextprotocol/sdk`), stdio transport |
+| Upstream | NIGHTGATE OData V4 (`/api/v1/nightgate`) via `@odatano/nightgate` ≥ 0.15.0 |
+| Chain | Midnight preprod / preview / mainnet (whatever the NIGHTGATE instance targets) |
+| Runtime | Node.js ≥ 20, TypeScript, `zod` schemas |
+| Auth | Basic auth, bearer token, or `ngat_…` agent grants |
+| Tests | In-memory MCP client integration check (`npm run integration`), optional live round-trip |
+
+## Sourcecode
+
+[github.com/ODATANO/NIGHTGATE-MCP](https://github.com/ODATANO/NIGHTGATE-MCP) · [npm: @odatano/nightgate-mcp](https://www.npmjs.com/package/@odatano/nightgate-mcp)

@@ -82,12 +82,12 @@ if (document.querySelector(".hero")) {
         "-=450"
       )
       .add(
-        ".hero__code-box",
+        ".hero .hero__code-box",
         { opacity: [0, 1], translateY: [18, 0], duration: 700 },
         "-=500"
       )
       .add(
-        ".hero__code-box .code-line",
+        ".hero .hero__code-box .code-line",
         { opacity: [0, 1], translateX: [-8, 0], duration: 400, delay: stagger(70) },
         "-=400"
       );

@@ -23,6 +23,8 @@ const SELECTOR = [
   ".stats-bar__item",
   ".duality__panel",
   ".services__group-title",
+  ".agents__text",
+  ".agents__visual",
   ".closing-cta__inner",
 ].join(", ");
 

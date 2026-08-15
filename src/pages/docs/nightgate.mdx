@@ -22,6 +22,7 @@ description: SAP CAP plugin for the Midnight blockchain - indexer, worker-thread
 - **Token transfers:** `sendNight` auto-detects the receiver ledger and moves NIGHT or custom tokens (`tokenTypeHex`); `getWalletBalance` / `estimateSendNightFee` for diagnostics
 - **Browser connector surface:** `@odatano/nightgate/browser` + `/zk-config` + `/contract-manifest` for wallet-driven (Lace) contract calls
 - **Offline mode:** the CAP app starts even if the upstream node is unreachable
+- **AI agents:** [`@odatano/nightgate-mcp`](/docs/nightgate-mcp/) exposes the attestation layer (anchor, prove, verify, grant) as MCP tools — scoped by `ngat_…` agent-grant tokens
 
 ## Stack
 
