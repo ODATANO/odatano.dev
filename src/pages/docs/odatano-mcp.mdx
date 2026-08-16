@@ -1,0 +1,174 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: ODATANO-MCP
+description: MCP server that lets AI agents use ODATANO - read the Cardano chain, query the indexer with OData, build unsigned transactions, hand them to a signer, verify and submit.
+---
+
+# ODATANO-MCP
+
+`@odatano/core-mcp` is a **Model Context Protocol (MCP) server** that exposes ODATANO, the Cardano OData bridge, to AI agents. An agent connected to it can read chain, address, UTxO, asset, staking and governance data, query the indexer with standard OData `$filter`, build transactions, hand them to a human or wallet for signing, verify signatures and submit signed CBOR — through plain MCP tool calls, without knowing OData, CBOR or Cardano's UTxO model.
+
+It is the Cardano sibling of [NIGHTGATE-MCP](/docs/nightgate-mcp/), and it makes the same promise: **the agent gets a notary, not a wallet.** Nothing in this server can sign. HSM signing (`SignWithHsm*`) and every admin operation (crawler / worker pause and resume) are deliberately not exposed; wallet-worker jobs, where a server-held key signs, are opt-in.
+
+## Why it is safe to let an agent build transactions
+
+ODATANO's write path is **Build → Sign (external) → Submit**, and the server never holds the sender's key in the default flow. That maps cleanly onto what an agent may and may not do:
+
+| Surface | Exposed? | Reason |
+|---------|----------|--------|
+| Reads (20 entities, 19 actions) | yes | pure reads, cached by the indexer |
+| `Build*` actions | yes | return **unsigned** CBOR + fee; nothing moves without a signature the agent cannot produce |
+| Signing handoff + verification | yes | produces instructions for a human / CIP-30 wallet; verifies, never signs |
+| Submit | yes | the agent can only submit CBOR a wallet already signed |
+| HSM signing | **never** | a server-held key is exactly the wallet the agent must not have |
+| Wallet worker jobs (2.0) | opt-in | server wallets sign — off unless `ODATANO_MCP_ENABLE_WALLET_JOBS=1` |
+| Admin (pause / resume crawler, worker) | **never** | operator actions |
+
+## Requirements
+
+| Requirement | Version |
+|-------------|---------|
+| Node.js | ≥ 20 |
+| ODATANO host | `@odatano/core` ≥ 1.11.0; **≥ 2.0.0-rc.3 recommended** |
+
+Earlier hosts have two keyed-read defects: rc.1 drops `$expand` / `$select` on keyed reads (the `get_transaction` tool works around it automatically), and everything before rc.3 can answer a keyed read with a row the query excludes — that one has no workaround.
+
+The crawler and wallet-worker tools appear automatically when the host serves those services: at startup the server probes `cardano-worker/$metadata` and `cardano-indexer/$metadata`, so a 1.x host gets a clean 36-tool catalogue and a 2.0 host 40.
+
+## Getting an ODATANO instance
+
+```bash
+# Docker (published from the ODATANO repo on every release)
+docker run -d --name odatano -p 4004:4004 \
+  -e NETWORK=preview \
+  -e BACKENDS=blockfrost,koios \
+  -e BLOCKFROST_API_KEY=preview_xxx \
+  ghcr.io/odatano/odatano:latest
+```
+
+Or any CAP app using the plugin — `npm i @odatano/core @cap-js/sqlite`, add `cds.requires.odatano-core`, `cds watch`. See [Get Started](/docs/get-started/).
+
+## Configuration
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `ODATANO_BASE_URL` | `http://localhost:4004` | ODATANO host app |
+| `ODATANO_USERNAME` / `ODATANO_PASSWORD` | unset | Basic auth (CAP mocked / dev auth, e.g. `alice`) |
+| `ODATANO_TOKEN` | unset | Bearer JWT (XSUAA / `auth: jwt`); an `odat_…` value is reserved for the planned agent-grant token |
+| `ODATANO_SERVICE_PREFIX` | `/odata/v4` | Prefix before the five service paths |
+| `ODATANO_TIMEOUT_MS` | `30000` | Per-request timeout |
+| `ODATANO_MCP_MAX_ROWS` | `50` | Default `$top` for `query_entity`, cap on arrays in tool output |
+| `ODATANO_MCP_ENABLE_WALLET_JOBS` | `false` | Register the wallet-worker write tools |
+
+## Use with Claude Code
+
+```bash
+claude mcp add odatano \
+  --env ODATANO_BASE_URL=http://localhost:4004 \
+  --env ODATANO_USERNAME=alice \
+  -- npx -y @odatano/core-mcp
+```
+
+Or in a project `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "odatano": {
+      "command": "npx",
+      "args": ["-y", "@odatano/core-mcp"],
+      "env": {
+        "ODATANO_BASE_URL": "http://localhost:4004",
+        "ODATANO_USERNAME": "alice"
+      }
+    }
+  }
+}
+```
+
+## Tools
+
+### Read
+
+| Tool | What it does |
+|------|--------------|
+| `get_network_info` | Host network (mainnet / preview / preprod), tip, backend health — call this first |
+| `get_latest_block` · `get_block` | Latest block, or block by hash |
+| `get_epoch` | Epoch by number, or the current one |
+| `get_protocol_parameters` | Fees, min-UTxO, cost models, collateral percentage |
+| `get_transaction` | Transaction by hash, optionally with resolved inputs and outputs |
+| `get_transaction_metadata` | Metadata entries (CIP-20, label-1447, CIP-25, …) |
+| `parse_transaction_cbor` | Decode signed or unsigned CBOR — pure, no network call |
+| `get_address` · `get_utxos` · `get_address_assets` · `get_address_transactions` | Balance, UTxOs (by address **or** payment credential), assets, recent txs |
+| `get_asset_info` · `get_asset_history` | Supply + CIP-25/26 metadata, mint / burn history |
+| `get_account` · `get_pool` · `get_drep` | Stake account, stake pool, governance DRep |
+
+Lookups return `{ found: false }` as a clean negative rather than an error.
+
+### Query
+
+`query_entity` runs a standard OData V4 query (`$filter`, `$select`, `$expand`, `$orderby`, `$top`/`$skip`, `$count`) over the indexer entity sets — everything the `get_*` tools fetched before, plus, on hosts running the 2.0 crawler, contiguously pre-synced blocks and transactions. This is what turns the pre-sync into something an agent can actually reason over: questions no fixed action covers ("transactions above 500 000 lovelace in the last 1 000 blocks") become one call.
+
+### Build — unsigned
+
+| Tool | What it does |
+|------|--------------|
+| `build_ada_transfer` | ADA transfer; optional assets, inline datum, lock at script address, CIP-33 reference script |
+| `build_metadata_transaction` | Transfer carrying transaction metadata (anchoring) |
+| `build_multi_asset_transfer` | Native assets + ADA to one recipient |
+| `build_mint_transaction` | Mint / burn under a Plutus V3 policy — parameters, required signers, reference inputs, metadata, `__INPUT_IDX__` placeholders |
+| `build_plutus_spend` | Spend a script UTxO: validator + redeemer, continuing datum, extra outputs, combined mint |
+| `set_collateral` | Ensure an ADA-only collateral UTxO exists |
+| `get_build_details` · `list_builds_by_address` | Re-fetch a build, build audit trail |
+| `derive_script_address` · `extract_payment_key_hash` | Pure utilities |
+
+Every build returns `{ id, unsignedTxCbor, fee, … }` — **nothing is signed or submitted.**
+
+### Sign handoff, verify, submit
+
+| Tool | What it does |
+|------|--------------|
+| `create_signing_request` | Build → signing request with instructions and a ready-to-run `cardano-cli` command for the human / wallet |
+| `get_signing_request` · `list_signing_requests` | State: `pending → verified → submitted` |
+| `verify_signature` | Check a signed CBOR against its request (required signers, fee payer) — no submit |
+| `verify_data_signature` | CIP-30 `signData` (COSE_Sign1) verification for wallet login / consent |
+| `submit_signed_transaction` | Submit already-signed CBOR; a duplicate returns `alreadySubmitted: true` instead of an error |
+| `submit_verified_transaction` | Verify + submit for a signing request (`deferSubmit` supported) |
+| `get_submission_status` | Submission state, optionally re-checking the chain |
+
+### ODATANO 2.0 subsystems
+
+`get_sync_status` and `get_reorg_log` (crawler / pre-sync), `get_worker_status` and `get_wallet_job_status` (wallet worker). The write tools `submit_wallet_job` / `cancel_wallet_job` are registered only with `ODATANO_MCP_ENABLE_WALLET_JOBS=1` — those jobs are signed by a server-managed wallet and move funds.
+
+## Typical agent flow
+
+```
+1. get_network_info            → which network am I on?
+2. get_utxos(address)          → what can be spent?
+3. build_ada_transfer(...)     → { buildId, unsignedTxCbor, fee }   (nothing moved)
+4. parse_transaction_cbor      → show the human what they are about to sign
+5. create_signing_request      → instructions + cardano-cli command
+   … human / CIP-30 wallet signs …
+6. verify_signature            → witnesses valid for fee payer + required signers
+7. submit_signed_transaction   → { txHash, status }
+8. get_submission_status       → confirmed
+```
+
+## Errors
+
+Upstream OData errors surface as tool errors with `{ httpStatus, code, message }` — `ODATANO_INVALID_INPUT`, `ODATANO_NOT_FOUND`, `ODATANO_INSUFFICIENT_FUNDS`, `ODATANO_TX_VALIDATION_FAILED`, `ODATANO_PROVIDER_UNAVAILABLE`, `ODATANO_PROVIDER_RATE_LIMITED` — so the agent can react (401 → credentials, 429 → back off, 400 → fix arguments) instead of failing blind. Long arrays are capped at `ODATANO_MCP_MAX_ROWS`, and large CBOR blobs nested in results are elided (tools whose job is returning CBOR keep it).
+
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Protocol | Model Context Protocol (`@modelcontextprotocol/sdk`), stdio transport |
+| Upstream | ODATANO OData V4 — five services under `/odata/v4` |
+| Chain | Cardano mainnet / preview / preprod (whatever the host targets) |
+| Runtime | Node.js ≥ 20, TypeScript, `zod` schemas |
+| Auth | Basic auth or bearer JWT |
+| Tests | Unit tests plus an in-memory MCP client integration check, with an optional live round-trip |
+
+## Sourcecode
+
+[github.com/ODATANO/ODATANO-CORE-MCP](https://github.com/ODATANO/ODATANO-CORE-MCP) · [npm: @odatano/core-mcp](https://www.npmjs.com/package/@odatano/core-mcp)

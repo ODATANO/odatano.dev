@@ -4,8 +4,8 @@ import ProjectCard from "../components/ProjectCard.astro";
 
 const heroCode = `<span class="code-line"><span class="code-cmd">npm install</span> @odatano/core</span><span class="code-line"><span class="code-cmd code-cmd--night">npm install</span> @odatano/nightgate</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># package.json</span><span class="code-line"><span class="code-key">"cds"</span>: { <span class="code-key">"requires"</span>: {</span><span class="code-line">  <span class="code-key">"odatano-core"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> },</span><span class="code-line">  <span class="code-key">"nightgate"</span>: { <span class="code-key">"network"</span>: <span class="code-str">"preview"</span> }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># services register automatically</span><span class="code-line"><span class="code-cmd">cds</span> serve<span class="hero__code-cursor" aria-hidden="true"></span></span>`;
 
-/* NIGHTGATE-MCP `.mcp.json` snippet for the AI Agents section. */
-const mcpCode = `<span class="code-line"><span class="code-cmd code-cmd--night">npx</span> @odatano/nightgate-mcp</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># .mcp.json - Claude Code / Cursor / any MCP client</span><span class="code-line">{ <span class="code-key">"mcpServers"</span>: {</span><span class="code-line">  <span class="code-key">"nightgate"</span>: {</span><span class="code-line">    <span class="code-key">"command"</span>: <span class="code-str">"npx"</span>,</span><span class="code-line">    <span class="code-key">"args"</span>: [<span class="code-str">"-y"</span>, <span class="code-str">"@odatano/nightgate-mcp"</span>],</span><span class="code-line">    <span class="code-key">"env"</span>: {</span><span class="code-line">      <span class="code-key">"NIGHTGATE_BASE_URL"</span>: <span class="code-str">"http://localhost:4004"</span>,</span><span class="code-line">      <span class="code-key">"NIGHTGATE_TOKEN"</span>: <span class="code-str">"ngat_…"</span></span><span class="code-line">    }</span><span class="code-line">  }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># 15 tools: verify · prove · anchor · grant</span>`;
+/* `.mcp.json` snippet for the AI Agents section - both MCP servers at once. */
+const mcpCode = `<span class="code-line"><span class="code-cmd">npx</span> @odatano/core-mcp</span><span class="code-line"><span class="code-cmd code-cmd--night">npx</span> @odatano/nightgate-mcp</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># .mcp.json - Claude Code / Claude Desktop / Cursor / any MCP client</span><span class="code-line">{ <span class="code-key">"mcpServers"</span>: {</span><span class="code-line">  <span class="code-key">"odatano"</span>: {</span><span class="code-line">    <span class="code-key">"command"</span>: <span class="code-str">"npx"</span>,</span><span class="code-line">    <span class="code-key">"args"</span>: [<span class="code-str">"-y"</span>, <span class="code-str">"@odatano/core-mcp"</span>],</span><span class="code-line">    <span class="code-key">"env"</span>: { <span class="code-key">"ODATANO_BASE_URL"</span>: <span class="code-str">"http://localhost:4004"</span> }</span><span class="code-line">  },</span><span class="code-line">  <span class="code-key">"nightgate"</span>: {</span><span class="code-line">    <span class="code-key">"command"</span>: <span class="code-str">"npx"</span>,</span><span class="code-line">    <span class="code-key">"args"</span>: [<span class="code-str">"-y"</span>, <span class="code-str">"@odatano/nightgate-mcp"</span>],</span><span class="code-line">    <span class="code-key">"env"</span>: { <span class="code-key">"NIGHTGATE_BASE_URL"</span>: <span class="code-str">"http://localhost:4005"</span> }</span><span class="code-line">  }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># one agent, both chains - 36 + 15 tools</span>`;
 
 /* Contact form backend (Web3Forms). Get a free access key at
    https://web3forms.com — enter the email you want messages delivered to,
@@ -78,16 +78,20 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
           <span class="stats-bar__label">License</span>
         </li>
         <li class="stats-bar__item">
-          <span class="stats-bar__value">v2.0.0-rc.1</span>
-          <span class="stats-bar__label">@odatano/core on npm</span>
-        </li>
-        <li class="stats-bar__item">
-          <span class="stats-bar__value">v0.15.3</span>
-          <span class="stats-bar__label">@odatano/nightgate on npm</span>
+          <span class="stats-bar__value">v2.0.0-rc.3</span>
+          <span class="stats-bar__label">@odatano/core</span>
         </li>
         <li class="stats-bar__item">
           <span class="stats-bar__value">v0.2.0</span>
-          <span class="stats-bar__label">@odatano/nightgate-mcp on npm</span>
+          <span class="stats-bar__label">@odatano/core-mcp</span>
+        </li>
+        <li class="stats-bar__item">
+          <span class="stats-bar__value">v0.16.2</span>
+          <span class="stats-bar__label">@odatano/nightgate</span>
+        </li>
+        <li class="stats-bar__item">
+          <span class="stats-bar__value">v0.3.0</span>
+          <span class="stats-bar__label">@odatano/nightgate-mcp</span>
         </li>
       </ul>
     </div>
@@ -132,6 +136,7 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
           </p>
           <div class="duality__chips">
             <span class="duality__chip">@odatano/core</span>
+            <span class="duality__chip">@odatano/core-mcp</span>
             <span class="duality__chip">DAYPASS</span>
             <span class="duality__chip">DAYZERO</span>
             <span class="duality__chip">x402</span>
@@ -474,80 +479,135 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
     </div>
   </section>
 
-  <!-- ── AI Agents — NIGHTGATE-MCP ─────────────────────────── -->
+  <!-- ── AI Agents — the two MCP servers ───────────────────── -->
   <section class="section agents" id="mcp">
     <div class="container">
       <div class="agents__panel">
-      <div class="section__header">
-        <h2 class="section__title">AI Agents</h2>
-        <p class="section__subtitle">
-          <code>@odatano/nightgate-mcp</code> is a Model Context Protocol
-          server that lets AI agents use NIGHTGATE - anchor documents, prove
-          zero-knowledge predicates over hidden fields, manage disclosure
-          grants and verify everything against live Midnight contract state.
-          Works with Claude Code, Claude Desktop, Cursor or any MCP client.
-        </p>
-      </div>
-
-      <div class="agents__grid">
-        <div class="agents__text">
-          <span class="agents__eyebrow">
-            <span class="agents__eyebrow-dot" aria-hidden="true"></span>
-            NIGHTGATE-MCP · v0.2.0
-          </span>
-          <h3>Give your agent a notary, not a wallet.</h3>
-          <p>
-            Fifteen tools cover the attestation layer end to end. Wallet
-            lifecycle - connect, send, deploy - is deliberately not exposed;
-            write tools run against a pinned wallet session and can be
-            scoped by an <code>ngat_…</code> agent-grant token with allowlist
-            and budget. Verifications return <code>verified: false</code> as a
-            clean negative, never an error.
+        <div class="section__header">
+          <h2 class="section__title">AI Agents</h2>
+          <p class="section__subtitle">
+            Two Model Context Protocol servers put both chains in reach of an
+            AI agent - <code>@odatano/core-mcp</code> for Cardano,
+            <code>@odatano/nightgate-mcp</code> for Midnight. Same guarantee on
+            both sides: the agent gets a notary, never a wallet. Works with
+            Claude Code, Claude Desktop, Cursor or any MCP client.
           </p>
+        </div>
 
-          <ul class="agents__tools">
-            <li class="agents__tool-group">
-              <span class="agents__tool-label">Verify</span>
-              <span class="agents__tool-chips">
-                <code>verify_attestation</code>
-                <code>verify_predicate</code>
-                <code>verify_document</code>
-                <code>verify_predicate_attestation</code>
-              </span>
-            </li>
-            <li class="agents__tool-group">
-              <span class="agents__tool-label">Prove</span>
-              <span class="agents__tool-chips">
-                <code>prove_field_predicate</code>
-                <code>prove_field_equality</code>
-                <code>prove_field_membership</code>
-                <code>prove_field_predicates_batch</code>
-              </span>
-            </li>
-            <li class="agents__tool-group">
-              <span class="agents__tool-label">Anchor</span>
-              <span class="agents__tool-chips">
-                <code>anchor_document</code>
-                <code>attest_agent_output</code>
-                <code>prepare_document_proof</code>
-                <code>prepare_membership_set</code>
-              </span>
-            </li>
-            <li class="agents__tool-group">
-              <span class="agents__tool-label">Grant</span>
-              <span class="agents__tool-chips">
-                <code>grant_disclosure</code>
-                <code>revoke_disclosure</code>
-                <code>get_job_status</code>
-              </span>
-            </li>
-          </ul>
+        <div class="agents__duo">
+          <article class="agents__server agents__server--day">
+            <span class="agents__eyebrow">
+              <span class="agents__eyebrow-dot" aria-hidden="true"></span>
+              ODATANO-MCP · v0.1.0 · Cardano
+            </span>
+            <h3>Read the chain, build unsigned.</h3>
+            <p>
+              36 tools: chain, address, UTxO, asset and governance reads, a
+              generic OData <code>$filter</code> query over the indexer, and the
+              full build path - ADA, metadata, multi-asset, mint, Plutus V3
+              spend. Builds return <strong>unsigned</strong> CBOR; a human or
+              CIP-30 wallet signs, the agent verifies and submits. HSM signing
+              and every admin action stay out of reach.
+            </p>
 
-          <div class="agents__links">
-            <a href="https://www.npmjs.com/package/@odatano/nightgate-mcp" target="_blank" rel="noopener">npm ↗</a>
-            <a href="https://github.com/ODATANO/NIGHTGATE-MCP" target="_blank" rel="noopener">GitHub ↗</a>
-            <a href="/docs/nightgate-mcp/">Docs</a>
-          </div>
+            <ul class="agents__tools">
+              <li class="agents__tool-group">
+                <span class="agents__tool-label">Read</span>
+                <span class="agents__tool-chips">
+                  <code>get_transaction</code>
+                  <code>get_utxos</code>
+                  <code>get_asset_info</code>
+                  <code>query_entity</code>
+                </span>
+              </li>
+              <li class="agents__tool-group">
+                <span class="agents__tool-label">Build</span>
+                <span class="agents__tool-chips">
+                  <code>build_ada_transfer</code>
+                  <code>build_mint_transaction</code>
+                  <code>build_plutus_spend</code>
+                </span>
+              </li>
+              <li class="agents__tool-group">
+                <span class="agents__tool-label">Sign</span>
+                <span class="agents__tool-chips">
+                  <code>create_signing_request</code>
+                  <code>verify_signature</code>
+                </span>
+              </li>
+              <li class="agents__tool-group">
+                <span class="agents__tool-label">Submit</span>
+                <span class="agents__tool-chips">
+                  <code>submit_signed_transaction</code>
+                  <code>get_submission_status</code>
+                </span>
+              </li>
+            </ul>
+
+            <div class="agents__links">
+              <a href="https://www.npmjs.com/package/@odatano/core-mcp" target="_blank" rel="noopener">npm ↗</a>
+              <a href="https://github.com/ODATANO/ODATANO-CORE-MCP" target="_blank" rel="noopener">GitHub ↗</a>
+              <a href="/docs/odatano-mcp/">Docs</a>
+            </div>
+          </article>
+
+          <article class="agents__server agents__server--night">
+            <span class="agents__eyebrow">
+              <span class="agents__eyebrow-dot" aria-hidden="true"></span>
+              NIGHTGATE-MCP · v0.3.0 · Midnight
+            </span>
+            <h3>Prove it without revealing it.</h3>
+            <p>
+              15 tools cover the attestation layer end to end: anchor documents,
+              prove zero-knowledge predicates over hidden fields, manage
+              disclosure grants, verify against live contract state. Write tools
+              run against a pinned wallet session and can be scoped by an
+              <code>ngat_…</code> agent-grant token with allowlist and budget.
+              Verifications return <code>verified: false</code> as a clean
+              negative, never an error.
+            </p>
+
+            <ul class="agents__tools">
+              <li class="agents__tool-group">
+                <span class="agents__tool-label">Verify</span>
+                <span class="agents__tool-chips">
+                  <code>verify_attestation</code>
+                  <code>verify_predicate</code>
+                  <code>verify_document</code>
+                </span>
+              </li>
+              <li class="agents__tool-group">
+                <span class="agents__tool-label">Prove</span>
+                <span class="agents__tool-chips">
+                  <code>prove_field_predicate</code>
+                  <code>prove_field_equality</code>
+                  <code>prove_field_membership</code>
+                </span>
+              </li>
+              <li class="agents__tool-group">
+                <span class="agents__tool-label">Anchor</span>
+                <span class="agents__tool-chips">
+                  <code>anchor_document</code>
+                  <code>attest_agent_output</code>
+                  <code>prepare_document_proof</code>
+                </span>
+              </li>
+              <li class="agents__tool-group">
+                <span class="agents__tool-label">Grant</span>
+                <span class="agents__tool-chips">
+                  <code>grant_disclosure</code>
+                  <code>revoke_disclosure</code>
+                  <code>get_job_status</code>
+                </span>
+              </li>
+            </ul>
+
+            <div class="agents__links">
+              <a href="https://www.npmjs.com/package/@odatano/nightgate-mcp" target="_blank" rel="noopener">npm ↗</a>
+              <a href="https://github.com/ODATANO/NIGHTGATE-MCP" target="_blank" rel="noopener">GitHub ↗</a>
+              <a href="/docs/nightgate-mcp/">Docs</a>
+            </div>
+          </article>
         </div>
 
         <div class="agents__visual">
@@ -561,12 +621,12 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
             <pre set:html={mcpCode} />
           </div>
           <p class="agents__note">
-            Requires a running NIGHTGATE ≥ 0.15.0 - e.g. the official Docker
-            image <code>ghcr.io/odatano/nightgate</code> or any CAP app with
-            the <code>@odatano/nightgate</code> plugin.
+            Each server talks to its own host app: ODATANO-MCP to any CAP app
+            running <code>@odatano/core</code> (≥ 2.0.0-rc.3 recommended),
+            NIGHTGATE-MCP to <code>@odatano/nightgate</code> ≥ 0.15.0 - both
+            also available as Docker images.
           </p>
         </div>
-      </div>
       </div>
     </div>
   </section>
@@ -772,6 +832,7 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
         <div class="closing-cta__install">
           <code class="closing-cta__cmd closing-cta__cmd--day">npm install @odatano/core</code>
           <code class="closing-cta__cmd">npm install @odatano/nightgate</code>
+          <code class="closing-cta__cmd closing-cta__cmd--day">npx @odatano/core-mcp</code>
           <code class="closing-cta__cmd">npx @odatano/nightgate-mcp</code>
         </div>
         <div class="closing-cta__actions">

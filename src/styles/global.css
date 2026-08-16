@@ -498,7 +498,7 @@ a:hover { text-decoration: underline; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 3rem;
+  padding: 0 2rem;
   border-right: 1px solid rgba(255,255,255,0.1);
 }
 .stats-bar__item:last-child { border-right: none; }
@@ -1312,7 +1312,7 @@ a:hover { text-decoration: underline; }
     padding: 2.75rem 1rem 1.125rem;
     font-size: 0.8125rem;
   }
-  .stats-bar__item { padding: 0 1.5rem; }
+  .stats-bar__item { padding: 0 1rem; }
 }
 
 /* Mobile menu activation — covers tablet down */
@@ -1396,7 +1396,7 @@ a:hover { text-decoration: underline; }
   .hero__sub { font-size: 1rem; }
   .stats-bar { padding: 1.5rem 0; }
   .stats-bar__list { flex-direction: column; gap: 1.25rem; }
-  .stats-bar__item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0 0 1.25rem; width: 100%; text-align: center; }
+  .stats-bar__item { flex: 0 0 auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0 0 1.25rem; width: 100%; text-align: center; }
   .stats-bar__item:last-child { border-bottom: none; padding-bottom: 0; }
   .feature-card { padding: 1.5rem; }
   .arch__col { padding: 1.5rem 1.25rem; }
@@ -2128,17 +2128,52 @@ html.sky-active .duality__night-glow { opacity: 0; }
   border-radius: var(--radius-sm);
   padding: 0.1rem 0.35rem;
 }
-.agents__grid {
+/* Two server cards side by side: day (Cardano) | night (Midnight). Both sit on
+   the dark panel, so they are separated by accent colour, not by lightness. */
+.agents__duo {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: 3rem;
-  align-items: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
-.agents__text {
+.agents__server {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 2rem 1.75rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  min-width: 0;
 }
+.agents__server--day {
+  border-color: rgba(59, 142, 240, 0.3);
+  background:
+    radial-gradient(420px 200px at 0% 0%, rgba(59, 142, 240, 0.14), transparent 70%),
+    rgba(255, 255, 255, 0.03);
+}
+.agents__server--night {
+  border-color: rgba(124, 92, 255, 0.32);
+  background:
+    radial-gradient(420px 200px at 100% 0%, rgba(124, 92, 255, 0.16), transparent 70%),
+    rgba(255, 255, 255, 0.03);
+}
+.agents__server h3 { margin-bottom: 0; }
+.agents__server .agents__links { margin-top: auto; }
+.agents__server p strong { color: #fff; font-weight: 700; }
+/* Day card recolours the shared eyebrow / chip / link accents to Cardano blue */
+.agents__server--day .agents__eyebrow { color: #9ec5ff; }
+.agents__server--day .agents__eyebrow-dot {
+  background: var(--color-bright-blue);
+  box-shadow: 0 0 0 4px rgba(59, 142, 240, 0.22);
+}
+.agents__server--day .agents__tool-chips code {
+  background: rgba(59, 142, 240, 0.12);
+  border-color: rgba(59, 142, 240, 0.32);
+  color: #9ec5ff;
+}
+.agents__server--day .agents__links a { color: #9ec5ff; }
+
 .agents__eyebrow {
   display: inline-flex;
   align-items: center;
@@ -2158,19 +2193,19 @@ html.sky-active .duality__night-glow { opacity: 0; }
   background: var(--color-violet);
   box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.22);
 }
-.agents__text h3 {
+.agents__server h3 {
   font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #fff;
 }
-.agents__text > p {
+.agents__server > p {
   font-size: 0.9875rem;
   line-height: 1.7;
   color: rgba(255,255,255,0.75);
   max-width: 52ch;
 }
-.agents__text > p code,
+.agents__server > p code,
 .agents__note code {
   background: rgba(255,255,255,0.08);
   color: var(--color-moon);
@@ -2237,7 +2272,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
 }
 .agents__code { max-width: none; }
 .agents__code::before {
-  background: linear-gradient(135deg, rgba(124, 92, 255, 0.5), transparent 40%, rgba(124, 92, 255, 0.3));
+  background: linear-gradient(135deg, rgba(59, 142, 240, 0.5), transparent 45%, rgba(124, 92, 255, 0.45));
 }
 .agents__code pre { font-size: 0.82rem; }
 .agents__note {
@@ -2397,15 +2432,22 @@ html.sky-active .duality__night-glow { opacity: 0; }
 @media (max-width: 1240px) {
   .ecosystem__grid { grid-template-columns: repeat(2, 1fr); }
 }
+@media (max-width: 1120px) {
+  /* Five items no longer fit on one line — wrap to a deliberate 3 + 2 instead
+     of the 4 + 1 that plain flex-wrap produces. */
+  .stats-bar__list { row-gap: 1.25rem; }
+  .stats-bar__item { flex: 0 0 33.333%; padding: 0 1rem; }
+  .stats-bar__item:nth-child(3n) { border-right: none; }
+}
 @media (max-width: 1024px) {
-  .stats-bar__item { padding: 0 2rem; }
+  .stats-bar__item { padding: 0 0.75rem; }
 }
 @media (max-width: 900px) {
   .duality__grid { grid-template-columns: 1fr; }
   .duality__seam { display: none; }
   .ecosystem__twins { grid-template-columns: 1fr; }
   .ecosystem__twins-label { grid-row: auto; }
-  .agents__grid { grid-template-columns: 1fr; gap: 2rem; }
+  .agents__duo { grid-template-columns: 1fr; gap: 1.25rem; }
   /* Stacked layout reads as two tracks: App → ODATANO → Cardano,
      then NIGHTGATE → Midnight. Cells and connectors dissolve via
      display:contents so each box/arrow can be reordered individually. */
@@ -2443,6 +2485,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
   .closing-cta { padding: 4rem 0; }
   .closing-cta__cmd { font-size: 0.8rem; }
   .agents__panel { padding: 2.25rem 1.5rem; }
+  .agents__server { padding: 1.5rem 1.25rem; }
   .agents__tool-group { grid-template-columns: 1fr; gap: 0.35rem; }
   .agents__code pre { font-size: 0.75rem; padding: 1.25rem 1.25rem; }
   .hero__badges { gap: 0.5rem; }
