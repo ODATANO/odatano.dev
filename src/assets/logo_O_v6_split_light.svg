@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 82 462 96" width="462" height="96">
+  <!-- Light variant for dark backgrounds: dark navy -> white, blues lifted for contrast -->
+  <g transform="translate(70, 128)">
+    <!-- O shape - left half (white) -->
+    <path d="M-3,-36 C-20,-34 -36,-20 -36,0 C-36,20 -20,36 0,36 L-3,36 L-3,-36 Z M-3,-20 L-3,20 C-11,18 -20,11 -20,0 C-20,-11 -11,-18 -3,-20 Z" fill="#FFFFFF"/>
+
+    <!-- O shape - right half (light blue) -->
+    <path d="M3,-36 C20,-34 36,-20 36,0 C36,20 20,36 0,36 L3,36 L3,-36 Z M3,-20 L3,20 C11,18 20,11 20,0 C20,-11 11,-18 3,-20 Z" fill="#5EA0F5"/>
+
+    <!-- Diagonal data stream in the gap -->
+    <circle cx="0" cy="-18" r="2" fill="#9CC6FF" opacity="0.9"/>
+    <circle cx="0" cy="-8" r="1.5" fill="#9CC6FF" opacity="0.7"/>
+    <circle cx="0" cy="2" r="1.5" fill="#9CC6FF" opacity="0.5"/>
+    <circle cx="0" cy="12" r="2" fill="#9CC6FF" opacity="0.7"/>
+    <circle cx="0" cy="22" r="1.5" fill="#9CC6FF" opacity="0.4"/>
+  </g>
+
+  <text x="120" y="142" font-family="'Segoe UI', 'Helvetica Neue', sans-serif" font-size="50" letter-spacing="6" fill="#FFFFFF">
+    <tspan font-weight="600" fill="#FFFFFF">DATA</tspan><tspan font-weight="400" fill="#5EA0F5">NO</tspan>
+  </text>
+  <text x="123" y="164" font-family="'Segoe UI', 'Helvetica Neue', sans-serif" font-size="11" letter-spacing="2.6" fill="#9CC6FF" opacity="0.75" font-weight="400">
+    ODATA FOR CARDANO &amp; MIDNIGHT
+  </text>
+</svg>
