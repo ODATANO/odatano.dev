@@ -1,5 +1,7 @@
 ---
+import "@odatano/brand/tokens.css";
 import "../styles/global.css";
+import faviconUrl from "@odatano/brand/logos/odatano-icon.svg?url";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 
@@ -21,7 +23,7 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>ODATANO - {title}</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={faviconUrl} type="image/svg+xml" />
     <meta property="og:title" content={`ODATANO ${title}`} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />

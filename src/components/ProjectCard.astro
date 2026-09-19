@@ -1,4 +1,13 @@
 ---
+import daypassIcon from "@odatano/brand/logos/daypass-icon.svg?url";
+import nightpassIcon from "@odatano/brand/logos/nightpass-icon.svg?url";
+import traceIcon from "@odatano/brand/logos/trace-icon.svg?url";
+import quantixIcon from "@odatano/brand/logos/quantix-icon.svg?url";
+import fincaIcon from "@odatano/brand/logos/finca-icon.svg?url";
+import x402Icon from "@odatano/brand/logos/x402-icon.svg?url";
+import dayzeroIcon from "@odatano/brand/logos/dayzero-icon.svg?url";
+import watchIcon from "@odatano/brand/logos/watch-icon.svg?url";
+
 /**
  * Ecosystem project card. Generalizes the former `.example-card` markup —
  * the `example-card` class is kept so existing card styles and the cursor
@@ -17,7 +26,20 @@ interface Props {
   explorerHref?: string;
   night?: boolean;
   twin?: "day" | "night";
+  icon?: "daypass" | "nightpass" | "trace" | "quantix" | "finca" | "x402" | "dayzero" | "watch";
 }
+
+// Product icons from @odatano/brand
+const icons = {
+  daypass: daypassIcon,
+  nightpass: nightpassIcon,
+  trace: traceIcon,
+  quantix: quantixIcon,
+  finca: fincaIcon,
+  x402: x402Icon,
+  dayzero: dayzeroIcon,
+  watch: watchIcon,
+};
 
 const {
   name,
@@ -32,7 +54,10 @@ const {
   explorerHref,
   night = false,
   twin,
+  icon,
 } = Astro.props;
+
+const iconUrl = icon ? icons[icon] : undefined;
 
 const cardClass = [
   "example-card",
@@ -88,7 +113,10 @@ const cardClass = [
       {track === "day" ? "Cardano" : "Midnight"}
     </span>
   </div>
-  <h3>{name}</h3>
+  <div class="project-card__title">
+    {iconUrl && <img class="project-card__icon" src={iconUrl} alt="" width="40" height="40" />}
+    <h3>{name}</h3>
+  </div>
   <p class="example-card__desc" set:html={description} />
   <ul class="example-card__bullets">
     {bullets.map((b) => <li set:html={b} />)}

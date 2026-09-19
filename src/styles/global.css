@@ -4,20 +4,21 @@
 
 /* ── Design Tokens ─────────────────────────────────────────── */
 :root {
-  --color-dark-blue:   #001B5E;
-  --color-bright-blue: #0C5ECF;
-  --color-light-blue:  #3B8EF0;
+  /* Values come from @odatano/brand (tokens.css) */
+  --color-dark-blue:   var(--odt-day-navy);
+  --color-bright-blue: var(--odt-day-blue);
+  --color-light-blue:  var(--odt-day-blue-400);
   --color-white:       #ffffff;
-  --color-bg:          #f8f9fc;
-  --color-bg-alt:      #edf1f9;
-  --color-surface:     #ffffff;
-  --color-border:      #dde3ef;
-  --color-text:        #1a1a2e;
-  --color-text-muted:  #5a6480;
+  --color-bg:          var(--odt-day-bg);
+  --color-bg-alt:      var(--odt-day-bg-alt);
+  --color-surface:     var(--odt-day-surface);
+  --color-border:      var(--odt-day-border);
+  --color-text:        var(--odt-day-ink);
+  --color-text-muted:  var(--odt-day-ink-2);
   --color-code-bg:     #0b1220;
 
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Consolas', 'SFMono-Regular', 'Courier New', monospace;
+  --font-sans: var(--odt-font-sans);
+  --font-mono: var(--odt-font-mono);
 
   --max-width: 1200px;
   --docs-sidebar-w: 260px;
@@ -39,17 +40,17 @@
     radial-gradient(420px 220px at 20% 0%, rgba(59, 142, 240, 0.14), transparent 65%),
     linear-gradient(180deg, #e6effd 0%, #d0e0f6 100%);
 
-  /* Night palette — Midnight track (day = Cardano, night = Midnight) */
-  --color-night-950:    #0A0618;
-  --color-night-900:    #140B2E;
-  --color-night-800:    #1F1347;
-  --color-violet:       #7C5CFF;
-  --color-violet-light: #A78BFF;
-  --color-moon:         #CFC3FF;
-  --gradient-night:      linear-gradient(135deg, #7C5CFF 0%, #A78BFF 100%);
-  --gradient-night-text: linear-gradient(135deg, #050308 0%, #0A0618 55%, #2B1580 100%);
+  /* Night palette: Midnight graphite (day = Cardano, night = Midnight) */
+  --color-night-950:    var(--odt-night-bg);
+  --color-night-900:    var(--odt-night-panel);
+  --color-night-800:    var(--odt-night-panel-2);
+  --color-violet:       var(--odt-night-accent-2);
+  --color-violet-light: var(--odt-night-accent);
+  --color-moon:         var(--odt-night-accent);
+  --gradient-night:      linear-gradient(135deg, var(--odt-night-accent-2) 0%, var(--odt-night-accent) 100%);
+  --gradient-night-text: linear-gradient(135deg, #0e0f13 0%, #16181f 55%, #4f6ef7 100%);
   --gradient-dusk:       linear-gradient(160deg, var(--color-dark-blue) 0%, var(--color-night-950) 100%);
-  --shadow-night: 0 24px 60px -20px rgba(20, 11, 46, 0.5), 0 8px 24px -8px rgba(124, 92, 255, 0.25);
+  --shadow-night: 0 24px 60px -20px rgba(14, 15, 19, 0.5), 0 8px 24px -8px rgba(79, 110, 247, 0.25);
 
   /* Shiki syntax highlighting — matches hero code block */
   --astro-code-foreground:              #e5e7eb;
@@ -965,7 +966,7 @@ a:hover { text-decoration: underline; }
   gap: 1rem 3rem;
   align-items: end;
 }
-.site-footer__brand img { height: 72px; margin-bottom: 0.75rem; filter: brightness(0) invert(1); }
+.site-footer__brand img { height: 72px; margin-bottom: 0.75rem; }
 .site-footer__brand p {
   font-size: 0.875rem;
   color: #ffffff;
@@ -1569,13 +1570,13 @@ html.sky-active .sky { display: block; }
   background-image:
     radial-gradient(1.5px 1.5px at 12% 18%, rgba(255,255,255,0.9), transparent 100%),
     radial-gradient(1px 1px at 28% 64%, rgba(255,255,255,0.7), transparent 100%),
-    radial-gradient(1.5px 1.5px at 41% 32%, rgba(207,195,255,0.8), transparent 100%),
+    radial-gradient(1.5px 1.5px at 41% 32%, rgba(122,162,255,0.8), transparent 100%),
     radial-gradient(1px 1px at 57% 76%, rgba(255,255,255,0.6), transparent 100%),
     radial-gradient(2px 2px at 66% 14%, rgba(255,255,255,0.85), transparent 100%),
-    radial-gradient(1px 1px at 74% 48%, rgba(207,195,255,0.7), transparent 100%),
+    radial-gradient(1px 1px at 74% 48%, rgba(122,162,255,0.7), transparent 100%),
     radial-gradient(1.5px 1.5px at 83% 27%, rgba(255,255,255,0.8), transparent 100%),
     radial-gradient(1px 1px at 91% 62%, rgba(255,255,255,0.65), transparent 100%),
-    radial-gradient(1px 1px at 8% 84%, rgba(207,195,255,0.6), transparent 100%),
+    radial-gradient(1px 1px at 8% 84%, rgba(122,162,255,0.6), transparent 100%),
     radial-gradient(1.5px 1.5px at 49% 9%, rgba(255,255,255,0.75), transparent 100%);
   will-change: opacity;
 }
@@ -1603,8 +1604,8 @@ html.sky-active .site-footer--night {
 .section--night {
   background: var(--color-night-900);
   background-image:
-    radial-gradient(900px 400px at 100% 0%, rgba(124, 92, 255, 0.14), transparent 60%),
-    radial-gradient(700px 360px at 0% 100%, rgba(124, 92, 255, 0.1), transparent 60%);
+    radial-gradient(900px 400px at 100% 0%, rgba(79, 110, 247, 0.14), transparent 60%),
+    radial-gradient(700px 360px at 0% 100%, rgba(79, 110, 247, 0.1), transparent 60%);
   color: #fff;
 }
 .section--night .section__title { color: #fff; }
@@ -1625,9 +1626,9 @@ html.sky-active .site-footer--night {
 }
 .hero__badges .hero__badge { margin-bottom: 0; }
 .hero__badge--night {
-  background: rgba(124, 92, 255, 0.1);
+  background: rgba(79, 110, 247, 0.1);
   color: var(--color-violet);
-  border-color: rgba(124, 92, 255, 0.25);
+  border-color: rgba(79, 110, 247, 0.25);
 }
 .hero__badge--night .hero__badge-dot { background: var(--color-violet); }
 .hero__badge--night .hero__badge-dot::after { background: var(--color-violet); }
@@ -1723,7 +1724,7 @@ html.sky-active .site-footer--night {
 }
 .duality__panel--night {
   background:
-    radial-gradient(600px 300px at 80% 0%, rgba(124, 92, 255, 0.22), transparent 65%),
+    radial-gradient(600px 300px at 80% 0%, rgba(79, 110, 247, 0.22), transparent 65%),
     linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-950) 100%);
   color: #fff;
 }
@@ -1732,7 +1733,7 @@ html.sky-active .site-footer--night {
   inset: 0;
   z-index: -1;
   opacity: 0;
-  background: radial-gradient(500px 340px at 50% 110%, rgba(124, 92, 255, 0.35), transparent 70%);
+  background: radial-gradient(500px 340px at 50% 110%, rgba(79, 110, 247, 0.35), transparent 70%);
   pointer-events: none;
 }
 html.sky-active .duality__night-glow { opacity: 0; }
@@ -1772,7 +1773,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
   color: var(--color-bright-blue);
 }
 .duality__panel--night .duality__icon {
-  background: rgba(124, 92, 255, 0.16);
+  background: rgba(79, 110, 247, 0.16);
   color: var(--color-moon);
 }
 .duality__panel h3 {
@@ -1809,8 +1810,8 @@ html.sky-active .duality__night-glow { opacity: 0; }
   color: var(--color-bright-blue);
 }
 .duality__panel--night .duality__chip {
-  background: rgba(124, 92, 255, 0.12);
-  border-color: rgba(124, 92, 255, 0.3);
+  background: rgba(79, 110, 247, 0.12);
+  border-color: rgba(79, 110, 247, 0.3);
   color: var(--color-moon);
 }
 /* Per-track plugin links (npm / GitHub / Docs), one panel per plugin. */
@@ -1849,7 +1850,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
 .arch__col--plugin-night {
   background: var(--color-night-800);
   background-image:
-    radial-gradient(360px 200px at 50% 0%, rgba(124, 92, 255, 0.3), transparent 60%);
+    radial-gradient(360px 200px at 50% 0%, rgba(79, 110, 247, 0.3), transparent 60%);
   border-color: var(--color-night-800);
   box-shadow: var(--shadow-md);
 }
@@ -1858,24 +1859,24 @@ html.sky-active .duality__night-glow { opacity: 0; }
 .arch__col--plugin-night::after {
   background: radial-gradient(
     320px circle at var(--mx, 50%) var(--my, -20%),
-    rgba(124, 92, 255, 0.28),
+    rgba(79, 110, 247, 0.28),
     transparent 65%
   );
 }
 .arch__col--chain-midnight {
-  background: linear-gradient(180deg, #f4f1ff 0%, #ece6ff 100%);
-  border-color: rgba(124, 92, 255, 0.3);
+  background: linear-gradient(180deg, #f1f3f8 0%, #e6e9f1 100%);
+  border-color: rgba(79, 110, 247, 0.3);
 }
 .arch__col--chain-midnight .arch__col-eyebrow { color: var(--color-violet); }
 .arch__col--chain-midnight .arch__chip {
-  background: rgba(124, 92, 255, 0.08);
-  border-color: rgba(124, 92, 255, 0.24);
+  background: rgba(79, 110, 247, 0.08);
+  border-color: rgba(79, 110, 247, 0.24);
   color: var(--color-night-800);
 }
 .arch__col--chain-midnight::after {
   background: radial-gradient(
     320px circle at var(--mx, 50%) var(--my, -20%),
-    rgba(124, 92, 255, 0.16),
+    rgba(79, 110, 247, 0.16),
     transparent 65%
   );
 }
@@ -1934,7 +1935,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
 /* Night feature cards (NIGHTGATE services on light section) */
 .feature-card--night {
   background: linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-900) 100%);
-  border-color: rgba(124, 92, 255, 0.3);
+  border-color: rgba(79, 110, 247, 0.3);
 }
 .feature-card--night:hover {
   border-color: var(--color-violet);
@@ -1943,16 +1944,16 @@ html.sky-active .duality__night-glow { opacity: 0; }
 .feature-card--night h3 { color: #fff; }
 .feature-card--night p { color: rgba(255,255,255,0.72); }
 .feature-card--night code {
-  background: rgba(124, 92, 255, 0.14);
+  background: rgba(79, 110, 247, 0.14);
   color: var(--color-moon);
 }
 .feature-card--night .feature-card__icon {
-  background: rgba(124, 92, 255, 0.16);
+  background: rgba(79, 110, 247, 0.16);
 }
 .feature-card--night::after {
   background: radial-gradient(
     320px circle at var(--mx, 50%) var(--my, -20%),
-    rgba(124, 92, 255, 0.24),
+    rgba(79, 110, 247, 0.24),
     transparent 65%
   );
 }
@@ -1972,7 +1973,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
 }
 .ecosystem__twins-label--muted {
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(124, 92, 255, 0.35);
+  border: 1px solid rgba(79, 110, 247, 0.35);
   box-shadow: none;
 }
 .ecosystem__twins-label {
@@ -2006,6 +2007,17 @@ html.sky-active .duality__night-glow { opacity: 0; }
 }
 .ecosystem__grid .project-card .example-card__bullets li { font-size: 0.875rem; }
 
+/* Title row with product icon */
+.project-card__title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.ecosystem__grid .project-card__title { margin-bottom: 0.75rem; }
+.project-card .project-card__title h3 { margin-bottom: 0; }
+.project-card__icon { width: 40px; height: 40px; flex: none; }
+
 /* Track marker (☀ Cardano / ☾ Midnight) */
 .project-card__head {
   display: flex;
@@ -2035,14 +2047,14 @@ html.sky-active .duality__night-glow { opacity: 0; }
 }
 .project-card__track--night {
   color: var(--color-violet);
-  background: rgba(124, 92, 255, 0.1);
-  border-color: rgba(124, 92, 255, 0.26);
+  background: rgba(79, 110, 247, 0.1);
+  border-color: rgba(79, 110, 247, 0.26);
 }
 
 /* Night project card (NIGHTPASS twin) */
 .project-card--night {
   background: linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-900) 100%);
-  border-color: rgba(124, 92, 255, 0.32);
+  border-color: rgba(79, 110, 247, 0.32);
 }
 .project-card--night:hover {
   border-color: var(--color-violet);
@@ -2054,29 +2066,29 @@ html.sky-active .duality__night-glow { opacity: 0; }
 .project-card--night .example-card__bullets li::before { background: var(--color-violet-light); }
 .project-card--night .example-card__bullets code,
 .project-card--night .example-card__desc code {
-  background: rgba(124, 92, 255, 0.14);
+  background: rgba(79, 110, 247, 0.14);
   color: var(--color-moon);
 }
 .project-card--night .example-card__tag {
   color: var(--color-moon);
-  background: rgba(124, 92, 255, 0.12);
-  border-color: rgba(124, 92, 255, 0.3);
+  background: rgba(79, 110, 247, 0.12);
+  border-color: rgba(79, 110, 247, 0.3);
 }
 .project-card--night .project-card__track--night {
   color: var(--color-moon);
-  background: rgba(124, 92, 255, 0.16);
-  border-color: rgba(124, 92, 255, 0.35);
+  background: rgba(79, 110, 247, 0.16);
+  border-color: rgba(79, 110, 247, 0.35);
 }
 .project-card--night::after {
   background: radial-gradient(
     320px circle at var(--mx, 50%) var(--my, -20%),
-    rgba(124, 92, 255, 0.22),
+    rgba(79, 110, 247, 0.22),
     transparent 65%
   );
 }
 .project-card--night .btn--outline {
   color: var(--color-violet-light);
-  border-color: rgba(167, 139, 255, 0.6);
+  border-color: rgba(122, 162, 255, 0.6);
 }
 .project-card--night .btn--outline:hover {
   background: var(--color-violet);
@@ -2088,11 +2100,11 @@ html.sky-active .duality__night-glow { opacity: 0; }
 .btn--night {
   background: var(--gradient-night);
   color: #fff;
-  box-shadow: 0 4px 14px -4px rgba(124, 92, 255, 0.55);
+  box-shadow: 0 4px 14px -4px rgba(79, 110, 247, 0.55);
 }
 .btn--night:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 22px -6px rgba(124, 92, 255, 0.6);
+  box-shadow: 0 8px 22px -6px rgba(79, 110, 247, 0.6);
   text-decoration: none;
 }
 
@@ -2110,11 +2122,11 @@ html.sky-active .duality__night-glow { opacity: 0; }
   position: relative;
   padding: 3.5rem 3rem 3rem;
   border-radius: var(--radius-xl);
-  border: 1px solid rgba(124, 92, 255, 0.28);
+  border: 1px solid rgba(79, 110, 247, 0.28);
   box-shadow: var(--shadow-night, var(--shadow-md));
   background:
-    radial-gradient(700px 320px at 85% 0%, rgba(124, 92, 255, 0.22), transparent 65%),
-    radial-gradient(500px 300px at 0% 100%, rgba(124, 92, 255, 0.12), transparent 65%),
+    radial-gradient(700px 320px at 85% 0%, rgba(79, 110, 247, 0.22), transparent 65%),
+    radial-gradient(500px 300px at 0% 100%, rgba(79, 110, 247, 0.12), transparent 65%),
     linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-950) 100%);
   color: #fff;
   overflow: hidden;
@@ -2153,9 +2165,9 @@ html.sky-active .duality__night-glow { opacity: 0; }
     rgba(255, 255, 255, 0.03);
 }
 .agents__server--night {
-  border-color: rgba(124, 92, 255, 0.32);
+  border-color: rgba(79, 110, 247, 0.32);
   background:
-    radial-gradient(420px 200px at 100% 0%, rgba(124, 92, 255, 0.16), transparent 70%),
+    radial-gradient(420px 200px at 100% 0%, rgba(79, 110, 247, 0.16), transparent 70%),
     rgba(255, 255, 255, 0.03);
 }
 .agents__server h3 { margin-bottom: 0; }
@@ -2191,7 +2203,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
   height: 8px;
   border-radius: 50%;
   background: var(--color-violet);
-  box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.22);
+  box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.22);
 }
 .agents__server h3 {
   font-size: 1.5rem;
@@ -2247,8 +2259,8 @@ html.sky-active .duality__night-glow { opacity: 0; }
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 500;
-  background: rgba(124, 92, 255, 0.12);
-  border: 1px solid rgba(124, 92, 255, 0.3);
+  background: rgba(79, 110, 247, 0.12);
+  border: 1px solid rgba(79, 110, 247, 0.3);
   color: var(--color-moon);
 }
 .agents__links {
@@ -2272,7 +2284,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
 }
 .agents__code { max-width: none; }
 .agents__code::before {
-  background: linear-gradient(135deg, rgba(59, 142, 240, 0.5), transparent 45%, rgba(124, 92, 255, 0.45));
+  background: linear-gradient(135deg, rgba(59, 142, 240, 0.5), transparent 45%, rgba(79, 110, 247, 0.45));
 }
 .agents__code pre { font-size: 0.82rem; }
 .agents__note {
@@ -2287,7 +2299,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
   padding: 6rem 0;
   background: var(--color-night-950);
   background-image:
-    radial-gradient(800px 380px at 50% 100%, rgba(124, 92, 255, 0.22), transparent 65%),
+    radial-gradient(800px 380px at 50% 100%, rgba(79, 110, 247, 0.22), transparent 65%),
     radial-gradient(600px 300px at 15% 0%, rgba(12, 94, 207, 0.14), transparent 60%);
   color: #fff;
   text-align: center;
@@ -2396,7 +2408,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
 .contact__form textarea:focus {
   outline: none;
   border-color: var(--color-violet-light);
-  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.25);
 }
 .contact__form button { align-self: flex-start; margin-top: 0.25rem; }
 /* Honeypot: hidden from users, visible to naive bots that fill it. */
@@ -2425,7 +2437,7 @@ html.sky-active .duality__night-glow { opacity: 0; }
 .site-footer--night {
   background: var(--color-night-950);
   background-image:
-    radial-gradient(700px 300px at 0% 0%, rgba(124, 92, 255, 0.12), transparent 60%);
+    radial-gradient(700px 300px at 0% 0%, rgba(79, 110, 247, 0.12), transparent 60%);
 }
 
 /* ── Responsive for new sections ────────────────────────────── */
