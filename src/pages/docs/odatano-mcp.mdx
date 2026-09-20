@@ -52,9 +52,9 @@ Or any CAP app using the plugin — `npm i @odatano/core @cap-js/sqlite`, add `c
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `ODATANO_BASE_URL` | `http://localhost:4004` | ODATANO host app |
-| `ODATANO_USERNAME` / `ODATANO_PASSWORD` | unset | Basic auth (CAP mocked / dev auth, e.g. `alice`) |
-| `ODATANO_TOKEN` | unset | Bearer JWT (XSUAA / `auth: jwt`); an `odat_…` value is reserved for the planned agent-grant token |
+| `ODATANO_ACCESS_KEY` | unset | The ODATANO ACCESS key `oda_…` from [api.odatano.dev](https://api.odatano.dev), sent as `Authorization: Bearer`. The same variable configures NIGHTGATE-MCP. Against a direct instance: an `odat_…` agent grant (`x-agent-token`) or any other bearer |
+| `ODATANO_ACCESS_URL` | `https://api.odatano.dev` | The gateway, or a direct ODATANO host app (`http://localhost:4004` for `cds watch`) |
+| `ODATANO_ACCESS_USER` / `ODATANO_ACCESS_PASSWORD` | unset | Basic auth against a direct instance (CAP mocked / dev auth, e.g. `alice`); not for agents |
 | `ODATANO_SERVICE_PREFIX` | `/odata/v4` | Prefix before the five service paths |
 | `ODATANO_TIMEOUT_MS` | `30000` | Per-request timeout |
 | `ODATANO_MCP_MAX_ROWS` | `50` | Default `$top` for `query_entity`, cap on arrays in tool output |
@@ -64,8 +64,7 @@ Or any CAP app using the plugin — `npm i @odatano/core @cap-js/sqlite`, add `c
 
 ```bash
 claude mcp add odatano \
-  --env ODATANO_BASE_URL=http://localhost:4004 \
-  --env ODATANO_USERNAME=alice \
+  --env ODATANO_ACCESS_KEY=oda_... \
   -- npx -y @odatano/core-mcp
 ```
 
@@ -77,14 +76,13 @@ Or in a project `.mcp.json`:
     "odatano": {
       "command": "npx",
       "args": ["-y", "@odatano/core-mcp"],
-      "env": {
-        "ODATANO_BASE_URL": "http://localhost:4004",
-        "ODATANO_USERNAME": "alice"
-      }
+      "env": { "ODATANO_ACCESS_KEY": "oda_..." }
     }
   }
 }
 ```
+
+The key is the whole configuration: the gateway is the default URL. A local `cds watch` instance instead: `ODATANO_ACCESS_URL=http://localhost:4004` and `ODATANO_ACCESS_USER=alice`.
 
 ## Tools
 

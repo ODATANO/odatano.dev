@@ -44,24 +44,23 @@ Alternatively, any CAP app using the [`@odatano/nightgate`](/docs/nightgate/) pl
 
 ## Configuration
 
-Configuration is environment-driven so the same binary works for local dev (basic auth against a `cds watch` instance) and for a deployed NIGHTGATE behind a reverse proxy (bearer token / agent grants).
+Configuration is environment-driven, with the same connection variables as ODATANO-MCP: one ODATANO ACCESS key configures both servers, and a direct NIGHTGATE instance (local `cds watch`, an own deployment) is reached by pointing `ODATANO_ACCESS_URL` at it.
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `NIGHTGATE_BASE_URL` | `http://localhost:4004` | NIGHTGATE host app |
-| `NIGHTGATE_USERNAME` / `NIGHTGATE_PASSWORD` | unset | Basic auth (CAP dev / mocked auth) |
-| `NIGHTGATE_TOKEN` | unset | `ngat_…` agent-grant token (sent as `x-agent-token`, combinable with basic auth) or a plain bearer token |
+| `ODATANO_ACCESS_KEY` | unset | The ODATANO ACCESS key `oda_…` from [api.odatano.dev](https://api.odatano.dev), sent as `Authorization: Bearer`. The same variable configures ODATANO-MCP. Against a direct instance: an `ngat_…` agent grant (`x-agent-token`, combinable with basic auth) or any other bearer |
+| `ODATANO_ACCESS_URL` | `https://api.odatano.dev` | The gateway, or a direct NIGHTGATE host app (`http://localhost:4004` for `cds watch`) |
+| `ODATANO_ACCESS_USER` / `ODATANO_ACCESS_PASSWORD` | unset | Basic auth against a direct instance (CAP dev / mocked auth); not for agents |
 | `NIGHTGATE_SERVICE_PATH` | `/api/v1/nightgate` | OData service path |
 | `NIGHTGATE_TIMEOUT_MS` | `30000` | Per-request timeout |
 
-For agent operation, create a scoped grant once as the operator (e.g. via `curl` against NIGHTGATE's `createAgentGrant` action) and hand the returned `ngat_…` token to the agent as `NIGHTGATE_TOKEN`. The write tools are then limited to the grant's allowlist, budget and pinned session.
+Through the gateway the key is the whole configuration. Against a direct NIGHTGATE instance, create a scoped grant once as the operator (e.g. via `curl` against `createAgentGrant`) and hand the returned `ngat_…` token to the agent as `ODATANO_ACCESS_KEY`; the write tools are then limited to the grant's allowlist, budget and pinned session.
 
 ## Use with Claude Code
 
 ```bash
 claude mcp add nightgate \
-  --env NIGHTGATE_BASE_URL=http://localhost:4004 \
-  --env NIGHTGATE_TOKEN=ngat_... \
+  --env ODATANO_ACCESS_KEY=oda_... \
   -- npx -y @odatano/nightgate-mcp
 ```
 
@@ -73,16 +72,13 @@ Or in a project `.mcp.json` (Claude Code, Cursor and most MCP clients share this
     "nightgate": {
       "command": "npx",
       "args": ["-y", "@odatano/nightgate-mcp"],
-      "env": {
-        "NIGHTGATE_BASE_URL": "http://localhost:4004",
-        "NIGHTGATE_TOKEN": "ngat_..."
-      }
+      "env": { "ODATANO_ACCESS_KEY": "oda_..." }
     }
   }
 }
 ```
 
-For a local dev instance with mocked CAP auth, replace `NIGHTGATE_TOKEN` with `NIGHTGATE_USERNAME` / `NIGHTGATE_PASSWORD`.
+For a local dev instance with mocked CAP auth: `ODATANO_ACCESS_URL=http://localhost:4004` and `ODATANO_ACCESS_USER` / `ODATANO_ACCESS_PASSWORD` instead of the key.
 
 ## Tools
 
