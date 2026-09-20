@@ -22,3 +22,6 @@ pnpm-debug.log*
 .claude/
 *claude*
 
+
+# working plans (local only)
+docs/plans/

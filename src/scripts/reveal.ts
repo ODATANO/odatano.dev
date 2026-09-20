@@ -7,8 +7,8 @@
  *   reduced motion, content is always fully visible.
  * - Elements are grouped by parent; siblings stagger by 70 ms.
  *
- * Elements inside `.ecosystem__twins` are skipped: home.ts animates the twin
- * cards with a dedicated timeline (opposing x-slides).
+ * The `.ecosystem__twin` cards (DAYPASS / NIGHTPASS) are skipped: home.ts
+ * animates them with a dedicated timeline (opposing x-slides).
  */
 import { animate, onScroll } from "animejs";
 
@@ -37,7 +37,7 @@ document.documentElement.classList.add("anim-booted");
 if (!reduce) {
   const els = Array.from(
     document.querySelectorAll<HTMLElement>(SELECTOR)
-  ).filter((el) => !el.closest(".ecosystem__twins"));
+  ).filter((el) => !el.classList.contains("ecosystem__twin"));
 
   if (els.length > 0) {
     document.documentElement.classList.add("reveal-ready");

@@ -112,7 +112,7 @@ if (document.querySelector(".hero")) {
         });
       });
 
-    /* ── Duality — the moon rises, the sun turns, night glows ─── */
+    /* ── Duality — the chain logos slide in, night glows ──────── */
     animate(".duality__night-glow", {
       opacity: [0, 1],
       ease: "linear",
@@ -123,19 +123,18 @@ if (document.querySelector(".hero")) {
         sync: 0.3,
       }),
     });
-    animate(".duality__sun svg", {
-      rotate: [-90, 0],
-      scale: [0.6, 1],
-      duration: 900,
-      ease: "outBack",
+    animate(".duality__panel--day .duality__logos", {
+      opacity: [0, 1],
+      translateX: [-18, 0],
+      duration: 800,
+      ease: "outExpo",
       autoplay: onScroll({ target: ".duality__panel--day", enter: "bottom-=10% top" }),
     });
-    animate(".duality__moon svg", {
-      translateY: [14, 0],
-      rotate: [-25, 0],
-      scale: [0.6, 1],
-      duration: 900,
-      ease: "outBack",
+    animate(".duality__panel--night .duality__logos", {
+      opacity: [0, 1],
+      translateX: [18, 0],
+      duration: 800,
+      ease: "outExpo",
       autoplay: onScroll({ target: ".duality__panel--night", enter: "bottom-=10% top" }),
     });
 
@@ -196,18 +195,15 @@ if (document.querySelector(".hero")) {
         .add(p1, { cx: [80, 20], opacity: fade() });
     });
 
-    /* ── Ecosystem — the twins meet in the middle ─────────────── */
-    createTimeline({
-      defaults: { ease: "outExpo", duration: 700 },
-      autoplay: onScroll({ target: ".ecosystem__twins", enter: "bottom-=10% top" }),
-    })
-      .add(".ecosystem__twin--day", { opacity: [0, 1], translateX: [-36, 0] })
-      .add(".ecosystem__twin--night", { opacity: [0, 1], translateX: [36, 0] }, "<<")
-      .add(
-        ".ecosystem__twins-label",
-        { opacity: [0, 1], scale: [0.75, 1], duration: 450, ease: "outBack" },
-        "-=250"
-      );
+    /* ── Ecosystem — the passport twins meet in the middle ────── */
+    if (document.querySelector(".ecosystem__twin")) {
+      createTimeline({
+        defaults: { ease: "outExpo", duration: 700 },
+        autoplay: onScroll({ target: ".ecosystem__grid", enter: "bottom-=10% top" }),
+      })
+        .add(".ecosystem__twin--day", { opacity: [0, 1], translateX: [-36, 0] })
+        .add(".ecosystem__twin--night", { opacity: [0, 1], translateX: [36, 0] }, "<<");
+    }
 
     return () => {
       root.classList.remove("sky-active");

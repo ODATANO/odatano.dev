@@ -19,7 +19,6 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '');
 const navItems = [
   { group: 'Getting Started', links: [
     { label: 'Get Started', href: '/docs/get-started' },
-    { label: 'Quick Start', href: '/docs/quick-start' },
     { label: 'Configuration', href: '/docs/configuration' },
   ]},
   { group: 'Guides', links: [
@@ -54,6 +53,10 @@ const navItems = [
     { label: 'API Reference', href: '/docs/reference' },
     { label: 'Changelog', href: '/docs/changelog' },
   ]},
+  { group: 'Hosted API', links: [
+    { label: 'Console (get a key)', href: 'https://api.odatano.dev/', external: true },
+    { label: 'API Reference (console)', href: 'https://api.odatano.dev/reference', external: true },
+  ]},
 ];
 ---
 
@@ -65,12 +68,16 @@ const navItems = [
           <div class="docs-sidebar__group">
             <p class="docs-sidebar__group-label">{group.group}</p>
             {group.links.map(link => (
-              <a
-                href={link.href + '/'}
-                class:list={[{ active: currentPath === link.href || currentPath === link.href + '/' }]}
-              >
-                {link.label}
-              </a>
+              'external' in link && link.external ? (
+                <a href={link.href} target="_blank" rel="noopener">{link.label} ↗</a>
+              ) : (
+                <a
+                  href={link.href + '/'}
+                  class:list={[{ active: currentPath === link.href || currentPath === link.href + '/' }]}
+                >
+                  {link.label}
+                </a>
+              )
             ))}
           </div>
         ))}

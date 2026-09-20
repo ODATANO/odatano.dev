@@ -1,44 +1,68 @@
 ---
-import daypassIcon from "@odatano/brand/logos/daypass-icon.svg?url";
-import nightpassIcon from "@odatano/brand/logos/nightpass-icon.svg?url";
-import traceIcon from "@odatano/brand/logos/trace-icon.svg?url";
-import quantixIcon from "@odatano/brand/logos/quantix-icon.svg?url";
-import fincaIcon from "@odatano/brand/logos/finca-icon.svg?url";
-import x402Icon from "@odatano/brand/logos/x402-icon.svg?url";
-import dayzeroIcon from "@odatano/brand/logos/dayzero-icon.svg?url";
-import watchIcon from "@odatano/brand/logos/watch-icon.svg?url";
+import daypassLogo from "@odatano/brand/logos/daypass-logo.svg?url";
+import daypassLogoDark from "@odatano/brand/logos/daypass-logo-on-dark.svg?url";
+import nightpassLogoLight from "@odatano/brand/logos/nightpass-logo-on-light.svg?url";
+import nightpassLogoDark from "@odatano/brand/logos/nightpass-logo.svg?url";
+import traceLogo from "@odatano/brand/logos/trace-logo.svg?url";
+import traceLogoDark from "@odatano/brand/logos/trace-logo-on-dark.svg?url";
+import quantixLogo from "@odatano/brand/logos/quantix-logo.svg?url";
+import quantixLogoDark from "@odatano/brand/logos/quantix-logo-on-dark.svg?url";
+import fincaLogo from "@odatano/brand/logos/finca-logo.svg?url";
+import fincaLogoDark from "@odatano/brand/logos/finca-logo-on-dark.svg?url";
+import x402Logo from "@odatano/brand/logos/x402-logo.svg?url";
+import x402LogoDark from "@odatano/brand/logos/x402-logo-on-dark.svg?url";
+import dayzeroLogo from "@odatano/brand/logos/dayzero-logo.svg?url";
+import dayzeroLogoDark from "@odatano/brand/logos/dayzero-logo-on-dark.svg?url";
+import watchLogo from "@odatano/brand/logos/watch-logo.svg?url";
+import watchLogoDark from "@odatano/brand/logos/watch-logo-on-dark.svg?url";
+import dppSdkLogo from "@odatano/brand/logos/dpp-sdk-logo.svg?url";
+import dppSdkLogoDark from "@odatano/brand/logos/dpp-sdk-logo-on-dark.svg?url";
+import cardanoStarburst from "../assets/logos/cardano-starburst-black.svg?url";
+import cardanoStarburstWhite from "../assets/logos/cardano-starburst-white.svg?url";
+import midnightSymbol from "../assets/logos/midnight-symbol-dark.svg?url";
+import midnightSymbolWhite from "../assets/logos/midnight-symbol-white.svg?url";
 
 /**
  * Ecosystem project card. Generalizes the former `.example-card` markup —
  * the `example-card` class is kept so existing card styles and the cursor
  * spotlight keep working; `.project-card` adds the compact/night variants.
+ *
+ * Logos: the product wordmark from @odatano/brand as a light / dark pair,
+ * swapped with `.only-day` / `.only-night`; the chain badge is the official
+ * Cardano starburst or the Midnight symbol. A card with `night` is dark in
+ * both themes and always shows the dark files.
  */
 interface Props {
   name: string;
   tag: string;
   tagVariant?: "default" | "accent";
-  track: "day" | "night";
+  /** `both` for chain-agnostic libraries: shows the Cardano and Midnight symbols */
+  track: "day" | "night" | "both";
   description: string;
   bullets: string[];
   docsHref?: string;
   repoHref: string;
   demoHref?: string;
   explorerHref?: string;
+  npmHref?: string;
   night?: boolean;
   twin?: "day" | "night";
-  icon?: "daypass" | "nightpass" | "trace" | "quantix" | "finca" | "x402" | "dayzero" | "watch";
+  icon?: "daypass" | "nightpass" | "trace" | "quantix" | "finca" | "x402" | "dayzero" | "watch" | "dpp-sdk";
 }
 
-// Product icons from @odatano/brand
-const icons = {
-  daypass: daypassIcon,
-  nightpass: nightpassIcon,
-  trace: traceIcon,
-  quantix: quantixIcon,
-  finca: fincaIcon,
-  x402: x402Icon,
-  dayzero: dayzeroIcon,
-  watch: watchIcon,
+// Product wordmarks from @odatano/brand: `light` sits on a light surface,
+// `dark` on a dark one (the NIGHTGATE-family files are named the other way
+// round in the kit: `nightpass-logo.svg` is the dark-surface file).
+const logos = {
+  daypass: { light: daypassLogo, dark: daypassLogoDark },
+  nightpass: { light: nightpassLogoLight, dark: nightpassLogoDark },
+  trace: { light: traceLogo, dark: traceLogoDark },
+  quantix: { light: quantixLogo, dark: quantixLogoDark },
+  finca: { light: fincaLogo, dark: fincaLogoDark },
+  x402: { light: x402Logo, dark: x402LogoDark },
+  dayzero: { light: dayzeroLogo, dark: dayzeroLogoDark },
+  watch: { light: watchLogo, dark: watchLogoDark },
+  "dpp-sdk": { light: dppSdkLogo, dark: dppSdkLogoDark },
 };
 
 const {
@@ -52,12 +76,18 @@ const {
   repoHref,
   demoHref,
   explorerHref,
+  npmHref,
   night = false,
   twin,
   icon,
 } = Astro.props;
 
-const iconUrl = icon ? icons[icon] : undefined;
+const logo = icon ? logos[icon] : undefined;
+const cardanoChain = { light: cardanoStarburst, dark: cardanoStarburstWhite, alt: "Cardano" };
+const midnightChain = { light: midnightSymbol, dark: midnightSymbolWhite, alt: "Midnight" };
+const chains =
+  track === "day" ? [cardanoChain] : track === "night" ? [midnightChain] : [cardanoChain, midnightChain];
+const chainTitle = chains.map((c) => c.alt).join(" · ");
 
 const cardClass = [
   "example-card",
@@ -76,46 +106,38 @@ const cardClass = [
     >
       {tag}
     </span>
-    <span
-      class={`project-card__track${track === "night" ? " project-card__track--night" : ""}`}
-    >
+    <span class="project-card__chain" title={chainTitle}>
       {
-        track === "day" ? (
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            aria-hidden="true"
-          >
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1" />
-          </svg>
-        ) : (
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
-          </svg>
+        chains.map((chain) =>
+          night ? (
+            <img src={chain.dark} alt={chain.alt} />
+          ) : (
+            <>
+              <img class="only-day" src={chain.light} alt={chain.alt} />
+              <img class="only-night" src={chain.dark} alt={chain.alt} />
+            </>
+          )
         )
       }
-      {track === "day" ? "Cardano" : "Midnight"}
     </span>
   </div>
   <div class="project-card__title">
-    {iconUrl && <img class="project-card__icon" src={iconUrl} alt="" width="40" height="40" />}
-    <h3>{name}</h3>
+    <h3 class={logo ? "has-logo" : undefined}>
+      {
+        logo ? (
+          night ? (
+            <img class="project-card__logo" src={logo.dark} alt={name} />
+          ) : (
+            <>
+              <img class="project-card__logo only-day" src={logo.light} alt={name} />
+              <img class="project-card__logo only-night" src={logo.dark} alt={name} />
+            </>
+          )
+        ) : (
+          name
+        )
+      }
+    </h3>
   </div>
   <p class="example-card__desc" set:html={description} />
   <ul class="example-card__bullets">
@@ -153,6 +175,18 @@ const cardClass = [
           class={`btn ${demoHref ? "btn--outline" : night ? "btn--night" : "btn--primary"}`}
         >
           Learn More
+        </a>
+      )
+    }
+    {
+      npmHref && (
+        <a
+          href={npmHref}
+          class={`btn ${demoHref || docsHref ? "btn--outline" : night ? "btn--night" : "btn--primary"}`}
+          target="_blank"
+          rel="noopener"
+        >
+          npm ↗
         </a>
       )
     }

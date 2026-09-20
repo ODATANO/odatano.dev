@@ -1,26 +1,68 @@
 ---
 layout: ../../layouts/DocLayout.astro
 title: Get Started
-description: Get started with ODATANO on Cardano (@odatano/core) or Midnight (@odatano/nightgate). Both install as SAP CAP plugins.
+description: Use ODATANO and NIGHTGATE through the hosted API at api.odatano.dev, or run the SAP CAP plugins yourself - @odatano/core on Cardano, @odatano/nightgate on Midnight.
 ---
 
 # Get Started
 
-ODATANO exposes public blockchains as OData V4 through SAP CAP plugins. Pick your chain, install one package, add one config block, and the blockchain services register automatically. One CAP app can also speak both chains at once.
+ODATANO exposes public blockchains as OData V4: ODATANO for Cardano, NIGHTGATE for Midnight. Two ways in:
 
-- **Cardano, transparent:** `@odatano/core` (ODATANO)
-- **Midnight, shielded:** `@odatano/nightgate` (NIGHTGATE)
+- **Hosted API:** one key at [api.odatano.dev](https://api.odatano.dev/), nothing to install. Start here.
+- **Your own CAP app:** install `@odatano/core` (Cardano) or `@odatano/nightgate` (Midnight) as a SAP CAP plugin, or run the ODATANO repo standalone.
 
-Both need a SAP CAP project. If you do not have one yet:
+## Hosted API
+
+Both services run hosted at [api.odatano.dev](https://api.odatano.dev/), behind one key. No node, no plugin: the same OData routes as the plugins below, on Cardano preprod and Midnight preprod.
+
+| Product | Routes |
+|---------|--------|
+| ODATANO (Cardano) | `/odata/v4/cardano-odata`, `/odata/v4/cardano-transaction`, `/odata/v4/cardano-sign` |
+| NIGHTGATE (Midnight) | `/odata/v4/nightgate`, `/odata/v4/nightgate-verify` |
+
+### 1. Get a key
+
+On the [console](https://api.odatano.dev/): sign in with a Cardano wallet (free start), sign in with a Midnight attester id, buy a pack with ADA over x402, or redeem a code.
+
+### 2. Call it
+
+The key goes as a bearer token:
+
+```bash
+curl https://api.odatano.dev/odata/v4/cardano-odata/NetworkInformation \
+  -H "Authorization: Bearer oda_..."
+```
+
+Address UTxOs and an unsigned ADA transfer, same paths as on a local plugin:
+
+```bash
+curl -X POST https://api.odatano.dev/odata/v4/cardano-odata/GetUTxOsByAddress \
+  -H "Authorization: Bearer oda_..." \
+  -H "Content-Type: application/json" \
+  -d '{"address":"addr_test1..."}'
+
+curl -X POST https://api.odatano.dev/odata/v4/cardano-transaction/BuildSimpleAdaTransaction \
+  -H "Authorization: Bearer oda_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "senderAddress": "addr_test1...",
+    "recipientAddress": "addr_test1...",
+    "lovelaceAmount": 10000000
+  }'
+```
+
+Every forwarded call is listed in the [API reference](https://api.odatano.dev/reference). The MCP servers ([ODATANO-MCP](/docs/odatano-mcp/), [NIGHTGATE-MCP](/docs/nightgate-mcp/)) take the same key as `ODATANO_TOKEN` / `NIGHTGATE_TOKEN`.
+
+## ODATANO on Cardano (CAP plugin)
+
+`@odatano/core` gives you transparent, auditable on-chain data and native transaction building, exposed as OData entities and actions. Readable by SAP Fiori, Excel, Power BI, or any OData client.
+
+You need a SAP CAP project. If you do not have one yet:
 
 ```bash
 npm i -g @sap/cds-dk
 cds init my-app && cd my-app
 ```
-
-## ODATANO on Cardano
-
-`@odatano/core` gives you transparent, auditable on-chain data and native transaction building, exposed as OData entities and actions. Readable by SAP Fiori, Excel, Power BI, or any OData client.
 
 ### 1. Install
 
@@ -49,7 +91,7 @@ Add to your project's `package.json`:
 }
 ```
 
-Get a free Blockfrost key at [blockfrost.io](https://blockfrost.io). The `[development] auth dummy` block lets local `cds watch` accept requests without a JWT.
+Get a free Blockfrost key at [blockfrost.io](https://blockfrost.io). All three services are gated by `@requires: 'authenticated-user'`; the `[development] auth dummy` block lets local `cds watch` accept requests without a JWT. Persistent SQLite (`db.sqlite`) keeps the index cache across restarts. Full key reference: [Configuration](/docs/configuration/).
 
 ### 3. Run
 
@@ -65,15 +107,27 @@ Three services auto-register:
 | `CardanoTransactionService` | `/odata/v4/cardano-transaction/` |
 | `CardanoSignService` | `/odata/v4/cardano-sign/` |
 
-Verify:
+### 4. First requests
 
 ```bash
 curl http://localhost:4004/odata/v4/cardano-odata/NetworkInformation
+
+curl -X POST http://localhost:4004/odata/v4/cardano-odata/GetUTxOsByAddress \
+  -H "Content-Type: application/json" \
+  -d '{"address":"addr_test1..."}'
+
+curl -X POST http://localhost:4004/odata/v4/cardano-transaction/BuildSimpleAdaTransaction \
+  -H "Content-Type: application/json" \
+  -d '{
+    "senderAddress": "addr_test1...",
+    "recipientAddress": "addr_test1...",
+    "lovelaceAmount": 10000000
+  }'
 ```
 
-Go deeper: [Quick Start](/docs/quick-start/), [Configuration](/docs/configuration/), [Transaction Workflow](/docs/transaction-workflow/).
+Go deeper: [User Guide](/docs/user-guide/), [Transaction Workflow](/docs/transaction-workflow/), [Plutus](/docs/plutus/).
 
-## NIGHTGATE on Midnight
+## NIGHTGATE on Midnight (CAP plugin)
 
 `@odatano/nightgate` ties the same CAP runtime to the **Midnight** blockchain: a block indexer plus a worker-thread wallet stack for ZK-aware transaction submission. Shielded transfers, Compact smart contracts, and zero-knowledge attestations that prove a value meets a threshold without revealing it.
 
@@ -137,9 +191,26 @@ The two plugins are independent CAP requires, so a single app can serve Cardano 
 
 Then `cds watch`, and all services from both plugins register on their own paths.
 
+## Standalone
+
+The ODATANO repo runs on its own, without a CAP project of yours:
+
+```bash
+git clone https://github.com/ODATANO/ODATANO
+cd ODATANO
+npm ci
+cp .env.example .env       # set BLOCKFROST_API_KEY, NETWORK, BACKENDS, TX_BUILDERS
+cds deploy --to sqlite
+cds watch
+```
+
+Server runs at `http://localhost:4004` with the same three services. See [Docker Deployment](/docs/docker-deployment/) and [Production Deployment](/docs/production-deployment/) for running it as a service.
+
 ## Next steps
 
 - [Configuration:](/docs/configuration/) All `@odatano/core` keys
+- [User Guide:](/docs/user-guide/) Query patterns and OData basics
+- [Transaction Workflow:](/docs/transaction-workflow/) Full Build → Sign → Submit flows
 - [NIGHTGATE Plugin:](/docs/nightgate/) Midnight services, wallet, and ZK surface
 - [NIGHTPASS:](/docs/nightpass/) A full app built on NIGHTGATE, the EU battery passport
 - [API Reference:](/docs/reference/) All entities and actions
