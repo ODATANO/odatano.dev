@@ -9,7 +9,8 @@ description: "Build → Sign → Submit. Action parameter tables and signing met
 ODATANO follows a strict **Build → Sign → Submit** flow. \
 The server never holds private keys. 
 
-<img src="/assets/docs/build-sign-submit.svg" alt="Build → Sign → Submit transaction flow" /> \
+<img class="only-day" src="/assets/docs/build-sign-submit.svg" alt="Build → Sign → Submit transaction flow" />
+<img class="only-night" src="/assets/docs/build-sign-submit-dark.svg" alt="Build → Sign → Submit transaction flow" /> \
 - **Build** (server) returns `unsignedTxCbor`, `txBodyHash`, `fee`, `buildId`.
 - **Sign** (client / wallet / HSM) using the unsigned CBOR.
 - **Submit** (server) via:

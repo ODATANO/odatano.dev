@@ -36,22 +36,16 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
   title="OData for Cardano & Midnight"
   description="OData V4 services for the Cardano and Midnight blockchains, packaged as SAP CAP plugins. Transparent on Cardano, shielded on Midnight — same integration model."
 >
-  <!-- ── Sky — fixed day→night backdrop (JS-enhanced) ─────────── -->
-  <div class="sky" aria-hidden="true">
-    <div class="sky__night"></div>
-    <div class="sky__stars"></div>
-  </div>
-
   <!-- ── Hero ─────────────────────────────────────────────── -->
   <section class="hero">
     <div class="hero__bg" aria-hidden="true"></div>
     <div class="container hero__inner">
       <div class="hero__text">
         <h1 class="hero__headline">
-          <span class="hl-mask"><span class="hl-word">OData for</span></span><br />
-          <span class="hl-mask"><span class="hl-word hero__headline-accent">Cardano</span></span>
-          <span class="hl-mask"><span class="hl-word hero__headline-amp">&amp;</span></span>
-          <span class="hl-mask"><span class="hl-word hero__headline-accent hero__headline-accent--night">Midnight</span></span>
+          OData for<br />
+          <span class="hero__headline-accent">Cardano</span>
+          <span class="hero__headline-amp">&amp;</span>
+          <span class="hero__headline-accent hero__headline-accent--night">Midnight</span>
         </h1>
         <p class="hero__sub">
           OData&nbsp;V4 services exposing the Cardano and Midnight blockchains.
@@ -160,7 +154,6 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
         </div>
         <div class="duality__seam" aria-hidden="true"></div>
         <div class="duality__panel duality__panel--night">
-          <div class="duality__night-glow" aria-hidden="true"></div>
           <div class="duality__logos">
             <img class="duality__logo--product" src={nightgateLogoDark} alt="NIGHTGATE" />
             <span class="duality__logos-spacer"></span>
@@ -310,13 +303,11 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
             <path class="arch__flow-path" d="M18 12 H82"></path>
             <polygon class="arch__flow-head" points="16,7 6,12 16,17"></polygon>
             <polygon class="arch__flow-head" points="84,7 94,12 84,17"></polygon>
-            <circle class="arch__packet" r="3" cx="20" cy="12"></circle>
           </svg>
           <svg class="arch__flow arch__flow--night" viewBox="0 0 100 24" preserveAspectRatio="none">
             <path class="arch__flow-path" d="M18 12 H82"></path>
             <polygon class="arch__flow-head" points="16,7 6,12 16,17"></polygon>
             <polygon class="arch__flow-head" points="84,7 94,12 84,17"></polygon>
-            <circle class="arch__packet" r="3" cx="20" cy="12"></circle>
           </svg>
         </div>
 
@@ -346,13 +337,11 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
             <path class="arch__flow-path" d="M18 12 H82"></path>
             <polygon class="arch__flow-head" points="16,7 6,12 16,17"></polygon>
             <polygon class="arch__flow-head" points="84,7 94,12 84,17"></polygon>
-            <circle class="arch__packet" r="3" cx="20" cy="12"></circle>
           </svg>
           <svg class="arch__flow arch__flow--night" viewBox="0 0 100 24" preserveAspectRatio="none">
             <path class="arch__flow-path" d="M18 12 H82"></path>
             <polygon class="arch__flow-head" points="16,7 6,12 16,17"></polygon>
             <polygon class="arch__flow-head" points="84,7 94,12 84,17"></polygon>
-            <circle class="arch__packet" r="3" cx="20" cy="12"></circle>
           </svg>
         </div>
 
@@ -1002,7 +991,6 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
 </Layout>
 
 <script>
-  import "../scripts/home";
   import "../scripts/contact";
   import "../scripts/npm-versions";
 </script>

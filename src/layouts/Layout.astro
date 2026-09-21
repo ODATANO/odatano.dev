@@ -49,19 +49,6 @@ const {
         document.documentElement.dataset.theme = (t === "night" || t === "day") ? t : "night";
       } catch (e) { document.documentElement.dataset.theme = "night"; }
     </script>
-    <script is:inline>
-      // Set the reveal gate BEFORE first paint so content doesn't flash
-      // visible and then re-animate. Safety net: if the animation module
-      // never boots (marker class missing), un-hide everything again.
-      (function () {
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        var d = document.documentElement;
-        d.classList.add("reveal-ready");
-        setTimeout(function () {
-          if (!d.classList.contains("anim-booted")) d.classList.remove("reveal-ready");
-        }, 2000);
-      })();
-    </script>
   </head>
   <body>
     <Header />
@@ -70,22 +57,5 @@ const {
     </main>
     <Footer />
 
-    <script>
-      // Scroll-reveal via anime.js (no-op without JS / with reduced motion).
-      import "../scripts/reveal";
-
-      // Cursor spotlight — works regardless of motion preference.
-      const spotlightEls = document.querySelectorAll<HTMLElement>(
-        ".feature-card, .example-card, .stack__item, .arch__col"
-      );
-      spotlightEls.forEach((el) => {
-        el.addEventListener("pointermove", (ev) => {
-          const pe = ev as PointerEvent;
-          const r = el.getBoundingClientRect();
-          el.style.setProperty("--mx", pe.clientX - r.left + "px");
-          el.style.setProperty("--my", pe.clientY - r.top + "px");
-        });
-      });
-    </script>
   </body>
 </html>
