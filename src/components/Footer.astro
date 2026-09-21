@@ -1,11 +1,14 @@
 ---
+// The footer is dark at night and light in Day, so it needs both wordmarks.
 import logoUrl from "@odatano/brand/logos/odatano-logo-on-dark.svg?url";
+import logoDayUrl from "@odatano/brand/logos/odatano-logo.svg?url";
 ---
 
 <footer class="site-footer site-footer--night">
   <div class="container site-footer__inner">
     <div class="site-footer__brand">
-      <img src={logoUrl} alt="ODATANO" height="28" />
+      <img class="only-night" src={logoUrl} alt="ODATANO" height="28" />
+      <img class="only-day" src={logoDayUrl} alt="ODATANO" height="28" />
       <p>Enterprise OData V4 for Cardano &amp; Midnight</p>
     </div>
     <nav

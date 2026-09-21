@@ -29,8 +29,8 @@ import midnightSymbolWhite from "../assets/logos/midnight-symbol-white.svg?url";
  *
  * Logos: the product wordmark from @odatano/brand as a light / dark pair,
  * swapped with `.only-day` / `.only-night`; the chain badge is the official
- * Cardano starburst or the Midnight symbol. A card with `night` is dark in
- * both themes and always shows the dark files.
+ * Cardano starburst or the Midnight symbol. `night` cards follow the theme
+ * like every other card, so they use the same pair.
  */
 interface Props {
   name: string;
@@ -108,16 +108,12 @@ const cardClass = [
     </span>
     <span class="project-card__chain" title={chainTitle}>
       {
-        chains.map((chain) =>
-          night ? (
-            <img src={chain.dark} alt={chain.alt} />
-          ) : (
-            <>
-              <img class="only-day" src={chain.light} alt={chain.alt} />
-              <img class="only-night" src={chain.dark} alt={chain.alt} />
-            </>
-          )
-        )
+        chains.map((chain) => (
+          <>
+            <img class="only-day" src={chain.light} alt={chain.alt} />
+            <img class="only-night" src={chain.dark} alt={chain.alt} />
+          </>
+        ))
       }
     </span>
   </div>
@@ -125,14 +121,10 @@ const cardClass = [
     <h3 class={logo ? "has-logo" : undefined}>
       {
         logo ? (
-          night ? (
-            <img class="project-card__logo" src={logo.dark} alt={name} />
-          ) : (
-            <>
-              <img class="project-card__logo only-day" src={logo.light} alt={name} />
-              <img class="project-card__logo only-night" src={logo.dark} alt={name} />
-            </>
-          )
+          <>
+            <img class="project-card__logo only-day" src={logo.light} alt={name} />
+            <img class="project-card__logo only-night" src={logo.dark} alt={name} />
+          </>
         ) : (
           name
         )
