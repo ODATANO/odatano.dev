@@ -12,7 +12,7 @@ interface Props {
 
 const {
   title,
-  description = "Enterprise OData V4 services for the Cardano and Midnight blockchains, built on SAP CAP.",
+  description = "OData V4 API for the Cardano and Midnight blockchains. Hosted, standalone or as an SAP CAP plugin.",
 } = Astro.props;
 ---
 
@@ -57,5 +57,19 @@ const {
     </main>
     <Footer />
 
+    <script>
+      // Pointer glow: cards get --mx / --my so the radial light in
+      // their ::after follows the pointer (see global.css).
+      const glowEls = document.querySelectorAll<HTMLElement>(
+        ".feature-card, .example-card, .arch__col, .api__tile, .agents__server, .duality__panel"
+      );
+      glowEls.forEach((el) => {
+        el.addEventListener("pointermove", (ev) => {
+          const r = el.getBoundingClientRect();
+          el.style.setProperty("--mx", ev.clientX - r.left + "px");
+          el.style.setProperty("--my", ev.clientY - r.top + "px");
+        });
+      });
+    </script>
   </body>
 </html>

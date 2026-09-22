@@ -1,19 +1,19 @@
 ---
 layout: ../../layouts/DocLayout.astro
 title: Get Started
-description: Use ODATANO and NIGHTGATE through the hosted API at api.odatano.dev, or run the SAP CAP plugins yourself - @odatano/core on Cardano, @odatano/nightgate on Midnight.
+description: Hosted API at api.odatano.dev, or self-hosted. @odatano/core for Cardano, @odatano/nightgate for Midnight, standalone or as a CAP plugin.
 ---
 
 # Get Started
 
-ODATANO exposes public blockchains as OData V4: ODATANO for Cardano, NIGHTGATE for Midnight. Two ways in:
+ODATANO is an OData V4 API for public blockchains: ODATANO for Cardano, NIGHTGATE for Midnight. Two ways in:
 
 - **Hosted API:** one key at [api.odatano.dev](https://api.odatano.dev/), nothing to install. Start here.
-- **Your own CAP app:** install `@odatano/core` (Cardano) or `@odatano/nightgate` (Midnight) as a SAP CAP plugin, or run the ODATANO repo standalone.
+- **Self-hosted:** run `@odatano/core` (Cardano) or `@odatano/nightgate` (Midnight) standalone, or add it to your CAP app as a plugin.
 
 ## Hosted API
 
-Both services run hosted at [api.odatano.dev](https://api.odatano.dev/), behind one key. No node, no plugin: the same OData routes as the plugins below, on Cardano preprod and Midnight preprod.
+Both services run hosted at [api.odatano.dev](https://api.odatano.dev/), behind one key. No node, nothing to install. Same OData routes as a self-hosted instance, on Cardano preprod and Midnight preprod.
 
 | Product | Routes |
 |---------|--------|
@@ -53,9 +53,9 @@ curl -X POST https://api.odatano.dev/odata/v4/cardano-transaction/BuildSimpleAda
 
 Every forwarded call is listed in the [API reference](https://api.odatano.dev/reference). The MCP servers ([ODATANO-MCP](/docs/odatano-mcp/), [NIGHTGATE-MCP](/docs/nightgate-mcp/)) take the same key as `ODATANO_ACCESS_KEY`; the gateway is their default URL.
 
-## ODATANO on Cardano (CAP plugin)
+## ODATANO on Cardano (in your CAP app)
 
-`@odatano/core` gives you transparent, auditable on-chain data and native transaction building, exposed as OData entities and actions. Readable by SAP Fiori, Excel, Power BI, or any OData client.
+`@odatano/core` exposes blocks, addresses, UTxOs and pools as OData entities and builds transactions as OData actions. Readable by SAP Fiori, Excel, Power BI or any OData client.
 
 You need a SAP CAP project. If you do not have one yet:
 
@@ -91,7 +91,7 @@ Add to your project's `package.json`:
 }
 ```
 
-Get a free Blockfrost key at [blockfrost.io](https://blockfrost.io). All three services are gated by `@requires: 'authenticated-user'`; the `[development] auth dummy` block lets local `cds watch` accept requests without a JWT. Persistent SQLite (`db.sqlite`) keeps the index cache across restarts. Full key reference: [Configuration](/docs/configuration/).
+Get a free Blockfrost key at [blockfrost.io](https://blockfrost.io). All services are gated by `@requires: 'authenticated-user'`; the `[development] auth dummy` block lets local `cds watch` accept requests without a JWT. Persistent SQLite (`db.sqlite`) keeps the index cache across restarts. Full key reference: [Configuration](/docs/configuration/).
 
 ### 3. Run
 
@@ -127,9 +127,9 @@ curl -X POST http://localhost:4004/odata/v4/cardano-transaction/BuildSimpleAdaTr
 
 Go deeper: [User Guide](/docs/user-guide/), [Transaction Workflow](/docs/transaction-workflow/), [Plutus](/docs/plutus/).
 
-## NIGHTGATE on Midnight (CAP plugin)
+## NIGHTGATE on Midnight (in your CAP app)
 
-`@odatano/nightgate` ties the same CAP runtime to the **Midnight** blockchain: a block indexer plus a worker-thread wallet stack for ZK-aware transaction submission. Shielded transfers, Compact smart contracts, and zero-knowledge attestations that prove a value meets a threshold without revealing it.
+`@odatano/nightgate` does the same for **Midnight**: a block indexer plus a worker-thread wallet stack for ZK-aware transaction submission. Shielded transfers, Compact contracts and zero-knowledge attestations that prove a value meets a threshold without revealing it.
 
 ### 1. Install
 
@@ -171,11 +171,11 @@ Submit actions are async: they return `{ jobId, status }`, then you poll `getJob
 docker compose -f docker/docker-compose.yml up -d proof-server
 ```
 
-Go deeper: [NIGHTGATE Plugin](/docs/nightgate/), [NIGHTPASS](/docs/nightpass/).
+Go deeper: [NIGHTGATE](/docs/nightgate/), [NIGHTPASS](/docs/nightpass/).
 
 ## Run both together
 
-The two plugins are independent CAP requires, so a single app can serve Cardano and Midnight next to each other:
+The two packages are independent CAP requires. One app can serve Cardano and Midnight side by side:
 
 ```json
 {
@@ -189,7 +189,7 @@ The two plugins are independent CAP requires, so a single app can serve Cardano 
 }
 ```
 
-Then `cds watch`, and all services from both plugins register on their own paths.
+Then `cds watch`. All services from both packages register on their own paths.
 
 ## Standalone
 
@@ -204,14 +204,14 @@ cds deploy --to sqlite
 cds watch
 ```
 
-Server runs at `http://localhost:4004` with the same three services. See [Docker Deployment](/docs/docker-deployment/) and [Production Deployment](/docs/production-deployment/) for running it as a service.
+Server runs at `http://localhost:4004` with the same services. See [Docker Deployment](/docs/docker-deployment/) and [Production Deployment](/docs/production-deployment/) for running it as a service.
 
 ## Next steps
 
 - [Configuration:](/docs/configuration/) All `@odatano/core` keys
 - [User Guide:](/docs/user-guide/) Query patterns and OData basics
 - [Transaction Workflow:](/docs/transaction-workflow/) Full Build → Sign → Submit flows
-- [NIGHTGATE Plugin:](/docs/nightgate/) Midnight services, wallet, and ZK surface
+- [NIGHTGATE:](/docs/nightgate/) Midnight services, wallet, and ZK surface
 - [NIGHTPASS:](/docs/nightpass/) A full app built on NIGHTGATE, the EU battery passport
 - [API Reference:](/docs/reference/) All entities and actions
 - [GitHub:](https://github.com/ODATANO) Source, issues, and packages

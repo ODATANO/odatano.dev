@@ -1,40 +1,44 @@
 ---
 layout: ../../layouts/DocLayout.astro
-title: NIGHTGATE Plugin
-description: SAP CAP plugin for the Midnight blockchain - indexer, worker-thread wallet stack and ZK-aware transaction submission over OData V4.
+title: NIGHTGATE
+description: OData V4 API for the Midnight blockchain. Indexer, worker-thread wallet stack and ZK-aware transaction submission. Runs standalone or as a SAP CAP plugin.
 ---
 
-# NIGHTGATE Plugin
+# NIGHTGATE
 
-`@odatano/nightgate` ties a SAP CAP runtime directly to the **Midnight** blockchain. A built-in crawler indexes blocks from a Substrate RPC node into CAP entities; a worker-thread-isolated wallet stack handles ZK-aware transaction submission — deploy/call Compact contracts, send NIGHT and custom tokens, fee sponsoring, dust generation. The whole surface is standard OData V4: no GraphQL, no SDK lock-in for consumers.
+`@odatano/nightgate` is the OData V4 API for the **Midnight** blockchain. A built-in crawler indexes blocks from a Substrate RPC node into CAP entities. A worker-thread wallet stack handles ZK-aware transaction submission: deploy and call Compact contracts, send NIGHT and custom tokens, fee sponsoring, dust generation. The whole surface is standard OData V4, no GraphQL, no SDK required. Run it standalone or as a plugin in your own SAP CAP app.
 
 ## Highlights
 
-- **Block-level indexing:** Live + catch-up crawler with reorg detection
-- **Wallet sessions:** Read-only (viewing key) + signing (seed), AES-256-GCM at rest; `deriveWalletInfo` creates wallets programmatically (multi-account via `accountIndex`) — no Lace needed
-- **Contract deploy / call:** Compact-compiled contracts via `deployContract` / `submitContractCall`; `submitContractCallBatch` bundles up to 8 dependent calls in one tx with deterministic apply order
-- **In-process WASM proving:** `NIGHTGATE_PROVING_MODE=wasm` is the zero-config default — no proof-server container for dev/test/CI (external proof server recommended for production)
-- **Fee sponsoring:** `sponsorSessionId` on all submission actions — the caller wallet needs neither NIGHT nor dust
-- **ZK predicate attestations:** `issuePredicateAttestation` / `issueFieldPredicateAttestation` prove `value ≤/≥ threshold` without revealing the value; `verifyAttestationState` / `verifyPredicateState` verify crawler-free, cross-network
-- **Document anchoring:** `anchorDocument` / `verifyDocument` — hash on-chain, caller-managed storage
-- **Disclosure ACLs:** `grantDisclosure` / `revokeDisclosure` + `registerGranteeIdentity` gate who can read disclosed values
-- **Passport registrar:** `registerPassport` with bind-takeover guard
-- **Token transfers:** `sendNight` auto-detects the receiver ledger and moves NIGHT or custom tokens (`tokenTypeHex`); `getWalletBalance` / `estimateSendNightFee` for diagnostics
-- **Browser connector surface:** `@odatano/nightgate/browser` + `/zk-config` + `/contract-manifest` for wallet-driven (Lace) contract calls
-- **Offline mode:** the CAP app starts even if the upstream node is unreachable
-- **AI agents:** [`@odatano/nightgate-mcp`](/docs/nightgate-mcp/) exposes the attestation layer (anchor, prove, verify, grant) as MCP tools — scoped by `ngat_…` agent-grant tokens
+- **Block indexing:** live and catch-up crawler with reorg detection. `Blocks`, `Transactions`, `ContractActions`, `UnshieldedUtxos` and `NightBalances` fill from the node. Optional passes decode ledger payloads and pull fees, segments and contract state from the Midnight indexer.
+- **Wallet sessions:** `connectWallet` (viewing key, read-only) and `connectWalletForSigning` (BIP39 mnemonic, Lace-compatible derivation). Secrets are AES-256-GCM encrypted at rest under a key ring. `deriveWalletInfo` creates wallets without Lace.
+- **Token transfers:** `sendNight` picks the ledger from the receiver address and moves NIGHT or custom tokens (`tokenTypeHex`). `getWalletBalance` and `estimateSendNightFee` run before you spend.
+- **Compact contracts:** `deployContract`, `submitContractCall`, `submitContractCallBatch` (up to 8 calls in one transaction). Admins add contract artifacts at runtime with `registerContract`.
+- **Proving:** in-process WASM by default, no proof-server container. Set `NIGHTGATE_PROOF_SERVER_URL` to prove on a proof server (production).
+- **Fee sponsoring:** `sponsorSessionId` on every submit action; the caller needs neither NIGHT nor dust. A sponsor policy limits contracts, circuits, token types and deploys per grant.
+- **Local transaction building:** `@odatano/nightgate/txbuilder` or [`@odatano/nightgate-tx`](https://www.npmjs.com/package/@odatano/nightgate-tx) build, prove and sign with your own key. `sponsorFinalizedTransaction` / `sponsorUnboundTransaction` pay and submit. The sponsor never sees key, witness or preimage.
+- **Document anchoring:** `anchorDocument` / `verifyDocument` put a hash on chain; storage stays with the caller. `prepareDocumentProof` turns canonical JSON into a content root with per-field paths (16 or 32 slots).
+- **Field proofs:** `issueFieldPredicateAttestation` (value ≤ / ≥ threshold), `issueFieldEqualityAttestation`, `issueFieldMembershipAttestation`. `issueFieldPredicateAttestationBatch` bundles up to 8 claims in one transaction. Values stay hidden.
+- **Cross-document proofs:** `issueDocumentIntegrityAttestation` and `issueDocumentDiffAttestation` compare two anchored documents of the same width.
+- **Crawler-free verification:** `verifyAttestationState` / `verifyPredicateState` read live contract state from the public indexer. `NightgateVerifyService` serves both without login when `NIGHTGATE_PUBLIC_VERIFY=true`.
+- **Tiered disclosure:** `grantDisclosure` / `revokeDisclosure` / `registerGranteeIdentity` decide who reads which tier. `registerPassport` runs the document id registry.
+- **Agent grants:** `createAgentGrant` issues an `ngat_` bearer token (`x-agent-token`) with action allow-list, budgets, pinned session and sponsor. `updateAgentGrant`, `rotateAgentGrantToken`, `revokeAgentGrant` and `getGrantUsage` manage it. `attestAgentOutput` anchors agent output provenance.
+- **Browser connector:** `@odatano/nightgate/browser` + `/zk-config` + `/contract-manifest` for wallet-driven (Lace) dApps.
+- **Operations:** liveness, readiness and Prometheus metrics without login, crawler pause / resume / reindex, offline start when the node is unreachable.
+- **AI agents:** [`@odatano/nightgate-mcp`](/docs/nightgate-mcp/) exposes anchor, prove, verify and grant as MCP tools, scoped by the agent-grant token.
 
 ## Stack
 
 | Layer | Tech |
 |-------|------|
-| Network | Midnight preview / preprod / mainnet (plus testnet, undeployed) |
+| Network | Midnight preprod / preview / mainnet (plus testnet and `undeployed` for a local stack) |
 | Chain access | Substrate RPC (wss) + GraphQL indexer |
-| Backend | SAP CAP (`@sap/cds` ≥ 10), Node.js ≥ 22, TypeScript |
-| Wallet SDK | Midnight SDK in `worker_threads` (Effect.ts fibers) |
-| Database | SQLite (dev) / PostgreSQL or SAP HANA (prod — SQLite is rejected in production) |
+| Backend | SAP CAP (`@sap/cds` 10), Node.js ≥ 22.12, TypeScript |
+| Wallet SDK | midnight-js 4.1 / ledger-v8 8.1 in `worker_threads` |
+| Database | SQLite (dev) / PostgreSQL or SAP HANA (prod). Production SQLite is refused |
+| Auth (standalone image) | `@odatano/cap-auth`: basic auth, agent-token lane, public verify lane |
 | API | OData V4 |
-| Tests | Vitest — 68 suites, ~1,230 tests |
+| Tests | Vitest |
 
 ## Architecture
 
@@ -44,27 +48,28 @@ Main thread                       Worker thread
 │ Crawler            │            │ Wallet SDK             │
 │ - BlockProcessor   │            │ - facade.start (sync)  │
 │ - reorg detection  │            │ - transferTransaction  │
-└────────┬───────────┘            │ - deployContract       │
-         ▼  atomic writes         │ - submitContractCall   │
-┌────────────────────┐            └───────────┬────────────┘
-│ CAP DB             │◄────state-save─────────┘
-└────────┬───────────┘
+└────────┬───────────┘            │ - finalize (ZK prove)  │
+         ▼  atomic writes         │ - deployContract       │
+┌────────────────────┐            │ - submitContractCall   │
+│ CAP DB             │◄─state-save┤ - private-state-rpc    │
+└────────┬───────────┘            └────────────────────────┘
          ▼  OData V4
-4 services on /api/v1/{nightgate, indexer, analytics, admin}
+5 services on /api/v1/{nightgate, indexer, analytics, admin, verify}
 ```
 
-The wallet SDK lives in `worker_threads` because Midnight's Effect.ts fiber scheduler saturates the microtask queue during sync — isolation keeps the main CAP request pipeline responsive.
+The wallet SDK lives in `worker_threads` because Midnight's Effect.ts fiber scheduler saturates the microtask queue during sync. Isolation keeps the main CAP request pipeline responsive.
 
 ## Service Surface
 
 | Service | Path | What |
 |---------|------|------|
-| `NightgateService` | `/api/v1/nightgate` | Blocks / transactions / wallet sessions / token + contract ops |
-| `NightgateIndexerService` | `/api/v1/indexer` | Sync state, health, reorg history, Prometheus metrics, crawler control |
-| `NightgateAnalyticsService` | `/api/v1/analytics` | Aggregate counts |
-| `NightgateAdminService` | `/api/v1/admin` | Session invalidation, role grants |
+| `NightgateService` | `/api/v1/nightgate` | 18 entities, 57 operations: chain data, wallet sessions, token / contract / attestation / agent-grant actions |
+| `NightgateIndexerService` | `/api/v1/indexer` | 2 entities, 11 operations: sync state, health, reorg history, Prometheus metrics, crawler control |
+| `NightgateAnalyticsService` | `/api/v1/analytics` | 2 entities, 4 functions: aggregate counts |
+| `NightgateAdminService` | `/api/v1/admin` | 3 entities, 9 operations: sessions, contract registration, role grants, diagnostics |
+| `NightgateVerifyService` | `/api/v1/verify` | 2 functions: unauthenticated state verification (`NIGHTGATE_PUBLIC_VERIFY=true`) |
 
-Submit actions are async: they return `{ jobId, status }`; poll `getJobStatus(jobId, sessionId)` for the result. The job model is a durable, restart-safe state machine — idempotency keys, lease/heartbeat, on-chain `chainStatus` tracked separately from the job status, Prometheus job gauges.
+Submit actions are async. They return `{ jobId, status }`; poll `getJobStatus(jobId, sessionId)` for the result. Jobs survive restarts: idempotency keys, leased execution, `chainStatus` confirmed from the indexer, Prometheus job gauges. Write actions answer 503 with `Retry-After` while the runtime is down.
 
 ## Use as a CAP Plugin
 
@@ -79,20 +84,46 @@ Submit actions are async: they return `{ jobId, status }`; poll `getJobStatus(jo
 }
 ```
 
-Then `cds watch` — `network` is the only required key; defaults use the public RPC + hosted indexer.
+Then `cds watch`. `network` is the only required key. Defaults: public preprod RPC, hosted Midnight indexer, wasm proving. Every config key is settable under `cds.requires.nightgate`; `NIGHTGATE_*` environment variables override it.
 
 ## Quick Start
 
+Requires Node.js 22.12 or newer and `@sap/cds` 10.
+
 ```bash
-npm install @odatano/nightgate @cap-js/sqlite
+npm install @odatano/nightgate @cap-js/sqlite   # into your CAP app, then add the config above
+```
+
+Standalone from the repo:
+
+```bash
 npm ci
-npm run dev            # connects to public preprod RPC + hosted indexer
+npm run dev            # cds watch, 12 GB heap; public preprod RPC + hosted indexer
+npm run serve:sync     # cds-serve for long syncs; heap via NIGHTGATE_HEAP_MB
+```
 
-# wallet signing + submission — proving runs in-process by default (WASM):
-npm run serve:sync     # sets the ~12 GB heap (override via NIGHTGATE_HEAP_MB)
+Standalone with Docker:
 
-# optional, recommended for production — external proof server:
-docker compose -f docker/docker-compose.yml up -d proof-server
+```bash
+docker pull ghcr.io/odatano/nightgate:latest
+docker run -d -p 4004:4004 \
+  -e ENCRYPTION_KEY=$(openssl rand -hex 32) \
+  -e NIGHTGATE_HTTP_PASSWORD=change-me \
+  -v nightgate-data:/data \
+  ghcr.io/odatano/nightgate:latest
+```
+
+`NIGHTGATE_DB_URL=postgres://…` switches the image from SQLite to PostgreSQL.
+
+`.env` keys:
+
+```bash
+NIGHTGATE_NETWORK=preprod
+NIGHTGATE_NODE_URL=wss://rpc.preprod.midnight.network/
+NIGHTGATE_INDEXER_HTTP_URL=https://indexer.preprod.midnight.network/api/v4/graphql
+# NIGHTGATE_PROOF_SERVER_URL=http://localhost:6300   # unset = in-process wasm proving
+NIGHTGATE_CRAWLER_ENABLED=false
+ENCRYPTION_KEY=<random secret>
 ```
 
 ## Sourcecode

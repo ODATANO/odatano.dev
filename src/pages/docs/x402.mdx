@@ -1,12 +1,12 @@
 ---
 layout: ../../layouts/DocLayout.astro
 title: x402 Example App
-description: HTTP 402 payment gating for SAP CAP - protect OData endpoints behind on-chain Cardano settlement. Built on @odatano/core.
+description: HTTP 402 payment gating for SAP CAP. OData endpoints open after on-chain Cardano settlement. Built on @odatano/core.
 ---
 
 # x402 Example App
 
-`@odatano/x402` is a **payment-gating library** for SAP CAP applications, built on top of `@odatano/core`. It implements the **Cardano-x402-v2** specification: every gated request returns `HTTP 402 Payment Required` until the caller proves on-chain settlement. The library is asset-agnostic - gate with ADA (lovelace) or any native Cardano token.
+`@odatano/x402` is a **payment-gating library** for SAP CAP applications, built on `@odatano/core`. It implements the **Cardano-x402-v2** specification: every gated request returns `HTTP 402 Payment Required` until the caller proves on-chain settlement. Gate with ADA or any native Cardano token.
 
 The repository ships a working example CAP app that gates a synthetic price-feed service, so you can see the full request → 402 → pay → retry → 200 loop end to end.
 

@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/DocLayout.astro
 title: "Developer Guide"
-description: "Architecture overview, plugin internals, public API, testing."
+description: "Architecture, internals, public API, testing."
 ---
 
 # Developer Guide
@@ -10,13 +10,16 @@ For contributors and consumers extending ODATANO.
 
 ## Service Surface
 
-Three CDS services, ~31 entities (some shared via re-projection), 40 actions:
+Six CDS services, 40 entities (some shared via re-projection), 57 actions:
 
 | Service | Path | Entities | Actions |
 |---------|------|---------:|--------:|
-| `CardanoODataService` | `/odata/v4/cardano-odata/` | 20 | 19 read |
+| `CardanoODataService` | `/odata/v4/cardano-odata/` | 22 | 19 read |
 | `CardanoTransactionService` | `/odata/v4/cardano-transaction/` | 8 | 12 unbound + 1 bound |
-| `CardanoSignService` | `/odata/v4/cardano-sign/` | 5 | 8 |
+| `CardanoSignService` | `/odata/v4/cardano-sign/` | 5 | 9 |
+| `CardanoIndexerService` (2.0) | `/odata/v4/cardano-indexer/` | 2 | 4 |
+| `CardanoWorkerService` (2.0) | `/odata/v4/cardano-worker/` | 2 | 6 |
+| `CardanoAgentService` (2.0) | `/odata/v4/cardano-agent/` | 1 | 6 |
 
 Full list: [API Reference](/docs/reference/).
 

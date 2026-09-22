@@ -18,12 +18,12 @@
      tokens and the console are untouched. */
   --color-text:        #15172c;
   --color-text-muted:  #434a66;
-  --color-code-bg:     #0b1220;
+  --color-code-bg:     #13151b;
   /* Navy that never flips: the ground of the stats bar, the plugin boxes,
      the dark sections and the footer. `--color-dark-blue` is text and
      re-maps to ink at night, so backgrounds must not use it. */
   --color-navy:        var(--odt-day-navy);
-  --color-hero-a:      #ffffff;
+  --color-hero-a:      #f5f5f7;
   --color-hero-b:      #f5f8ff;
   --header-bg:         rgba(255, 255, 255, 0.92);
   --accent-soft:       #e8f0fe;
@@ -54,29 +54,30 @@
   /* Card surfaces — soft blue tint + top glow, like the Day duality panel */
   --gradient-card:
     radial-gradient(420px 220px at 20% 0%, rgba(59, 142, 240, 0.14), transparent 65%),
-    linear-gradient(180deg, #e6effd 0%, #d0e0f6 100%);
+    linear-gradient(180deg, #ededf0 0%, #e1e2e6 100%);
 
   /* Night palette: Midnight graphite (day = Cardano, night = Midnight) */
   --color-night-950:    var(--odt-night-bg);
   --color-night-900:    var(--odt-night-panel);
   --color-night-800:    var(--odt-night-panel-2);
-  --color-violet:       var(--odt-night-accent-2);
+  /* Midnight accent: deep blue, not the kit's violet. Blue-black on dark, navy tint on light. */
+  --color-violet:       #1b3a96;
   --color-violet-light: var(--odt-night-accent);
   --color-moon:         var(--odt-night-accent);
-  --gradient-night:      linear-gradient(135deg, var(--odt-night-accent-2) 0%, var(--odt-night-accent) 100%);
-  --gradient-night-text: linear-gradient(135deg, #0e0f13 0%, #16181f 55%, #4f6ef7 100%);
+  --gradient-night:      linear-gradient(135deg, var(--odt-day-blue) 0%, var(--odt-night-accent) 100%);
+  --gradient-night-text: linear-gradient(135deg, #0e0f13 0%, #16181f 55%, #1b3a96 100%);
   --gradient-dusk:       linear-gradient(160deg, var(--color-navy) 0%, var(--color-night-950) 100%);
-  --shadow-night: 0 24px 60px -20px rgba(14, 15, 19, 0.5), 0 8px 24px -8px rgba(79, 110, 247, 0.25);
+  --shadow-night: 0 24px 60px -20px rgba(14, 15, 19, 0.5), 0 8px 24px -8px rgba(27, 58, 150, 0.25);
 
   /* Shiki syntax highlighting — matches hero code block */
   --astro-code-foreground:              #e5e7eb;
-  --astro-code-background:              #0b1220;
+  --astro-code-background:              #13151b;
   --astro-code-token-comment:           #6b7280;
-  --astro-code-token-keyword:           #93c5fd;
-  /* Muted sand instead of the usual editor yellow: warm enough to read as
-     a string, quiet enough not to shout out of the window. */
-  --astro-code-token-string:            #dcc292;
-  --astro-code-token-string-expression: #dcc292;
+  --astro-code-token-keyword:           #7aa2ff;
+  /* Strings in plain ink: only keys, commands and numbers carry colour,
+     so the windows stay in the blue family. */
+  --astro-code-token-string:            #e8eaf0;
+  --astro-code-token-string-expression: #e8eaf0;
   --astro-code-token-constant:          #86efac;
   --astro-code-token-function:          #3B8EF0;
   --astro-code-token-punctuation:       #9ca3af;
@@ -110,7 +111,7 @@
   --shadow-md: 0 12px 32px -14px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
 
-  --gradient-text:       linear-gradient(135deg, #7aa2ff 0%, #9cc6ff 60%, #dbe7ff 100%);
+  --gradient-text:       linear-gradient(135deg, #7aa2ff 0%, #9cc6ff 60%, #d6e2f5 100%);
   --gradient-night-text: linear-gradient(135deg, #e8eaf0 0%, #9aa1b2 55%, #7aa2ff 100%);
   --gradient-card:
     radial-gradient(420px 220px at 20% 0%, rgba(122, 162, 255, 0.10), transparent 65%),
@@ -529,17 +530,19 @@ a:hover { text-decoration: underline; }
   border-bottom: 1px solid rgba(255,255,255,0.06);
   background: rgba(255,255,255,0.02);
 }
-.hero__code-dot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  display: inline-block;
+.hero__code-glyph {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--odt-night-accent);
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 .hero__code-filename {
-  margin-left: auto;
+  margin-left: 0.2rem;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.45);
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.75);
   letter-spacing: 0.02em;
 }
 .hero__code-box pre {
@@ -552,9 +555,9 @@ a:hover { text-decoration: underline; }
   -webkit-overflow-scrolling: touch;
 }
 .hero__code-box .code-comment { color: #6b7280; }
-.hero__code-box .code-key { color: #93c5fd; }
+.hero__code-box .code-key { color: #7aa2ff; }
 .hero__code-box .code-val { color: #86efac; }
-.hero__code-box .code-str { color: #dcc292; }
+.hero__code-box .code-str { color: #e8eaf0; }
 .hero__code-box .code-cmd { color: var(--color-light-blue); }
 
 /* ── Stats Bar ──────────────────────────────────────────────── */
@@ -697,7 +700,7 @@ a:hover { text-decoration: underline; }
 .arch__col--plugin {
   background: var(--color-night-800);
   background-image:
-    radial-gradient(360px 200px at 50% 0%, rgba(79, 110, 247, 0.3), transparent 60%);
+    radial-gradient(360px 200px at 50% 0%, rgba(27, 58, 150, 0.3), transparent 60%);
   border-color: var(--color-night-800);
   box-shadow: var(--gloss-dark), var(--shadow-md);
 }
@@ -888,9 +891,9 @@ a:hover { text-decoration: underline; }
   word-break: break-word;
 }
 .code-demo__panel .c-comment { color: #6b7280; }
-.code-demo__panel .c-key { color: #93c5fd; }
+.code-demo__panel .c-key { color: #7aa2ff; }
 .code-demo__panel .c-val { color: #86efac; }
-.code-demo__panel .c-str { color: #dcc292; }
+.code-demo__panel .c-str { color: #e8eaf0; }
 .code-demo__panel .c-cmd { color: #34d399; }
 
 /* ── Example Applications ───────────────────────────────────── */
@@ -928,12 +931,6 @@ a:hover { text-decoration: underline; }
   margin-bottom: 1rem;
   line-height: 1.4;
 }
-.example-card__tag--accent {
-  color: #b45309;
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.32);
-}
-[data-theme="night"] .example-card__tag--accent { color: #dcc292; }
 .example-card h3 {
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700;
@@ -1202,19 +1199,22 @@ a:hover { text-decoration: underline; }
   box-shadow: var(--shadow-md);
 }
 .docs-content pre::before {
-  content: '';
+  content: '>_';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 2.5rem;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--odt-night-accent);
   background-color: rgba(255,255,255,0.025);
-  background-image:
-    radial-gradient(circle at 16px 19px, #ff5f57 5.5px, transparent 6.5px),
-    radial-gradient(circle at 36px 19px, #febc2e 5.5px, transparent 6.5px),
-    radial-gradient(circle at 56px 19px, #28c840 5.5px, transparent 6.5px);
-  background-repeat: no-repeat;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   pointer-events: none;
 }
@@ -1523,8 +1523,8 @@ a:hover { text-decoration: underline; }
 .section--night {
   background: var(--color-night-900);
   background-image:
-    radial-gradient(900px 400px at 100% 0%, rgba(79, 110, 247, 0.14), transparent 60%),
-    radial-gradient(700px 360px at 0% 100%, rgba(79, 110, 247, 0.1), transparent 60%);
+    radial-gradient(900px 400px at 100% 0%, rgba(27, 58, 150, 0.14), transparent 60%),
+    radial-gradient(700px 360px at 0% 100%, rgba(27, 58, 150, 0.1), transparent 60%);
   color: #fff;
 }
 .section--night .section__title { color: #fff; }
@@ -1545,9 +1545,9 @@ a:hover { text-decoration: underline; }
 }
 .hero__badges .hero__badge { margin-bottom: 0; }
 .hero__badge--night {
-  background: rgba(79, 110, 247, 0.1);
+  background: rgba(27, 58, 150, 0.1);
   color: var(--color-violet);
-  border-color: rgba(79, 110, 247, 0.25);
+  border-color: rgba(27, 58, 150, 0.25);
 }
 .hero__badge--night .hero__badge-dot { background: var(--color-violet); }
 .hero__badge--night .hero__badge-dot::after { background: var(--color-violet); }
@@ -1561,15 +1561,6 @@ a:hover { text-decoration: underline; }
 .hero__headline-amp {
   font-weight: 600;
   color: var(--color-text-muted);
-}
-.hero__code-cursor {
-  display: inline-block;
-  width: 8px;
-  height: 1em;
-  margin-left: 2px;
-  vertical-align: text-bottom;
-  background: var(--color-light-blue);
-  border-radius: 1px;
 }
 
 .hero__code-box .code-line { display: block; }
@@ -1612,11 +1603,11 @@ a:hover { text-decoration: underline; }
 [data-theme="night"] .duality__panel--day {
   background:
     radial-gradient(600px 300px at 20% 0%, rgba(59, 142, 240, 0.22), transparent 65%),
-    linear-gradient(180deg, #141d3a 0%, #0f1528 100%);
+    linear-gradient(180deg, #0e1424 0%, #080c15 100%);
 }
 .duality__panel--night {
   background:
-    radial-gradient(600px 300px at 80% 0%, rgba(79, 110, 247, 0.22), transparent 65%),
+    radial-gradient(600px 300px at 80% 0%, rgba(27, 58, 150, 0.22), transparent 65%),
     linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-950) 100%);
   color: #fff;
 }
@@ -1689,8 +1680,8 @@ a:hover { text-decoration: underline; }
   color: var(--color-bright-blue);
 }
 .duality__panel--night .duality__chip {
-  background: rgba(79, 110, 247, 0.12);
-  border-color: rgba(79, 110, 247, 0.3);
+  background: rgba(27, 58, 150, 0.12);
+  border-color: rgba(27, 58, 150, 0.3);
   color: var(--color-moon);
 }
 /* Per-track plugin links (npm / GitHub / Docs), one panel per plugin. */
@@ -1754,13 +1745,13 @@ a:hover { text-decoration: underline; }
    indigo on Cardano, blue on midnight. */
 .arch__col--chain {
   background:
-    radial-gradient(420px 220px at 20% 0%, rgba(79, 110, 247, 0.22), transparent 65%),
-    linear-gradient(180deg, #e7ebfc 0%, #d2d9f6 100%);
-  border-color: rgba(79, 110, 247, 0.42);
+    radial-gradient(420px 220px at 20% 0%, rgba(27, 58, 150, 0.22), transparent 65%),
+    linear-gradient(180deg, #e4e9f4 0%, #cdd6ea 100%);
+  border-color: rgba(27, 58, 150, 0.42);
 }
 .arch__col--chain .arch__chip {
-  background: rgba(79, 110, 247, 0.1);
-  border-color: rgba(79, 110, 247, 0.28);
+  background: rgba(27, 58, 150, 0.1);
+  border-color: rgba(27, 58, 150, 0.28);
 }
 .arch__col--chain-midnight {
   background: var(--gradient-card);
@@ -1806,8 +1797,8 @@ a:hover { text-decoration: underline; }
   align-items: center;
   gap: 0.75rem;
   font-family: var(--font-mono);
-  font-size: 1.1875rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--color-bright-blue);
   margin-bottom: 1.5rem;
 }
@@ -1827,7 +1818,7 @@ a:hover { text-decoration: underline; }
 /* Night feature cards (NIGHTGATE services on light section) */
 .feature-card--night {
   background: linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-900) 100%);
-  border-color: rgba(79, 110, 247, 0.3);
+  border-color: rgba(27, 58, 150, 0.3);
   box-shadow: var(--gloss-dark), var(--shadow-sm);
 }
 .feature-card--night:hover {
@@ -1837,11 +1828,11 @@ a:hover { text-decoration: underline; }
 .feature-card--night h3 { color: #fff; }
 .feature-card--night p { color: rgba(255,255,255,0.72); }
 .feature-card--night code {
-  background: rgba(79, 110, 247, 0.14);
+  background: rgba(27, 58, 150, 0.14);
   color: var(--color-moon);
 }
 .feature-card--night .feature-card__icon {
-  background: rgba(79, 110, 247, 0.16);
+  background: rgba(27, 58, 150, 0.16);
 }
 
 /* ── Ecosystem — one Applications grid ──────────────────────── */
@@ -1911,7 +1902,7 @@ a:hover { text-decoration: underline; }
 /* Night project card (NIGHTPASS twin) */
 .project-card--night {
   background: linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-900) 100%);
-  border-color: rgba(79, 110, 247, 0.32);
+  border-color: rgba(27, 58, 150, 0.32);
   box-shadow: var(--gloss-dark), var(--shadow-sm);
 }
 .project-card--night:hover {
@@ -1924,13 +1915,13 @@ a:hover { text-decoration: underline; }
 .project-card--night .example-card__bullets li::before { background: var(--color-violet-light); }
 .project-card--night .example-card__bullets code,
 .project-card--night .example-card__desc code {
-  background: rgba(79, 110, 247, 0.14);
+  background: rgba(27, 58, 150, 0.14);
   color: var(--color-moon);
 }
 .project-card--night .example-card__tag {
   color: var(--color-moon);
-  background: rgba(79, 110, 247, 0.12);
-  border-color: rgba(79, 110, 247, 0.3);
+  background: rgba(27, 58, 150, 0.12);
+  border-color: rgba(27, 58, 150, 0.3);
 }
 .project-card--night .btn--outline {
   color: var(--color-violet-light);
@@ -1946,11 +1937,11 @@ a:hover { text-decoration: underline; }
 .btn--night {
   background: var(--gradient-night);
   color: #fff;
-  box-shadow: 0 4px 14px -4px rgba(79, 110, 247, 0.55);
+  box-shadow: 0 4px 14px -4px rgba(27, 58, 150, 0.55);
 }
 .btn--night:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 22px -6px rgba(79, 110, 247, 0.6);
+  box-shadow: 0 8px 22px -6px rgba(27, 58, 150, 0.6);
   text-decoration: none;
 }
 
@@ -1964,22 +1955,15 @@ a:hover { text-decoration: underline; }
    night panel (same treatment as the duality night panel) instead of
    relying on the section backdrop for contrast. */
 .agents { padding-top: 0; }
+/* No capsule: the AI Agents section sits on the ground like the rest. */
 .agents__panel {
   position: relative;
-  padding: 3.5rem 3rem 3rem;
-  border-radius: var(--radius-xl);
-  border: 1px solid rgba(79, 110, 247, 0.28);
-  box-shadow: var(--shadow-night, var(--shadow-md));
-  background:
-    radial-gradient(700px 320px at 85% 0%, rgba(79, 110, 247, 0.22), transparent 65%),
-    radial-gradient(500px 300px at 0% 100%, rgba(79, 110, 247, 0.12), transparent 65%),
-    linear-gradient(180deg, var(--color-night-800) 0%, var(--color-night-950) 100%);
-  color: #fff;
-  overflow: hidden;
+  padding: 0;
+  color: var(--color-text);
 }
 .agents__panel .section__header { margin-bottom: 2.5rem; }
-.agents__panel .section__title { color: #fff; }
-.agents__panel .section__subtitle { color: rgba(255,255,255,0.72); }
+.agents__panel .section__title { color: var(--color-text); }
+.agents__panel .section__subtitle { color: var(--color-text-muted); }
 .agents__panel .section__subtitle code {
   background: rgba(255,255,255,0.08);
   color: var(--color-moon);
@@ -2012,9 +1996,9 @@ a:hover { text-decoration: underline; }
     rgba(255, 255, 255, 0.03);
 }
 .agents__server--night {
-  border-color: rgba(79, 110, 247, 0.32);
+  border-color: rgba(27, 58, 150, 0.32);
   background:
-    radial-gradient(420px 200px at 100% 0%, rgba(79, 110, 247, 0.16), transparent 70%),
+    radial-gradient(420px 200px at 100% 0%, rgba(27, 58, 150, 0.16), transparent 70%),
     rgba(255, 255, 255, 0.03);
 }
 .agents__server h3 { margin-bottom: 0; }
@@ -2051,7 +2035,7 @@ a:hover { text-decoration: underline; }
   height: 10px;
   border-radius: 50%;
   background: var(--color-violet);
-  box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.22);
+  box-shadow: 0 0 0 4px rgba(27, 58, 150, 0.22);
 }
 .agents__server h3 {
   font-size: 1.5rem;
@@ -2106,8 +2090,8 @@ a:hover { text-decoration: underline; }
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 500;
-  background: rgba(79, 110, 247, 0.12);
-  border: 1px solid rgba(79, 110, 247, 0.3);
+  background: rgba(27, 58, 150, 0.12);
+  border: 1px solid rgba(27, 58, 150, 0.3);
   color: var(--color-moon);
 }
 .agents__links {
@@ -2131,7 +2115,7 @@ a:hover { text-decoration: underline; }
 }
 .agents__code { max-width: none; }
 .agents__code::before {
-  background: linear-gradient(135deg, rgba(59, 142, 240, 0.5), transparent 45%, rgba(79, 110, 247, 0.45));
+  background: linear-gradient(135deg, rgba(59, 142, 240, 0.5), transparent 45%, rgba(27, 58, 150, 0.45));
 }
 .agents__code pre { font-size: 0.82rem; }
 /* ── API — the hosted console in short (api.odatano.dev) ─────
@@ -2158,7 +2142,7 @@ a:hover { text-decoration: underline; }
   padding: 1.6rem 1.75rem;
   box-shadow: var(--gloss), var(--shadow-sm);
 }
-.api__tile--midnight { border-top-color: var(--odt-night-accent-2); }
+.api__tile--midnight { border-top-color: var(--color-violet); }
 .api__tile-logos {
   min-height: 60px;
   display: flex;
@@ -2203,41 +2187,53 @@ a:hover { text-decoration: underline; }
 .api__code { max-width: none; margin-bottom: 1.5rem; }
 .api__code pre { font-size: 0.84rem; }
 .api__code .code-c { color: #7f8aa6; }
-.api__code .code-k { color: #8ab8ff; }
-.api__code .code-s { color: #dcc292; }
+.api__code .code-k { color: #7aa2ff; }
+.api__code .code-s { color: #e8eaf0; }
 .api__lanes {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
+/* Three ways to a key: the accent carries the box, a blue edge and a
+   blue title on a tinted ground, so the row reads as part of the API. */
 .api__lane {
   min-width: 0;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem 1.15rem 1rem 1.05rem;
+  border: 1px solid rgba(12, 94, 207, 0.28);
+  border-left: 4px solid var(--odt-day-blue);
   border-radius: var(--radius-lg);
-  padding: 1rem 1.15rem;
+  background:
+    radial-gradient(320px 140px at 0% 0%, rgba(59, 142, 240, 0.16), transparent 70%),
+    var(--color-surface);
   box-shadow: var(--gloss), var(--shadow-sm);
 }
 .api__lane b {
-  display: block;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 0.25rem;
+  color: var(--odt-day-blue);
 }
 .api__lane span {
-  display: block;
-  font-size: 0.86rem;
+  font-size: 0.875rem;
   line-height: 1.55;
   color: var(--color-text-muted);
 }
-.api__lane em {
-  font-style: normal;
-  font-weight: 600;
-  color: var(--color-bright-blue);
+.api__lane em { font-style: normal; color: var(--color-text); font-weight: 600; }
+[data-theme="night"] .api__lane {
+  border-color: rgba(122, 162, 255, 0.3);
+  border-left-color: var(--odt-night-accent);
+  background:
+    radial-gradient(320px 140px at 0% 0%, rgba(122, 162, 255, 0.16), transparent 70%),
+    var(--color-surface);
+  box-shadow: var(--gloss-dark);
 }
-/* the three links, left-aligned, no card around them */
+[data-theme="night"] .api__lane b { color: var(--odt-night-accent); }
+@media (max-width: 900px) {
+  .api__lanes { grid-template-columns: 1fr; }
+}
 .api__footer {
   display: flex;
   align-items: center;
@@ -2252,7 +2248,7 @@ a:hover { text-decoration: underline; }
   padding: 6rem 0;
   background: var(--color-night-950);
   background-image:
-    radial-gradient(800px 380px at 50% 100%, rgba(79, 110, 247, 0.22), transparent 65%),
+    radial-gradient(800px 380px at 50% 100%, rgba(27, 58, 150, 0.22), transparent 65%),
     radial-gradient(600px 300px at 15% 0%, rgba(12, 94, 207, 0.14), transparent 60%);
   color: #fff;
   text-align: center;
@@ -2389,7 +2385,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
 .contact__form textarea:focus {
   outline: none;
   border-color: var(--color-violet-light);
-  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.25);
+  box-shadow: 0 0 0 3px rgba(27, 58, 150, 0.25);
 }
 .contact__form button { align-self: flex-start; margin-top: 0.25rem; }
 /* Honeypot: hidden from users, visible to naive bots that fill it. */
@@ -2421,7 +2417,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
 .site-footer--night {
   background: var(--color-night-950);
   background-image:
-    radial-gradient(700px 300px at 0% 0%, rgba(79, 110, 247, 0.12), transparent 60%);
+    radial-gradient(700px 300px at 0% 0%, rgba(27, 58, 150, 0.12), transparent 60%);
 }
 
 /* ── Responsive for new sections ────────────────────────────── */
@@ -2442,7 +2438,6 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   .duality__grid { grid-template-columns: 1fr; }
   .duality__seam { display: none; }
   .api__tiles { grid-template-columns: 1fr; }
-  .api__lanes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .agents__duo { grid-template-columns: 1fr; gap: 1.25rem; }
   /* Stacked layout reads as two tracks: App → ODATANO → Cardano,
      then NIGHTGATE → Midnight. Cells and connectors dissolve via
@@ -2489,13 +2484,12 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   .api__facts li { grid-template-columns: 1fr; gap: 0.15rem; padding: 0.55rem 0; }
   .api__facts li b { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); }
   .api__facts li span { font-size: 0.95rem; color: var(--color-text); }
-  .api__lanes { grid-template-columns: 1fr; gap: 0.75rem; }
   .api__code pre { font-size: 0.75rem; padding: 1.25rem 1.25rem; }
   .api__footer { flex-direction: column; align-items: stretch; }
   .api__footer .btn { width: 100%; }
   .closing-cta { padding: 4rem 0; }
   .closing-cta__cmd { font-size: 0.8rem; }
-  .agents__panel { padding: 2.25rem 1.5rem; }
+  .agents__panel { padding: 0; }
   .agents__server { padding: 1.5rem 1.25rem; }
   .agents__tool-group { grid-template-columns: 1fr; gap: 0.35rem; }
   .agents__code pre { font-size: 0.75rem; padding: 1.25rem 1.25rem; }
@@ -2512,11 +2506,11 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
    no per-section navy or dusk grounds, no radial tints inside cards,
    no gradient text, no coloured shadows. Day mode is untouched. */
 
+/* Night ground: one clean gradient from top to bottom, no glow.
+   A touch lighter at the top, the kit's graphite in the middle,
+   near-black at the end; fixed like the day ground. */
 [data-theme="night"] body {
-  background: var(--color-bg);
-  background-image:
-    radial-gradient(60% 50% at 20% 0%, rgba(122, 162, 255, 0.1), transparent 70%);
-  background-repeat: no-repeat;
+  background: linear-gradient(180deg, #15171d 0%, #0e0f13 55%, #0a0b0e 100%);
   background-attachment: fixed;
 }
 
@@ -2672,13 +2666,13 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
    deep indigo panel. Value does the work, the accents only tint. */
 [data-theme="night"] .arch__col--plugin {
   background:
-    radial-gradient(360px 200px at 50% 0%, rgba(79, 110, 247, 0.3), transparent 62%),
-    linear-gradient(180deg, #1e2447 0%, #161a34 100%);
-  border-color: rgba(79, 110, 247, 0.55);
+    radial-gradient(360px 200px at 50% 0%, rgba(27, 58, 150, 0.3), transparent 62%),
+    linear-gradient(180deg, #0f1626 0%, #0b101b 100%);
+  border-color: rgba(27, 58, 150, 0.55);
 }
 [data-theme="night"] .arch__col--chain {
-  background: linear-gradient(180deg, #191e3b 0%, #14172c 100%);
-  border-color: rgba(79, 110, 247, 0.45);
+  background: linear-gradient(180deg, #0d1320 0%, #090d17 100%);
+  border-color: rgba(27, 58, 150, 0.45);
 }
 [data-theme="night"] .arch__col--plugin-night {
   background:
@@ -2718,8 +2712,8 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
 }
 [data-theme="night"] .arch__col--plugin .arch__chip,
 [data-theme="night"] .arch__col--chain .arch__chip {
-  background: rgba(79, 110, 247, 0.22);
-  border-color: rgba(79, 110, 247, 0.45);
+  background: rgba(27, 58, 150, 0.22);
+  border-color: rgba(27, 58, 150, 0.45);
 }
 
 /* ── Closing CTA + footer end on the same ground ───────────── */
@@ -2735,7 +2729,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
 /* ── Buttons: the console's night button, no coloured shadow ─ */
 [data-theme="night"] .btn--primary,
 [data-theme="night"] .btn--night {
-  background: linear-gradient(135deg, var(--odt-night-accent-2), var(--odt-night-accent));
+  background: linear-gradient(135deg, var(--odt-day-blue), var(--odt-night-accent));
   color: #fff;
   box-shadow: none;
 }
@@ -2761,19 +2755,13 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
 }
 
 /* ── AI Agents: a panel like any other, not a lit slab ─────── */
-[data-theme="night"] .agents__panel {
-  background: transparent;
-  background-image: none;
-  border-color: var(--color-border);
-  box-shadow: none;
-}
 [data-theme="night"] .agents__panel .section__title { color: var(--color-text); }
 [data-theme="night"] .agents__panel .section__subtitle { color: var(--color-text-muted); }
 
 /* The one place the console does keep colour: the accent edge that tells
    the Cardano card from the Midnight one. */
 [data-theme="night"] .api__tile { border-top-color: var(--odt-night-accent); }
-[data-theme="night"] .api__tile--midnight { border-top-color: var(--odt-night-accent-2); }
+[data-theme="night"] .api__tile--midnight { border-top-color: var(--color-violet); }
 
 /* Closing CTA headline: solid ink instead of a clipped gradient */
 [data-theme="night"] .closing-cta__title {
@@ -2796,7 +2784,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   .section--night {
     background: var(--color-bg);
     background-image:
-      radial-gradient(900px 400px at 100% 0%, rgba(79, 110, 247, 0.07), transparent 60%),
+      radial-gradient(900px 400px at 100% 0%, rgba(27, 58, 150, 0.07), transparent 60%),
       radial-gradient(700px 360px at 0% 100%, rgba(12, 94, 207, 0.05), transparent 60%);
     color: var(--color-text);
   }
@@ -2810,15 +2798,15 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   /* ── The Midnight panel of the duality split ───────────────── */
   .duality__panel--night {
     background:
-      radial-gradient(600px 300px at 80% 0%, rgba(79, 110, 247, 0.18), transparent 65%),
-      linear-gradient(180deg, #eef0fd 0%, #dfe4f8 100%);
+      radial-gradient(600px 300px at 80% 0%, rgba(27, 58, 150, 0.18), transparent 65%),
+      linear-gradient(180deg, #c2cbe0 0%, #a9b6d2 100%);
     color: var(--color-text);
   }
   .duality__panel--night h3 { color: var(--color-text); }
   .duality__panel--night p { color: var(--color-text-muted); }
   .duality__panel--night .duality__chip {
-    background: rgba(79, 110, 247, 0.1);
-    border-color: rgba(79, 110, 247, 0.28);
+    background: rgba(27, 58, 150, 0.1);
+    border-color: rgba(27, 58, 150, 0.28);
     color: var(--color-night-800);
   }
   .duality__panel--night .duality__eyebrow,
@@ -2828,8 +2816,8 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   /* ── NIGHTGATE service and project cards ───────────────────── */
   .feature-card--night,
   .project-card--night {
-    background: linear-gradient(180deg, #eef0fd 0%, #dfe4f8 100%);
-    border-color: rgba(79, 110, 247, 0.28);
+    background: linear-gradient(180deg, #c2cbe0 0%, #a9b6d2 100%);
+    border-color: rgba(27, 58, 150, 0.28);
     box-shadow: var(--gloss), var(--shadow-sm);
   }
   .feature-card--night h3,
@@ -2840,21 +2828,21 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   .feature-card--night code,
   .project-card--night .example-card__bullets code,
   .project-card--night .example-card__desc code {
-    background: rgba(79, 110, 247, 0.1);
+    background: rgba(27, 58, 150, 0.1);
     color: var(--color-violet);
   }
   .feature-card--night .feature-card__icon {
-    background: rgba(79, 110, 247, 0.12);
+    background: rgba(27, 58, 150, 0.12);
     color: var(--color-violet);
   }
   .project-card--night .example-card__tag {
-    background: rgba(79, 110, 247, 0.1);
-    border-color: rgba(79, 110, 247, 0.24);
+    background: rgba(27, 58, 150, 0.1);
+    border-color: rgba(27, 58, 150, 0.24);
     color: var(--color-violet);
   }
   .project-card--night .btn--outline {
     color: var(--color-violet);
-    border-color: rgba(79, 110, 247, 0.6);
+    border-color: rgba(27, 58, 150, 0.6);
   }
   .project-card--night .btn--outline:hover {
     background: var(--color-violet);
@@ -2868,15 +2856,6 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   }
 
   /* ── AI Agents panel ──────────────────────────────────────── */
-  .agents__panel {
-    background:
-      radial-gradient(700px 320px at 85% 0%, rgba(79, 110, 247, 0.12), transparent 65%),
-      radial-gradient(500px 300px at 0% 100%, rgba(12, 94, 207, 0.08), transparent 65%),
-      linear-gradient(180deg, #ffffff 0%, #eef2fa 100%);
-    border-color: rgba(79, 110, 247, 0.22);
-    box-shadow: var(--gloss), var(--shadow-md);
-    color: var(--color-text);
-  }
   .agents__panel .section__title { color: var(--color-text); }
   .agents__panel .section__subtitle { color: var(--color-text-muted); }
   .agents__panel .section__subtitle code {
@@ -2893,8 +2872,8 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
     background: var(--gradient-card);
   }
   .agents__server--night {
-    border-color: rgba(79, 110, 247, 0.28);
-    background: linear-gradient(180deg, #eef0fd 0%, #dfe4f8 100%);
+    border-color: rgba(27, 58, 150, 0.28);
+    background: linear-gradient(180deg, #c2cbe0 0%, #a9b6d2 100%);
   }
   .agents__server > p { color: var(--color-text-muted); }
   .agents__server p strong { color: var(--color-text); }
@@ -2909,8 +2888,8 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   .agents__tool-label { color: var(--color-text-muted); }
   .agents__server > p code,
   .agents__tool-chips code {
-    background: rgba(79, 110, 247, 0.1);
-    border-color: rgba(79, 110, 247, 0.26);
+    background: rgba(27, 58, 150, 0.1);
+    border-color: rgba(27, 58, 150, 0.26);
     color: var(--color-violet);
   }
   .agents__server--day > p code,
@@ -2925,7 +2904,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   .closing-cta {
     background: var(--color-bg);
     background-image:
-      radial-gradient(800px 380px at 50% 100%, rgba(79, 110, 247, 0.1), transparent 65%),
+      radial-gradient(800px 380px at 50% 100%, rgba(27, 58, 150, 0.1), transparent 65%),
       radial-gradient(600px 300px at 15% 0%, rgba(12, 94, 207, 0.07), transparent 60%);
     color: var(--color-text);
   }
@@ -2974,7 +2953,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   .site-footer--night {
     background: var(--color-bg-alt);
     background-image:
-      radial-gradient(700px 300px at 0% 0%, rgba(79, 110, 247, 0.07), transparent 60%);
+      radial-gradient(700px 300px at 0% 0%, rgba(27, 58, 150, 0.07), transparent 60%);
     border-top: 1px solid var(--color-border);
     color: var(--color-text-muted);
   }
@@ -2992,13 +2971,13 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
      status amber / green darkened until they hold up on paper —
      the kit's #fab219 and #0ca30c are tuned for dark surfaces, and a
      saturated amber shouts on paper. */
-  --color-code-bg: #eef2f9;
+  --color-code-bg: #e9e9ec;
   --astro-code-foreground:              #1a1a2e;
-  --astro-code-background:              #eef2f9;
+  --astro-code-background:              #e9e9ec;
   --astro-code-token-comment:           #55607a;
   --astro-code-token-keyword:           #0c5ecf;
-  --astro-code-token-string:            #6d5636;
-  --astro-code-token-string-expression: #6d5636;
+  --astro-code-token-string:            #1a1a2e;
+  --astro-code-token-string-expression: #1a1a2e;
   --astro-code-token-constant:          #0a7d0a;
   --astro-code-token-function:          #001b5e;
   --astro-code-token-punctuation:       #5a6480;
@@ -3014,24 +2993,26 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
     background: rgba(0, 27, 94, 0.03);
     border-bottom-color: rgba(0, 27, 94, 0.08);
   }
-  .hero__code-filename { color: var(--color-text-muted); }
+  .hero__code-glyph { color: var(--odt-day-navy); }
+  .hero__code-filename { color: var(--color-text); }
   .hero__code-box pre { color: var(--color-text); }
   .hero__code-box .code-comment { color: #55607a; }
-  .hero__code-box .code-key { color: var(--color-bright-blue); }
+  .hero__code-box .code-key { color: var(--odt-day-blue); }
   .hero__code-box .code-val { color: #0a7d0a; }
-  .hero__code-box .code-str { color: #6d5636; }
+  .hero__code-box .code-str { color: var(--color-text); }
   .hero__code-box .code-cmd,
   .hero__code-box .code-cmd--night { color: var(--color-bright-blue); }
   .api__code .code-c { color: #55607a; }
-  .api__code .code-k { color: var(--color-bright-blue); }
-  .api__code .code-s { color: #6d5636; }
+  .api__code .code-k { color: var(--odt-day-blue); }
+  .api__code .code-s { color: var(--color-text); }
   .agents__code::before {
-    background: linear-gradient(135deg, rgba(12, 94, 207, 0.22), transparent 45%, rgba(79, 110, 247, 0.18));
+    background: linear-gradient(135deg, rgba(12, 94, 207, 0.22), transparent 45%, rgba(27, 58, 150, 0.18));
   }
   .docs-content pre {
     border-color: rgba(0, 27, 94, 0.1);
   }
   .docs-content pre::before {
+    color: var(--odt-day-navy);
     background-color: rgba(0, 27, 94, 0.03);
     border-bottom-color: rgba(0, 27, 94, 0.08);
   }
@@ -3047,3 +3028,158 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
     color: var(--color-text);
   }
 }
+
+/* ── Pointer glow on boxes ──────────────────────────────────────
+   A soft radial light that follows the pointer inside a card; the
+   position comes from --mx / --my, set by the script in Layout.astro.
+   Without JS the light sits at the top centre. */
+.feature-card,
+.example-card,
+.arch__col,
+.api__tile,
+.agents__server,
+.duality__panel {
+  position: relative;
+  isolation: isolate;
+}
+.feature-card::after,
+.example-card::after,
+.arch__col::after,
+.api__tile::after,
+.agents__server::after,
+.duality__panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    360px circle at var(--mx, 50%) var(--my, -20%),
+    rgba(12, 94, 207, 0.12),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.feature-card:hover::after,
+.example-card:hover::after,
+.arch__col:hover::after,
+.api__tile:hover::after,
+.agents__server:hover::after,
+.duality__panel:hover::after {
+  opacity: 1;
+}
+[data-theme="night"] .feature-card::after,
+[data-theme="night"] .example-card::after,
+[data-theme="night"] .arch__col::after,
+[data-theme="night"] .api__tile::after,
+[data-theme="night"] .agents__server::after,
+[data-theme="night"] .duality__panel::after {
+  background: radial-gradient(
+    360px circle at var(--mx, 50%) var(--my, -20%),
+    rgba(122, 162, 255, 0.2),
+    transparent 65%
+  );
+}
+
+/* ── Softer day surfaces ───────────────────────────────────────
+   The kit's pure white and cool near-white read harsh on large
+   surfaces. Every day surface sits a step greyer; night is untouched.
+   Overrides the kit tokens for this site only. */
+:root:not([data-theme="night"]) {
+  --odt-day-bg:      #f1f1f3;
+  --odt-day-bg-alt:  #ebebee;
+  --odt-day-surface: #fafafb;
+  --odt-day-border:  #d9dadf;
+}
+
+/* ── Day ground: one gradient from top to bottom ───────────────
+   Light at the top, a step greyer at the bottom, fixed so it does
+   not restart per section. Hero blobs, grid and alt-section tints
+   are off so the ground shows through, like at night. */
+:root:not([data-theme="night"]) body {
+  background: linear-gradient(180deg, #f5f5f7 0%, #eeeef1 55%, #e8e8eb 100%);
+  background-attachment: fixed;
+}
+:root:not([data-theme="night"]) .hero,
+:root:not([data-theme="night"]) .hero__bg,
+:root:not([data-theme="night"]) .section--alt {
+  background: transparent;
+  background-image: none;
+}
+:root:not([data-theme="night"]) .hero__bg::before { background-image: none; }
+
+/* Architecture: product wordmarks instead of the text titles. The
+   plugin columns are dark in both themes, so the on-dark files are used. */
+.arch__col-logo--product {
+  height: 26px;
+  margin: 0 auto;
+}
+
+/* ── Day: the two plugin columns on light ground ───────────────
+   Same tints as the chain columns beside them: blue for ODATANO,
+   indigo for NIGHTGATE. Night keeps its dark panels. */
+:root:not([data-theme="night"]) .arch__col--plugin {
+  background:
+    radial-gradient(420px 220px at 20% 0%, rgba(59, 142, 240, 0.18), transparent 65%),
+    linear-gradient(180deg, #e8eef9 0%, #d8e2f4 100%);
+  border-color: rgba(12, 94, 207, 0.3);
+  box-shadow: var(--gloss), var(--shadow-sm);
+}
+:root:not([data-theme="night"]) .arch__col--plugin-night {
+  background:
+    radial-gradient(420px 220px at 20% 0%, rgba(27, 58, 150, 0.26), transparent 65%),
+    linear-gradient(180deg, #a9b6d2 0%, #8f9fc2 100%);
+  border-color: rgba(27, 58, 150, 0.55);
+  box-shadow: var(--gloss), var(--shadow-sm);
+}
+:root:not([data-theme="night"]) .arch__col--plugin:hover { border-color: var(--odt-day-blue); }
+:root:not([data-theme="night"]) .arch__col--plugin-night:hover { border-color: var(--color-violet); }
+:root:not([data-theme="night"]) .arch__col--plugin .arch__chip--white {
+  background: rgba(12, 94, 207, 0.08);
+  border-color: rgba(12, 94, 207, 0.22);
+  color: var(--color-text);
+}
+:root:not([data-theme="night"]) .arch__col--plugin-night .arch__chip--white {
+  background: rgba(27, 58, 150, 0.14);
+  border-color: rgba(27, 58, 150, 0.36);
+  color: var(--color-text);
+}
+:root:not([data-theme="night"]) .arch__col--plugin .arch__col-eyebrow,
+:root:not([data-theme="night"]) .arch__col--plugin-night .arch__col-eyebrow { color: var(--color-text-muted); }
+
+/* Day: the Midnight chain column sits a step deeper than the Cardano one,
+   so the right half of the diagram reads as the night side. */
+:root:not([data-theme="night"]) .arch__col--chain-midnight {
+  background:
+    radial-gradient(420px 220px at 20% 0%, rgba(27, 58, 150, 0.2), transparent 65%),
+    linear-gradient(180deg, #b8c3da 0%, #a0aecb 100%);
+  border-color: rgba(27, 58, 150, 0.45);
+}
+:root:not([data-theme="night"]) .arch__col--chain-midnight .arch__chip {
+  background: rgba(27, 58, 150, 0.12);
+  border-color: rgba(27, 58, 150, 0.32);
+}
+
+/* Architecture: the consumer column gets a title in the theme's ink,
+   sized to sit level with the product wordmarks beside it. */
+.arch__col-title--app {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 1.35rem;
+  color: var(--color-text);
+  line-height: 26px;
+}
+.arch__col-icon {
+  width: 26px;
+  height: 26px;
+  color: var(--odt-day-blue);
+}
+[data-theme="night"] .arch__col-icon { color: var(--odt-night-accent); }
+
+/* Night: the deep-blue Midnight accent is for light ground only. On dark
+   ground every text and edge that uses it takes the night accent instead,
+   otherwise "@odatano/nightgate" and the Midnight eyebrows vanish. */
+[data-theme="night"] { --color-violet: var(--odt-night-accent); }
