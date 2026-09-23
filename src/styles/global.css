@@ -34,7 +34,7 @@
 
   --max-width: 1200px;
   --docs-sidebar-w: 260px;
-  --header-h: 116px;
+  --header-h: 92px; /* same as the console header (header.top .wrap min-height) */
 
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -281,10 +281,8 @@ a:hover { text-decoration: underline; }
   background: var(--header-bg);
   backdrop-filter: saturate(180%) blur(14px);
   -webkit-backdrop-filter: saturate(180%) blur(14px);
-  /* No bottom border: the frosted background separates the header from
-     content while scrolling, and at the top the line was the only visible
-     edge between the white header and the light hero. */
-  border-bottom: none;
+  /* 1px line under the header, same as the console (header.top). */
+  border-bottom: 1px solid var(--color-border);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .site-header { background: var(--color-surface); }
@@ -303,7 +301,7 @@ a:hover { text-decoration: underline; }
   text-decoration: none;
   flex-shrink: 0;
 }
-.site-header__logo img { height: 102px; width: auto; }
+.site-header__logo img { height: 60px; width: auto; } /* console: header.top .brand img */
 .site-header__logo-text {
   font-size: 1.375rem;
   font-weight: 700;
@@ -441,8 +439,8 @@ a:hover { text-decoration: underline; }
 }
 .hero__inner {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  gap: 3.5rem;
   align-items: center;
 }
 .hero__badge {
@@ -467,7 +465,7 @@ a:hover { text-decoration: underline; }
   background: var(--color-bright-blue);
 }
 .hero__headline {
-  font-size: clamp(2.25rem, 5vw + 0.5rem, 3.75rem);
+  font-size: clamp(2.25rem, 4.6vw + 0.5rem, 3.5rem);
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.035em;
@@ -485,7 +483,7 @@ a:hover { text-decoration: underline; }
   font-size: 1.0625rem;
   color: var(--color-text-muted);
   line-height: 1.7;
-  max-width: 520px;
+  max-width: 560px;
   margin-bottom: 2rem;
 }
 .hero__actions {
@@ -556,7 +554,7 @@ a:hover { text-decoration: underline; }
 }
 .hero__code-box .code-comment { color: #6b7280; }
 .hero__code-box .code-key { color: #7aa2ff; }
-.hero__code-box .code-val { color: #86efac; }
+.hero__code-box .code-val { color: #e8eaf0; }
 .hero__code-box .code-str { color: #e8eaf0; }
 .hero__code-box .code-cmd { color: var(--color-light-blue); }
 
@@ -1082,44 +1080,123 @@ a:hover { text-decoration: underline; }
 }
 .docs-sidebar {
   border-right: 1px solid var(--color-border);
-  background: var(--color-surface);
-  padding: 2rem 0;
+  background:
+    linear-gradient(180deg, var(--accent-soft) 0, transparent 220px),
+    var(--color-surface);
+  padding: 1.75rem 0 2rem;
   position: sticky;
   top: var(--header-h);
   height: calc(100vh - var(--header-h));
   overflow-y: auto;
+  /* Scrolls when the nav is taller than the viewport, without a visible bar. */
+  scrollbar-width: none;
+}
+.docs-sidebar::-webkit-scrollbar { display: none; }
+.docs-sidebar__head {
+  padding: 0 1.5rem 1.25rem;
+  margin: 0 0 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.docs-sidebar__title {
+  display: block;
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  background: var(--gradient-night);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 .docs-sidebar__group {
-  margin-bottom: 1.5rem;
-  padding: 0 1.25rem;
+  margin-bottom: 1.35rem;
+  padding: 0 0.75rem;
 }
 .docs-sidebar__group-label {
-  font-size: 0.6875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.75rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.66rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   color: var(--color-text-muted);
-  margin-bottom: 0.5rem;
 }
-.docs-sidebar__nav a {
-  display: block;
-  padding: 0.4rem 1.25rem;
-  font-size: 0.9rem;
+.docs-sidebar__group-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+.docs-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.42rem 0.75rem;
+  margin: 1px 0;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
   text-decoration: none;
-  border-radius: 0;
-  transition: color 0.15s, background 0.15s;
-  border-left: 2px solid transparent;
+  border-radius: var(--radius-md);
+  position: relative;
+  transition: color 0.15s, background 0.15s, transform 0.15s;
 }
-.docs-sidebar__nav a:hover {
+.docs-sidebar__link:hover {
   color: var(--color-text);
   background: var(--color-bg-alt);
+  transform: translateX(2px);
 }
-.docs-sidebar__nav a.active {
+.docs-sidebar__link.active {
   color: var(--color-bright-blue);
-  border-left-color: var(--color-bright-blue);
   background: var(--accent-soft);
   font-weight: 600;
+}
+.docs-sidebar__link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--gradient-night);
+}
+.docs-sidebar__label { flex: 0 1 auto; }
+.docs-sidebar__hint {
+  margin-left: auto;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+  opacity: 0.75;
+  white-space: nowrap;
+}
+.docs-sidebar__link.active .docs-sidebar__hint { color: inherit; opacity: 0.8; }
+.docs-sidebar__ext {
+  margin-left: auto;
+  font-size: 0.75rem;
+  opacity: 0.55;
+}
+.docs-sidebar__link--external .docs-sidebar__hint { margin-left: 0; }
+.docs-sidebar__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--color-surface);
+}
+.docs-sidebar__dot--day   { background: var(--odt-day-blue); }
+.docs-sidebar__dot--night { background: var(--odt-night-accent-2); }
+.docs-sidebar__dot--both  { background: linear-gradient(135deg, var(--odt-day-blue) 50%, var(--odt-night-accent-2) 50%); }
+[data-theme="night"] .docs-sidebar__dot--day   { background: var(--odt-day-blue-400); }
+[data-theme="night"] .docs-sidebar__dot--night { background: var(--odt-night-accent); }
+[data-theme="night"] .docs-sidebar__dot--both  { background: linear-gradient(135deg, var(--odt-day-blue-400) 50%, var(--odt-night-accent) 50%); }
+[data-theme="night"] .docs-sidebar__title {
+  background: linear-gradient(135deg, #ffffff 0%, var(--odt-night-accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 .docs-content {
   padding: 3rem;
@@ -1280,7 +1357,9 @@ a:hover { text-decoration: underline; }
   border: none;
   font-family: var(--font-mono);
   font-size: 0.8125rem;
-  color: #e5e7eb;
+  /* Plaintext blocks carry no token spans, so the code element's own colour
+     is what shows: take it from the theme like every token does. */
+  color: var(--astro-code-foreground);
   line-height: 1.65;
 }
 .docs-content table {
@@ -1395,8 +1474,8 @@ a:hover { text-decoration: underline; }
 
 /* Between 941 and 1100px the desktop nav (4 links, CTA, theme button) only
    fits next to a smaller logo. */
-@media (max-width: 1100px) {
-  .site-header__logo img { height: 72px; }
+@media (max-width: 1240px) {
+  .site-header__logo img { height: 48px; }
 }
 /* Mobile menu activation — covers tablet down */
 @media (max-width: 940px) {
@@ -1406,10 +1485,10 @@ a:hover { text-decoration: underline; }
   /* Logo + theme button + burger must fit 390px: the logo file is ~4:1,
      so 56px tall is ~220px wide; 80px was 317px and pushed the burger
      past the right edge. */
-  .site-header__logo img { height: 56px; }
-}
-@media (max-width: 380px) {
   .site-header__logo img { height: 48px; }
+}
+@media (max-width: 760px) {
+  .site-header__logo img { height: 40px; }
 }
 @media (min-width: 941px) {
   .mobile-nav { display: none !important; }
@@ -1473,6 +1552,7 @@ a:hover { text-decoration: underline; }
 }
 
 @media (max-width: 600px) {
+  .hero__headline-br { display: none; }
   .hero { padding: 3rem 0 2.5rem; }
   .section { padding: 3rem 0; }
   .arch-section { padding: 3rem 0; }
@@ -1564,7 +1644,7 @@ a:hover { text-decoration: underline; }
 }
 
 .hero__code-box .code-line { display: block; }
-.hero__code-box .code-line--gap { min-height: 0.85em; }
+.hero__code-box .code-line--gap { min-height: 1.1em; }
 .hero__code-box .code-cmd--night { color: var(--color-violet-light); }
 
 /* ── Stats bar — 5 items, counter-safe numerals ─────────────── */
@@ -2118,7 +2198,7 @@ a:hover { text-decoration: underline; }
   background: linear-gradient(135deg, rgba(59, 142, 240, 0.5), transparent 45%, rgba(27, 58, 150, 0.45));
 }
 .agents__code pre { font-size: 0.82rem; }
-/* ── API — the hosted console in short (api.odatano.dev) ─────
+/* ── API — the hosted console in short (api.preprod.odatano.dev) ─────
    Mirrors the console's start page: two product tiles in its fact-list
    style, the hero request example, the four lanes to a key. Sits in the
    night zone of the scroll, so it is a .section--night like Ecosystem. */
@@ -2143,6 +2223,8 @@ a:hover { text-decoration: underline; }
   box-shadow: var(--gloss), var(--shadow-sm);
 }
 .api__tile--midnight { border-top-color: var(--color-violet); }
+/* ASTRA spans both columns: one service over both chains. */
+.api__tile--astra { grid-column: 1 / -1; border-top-color: var(--color-bright-blue); }
 .api__tile-logos {
   min-height: 60px;
   display: flex;
@@ -2263,8 +2345,11 @@ a:hover { text-decoration: underline; }
 }
 /* The form is shorter than the install column next to it; both end on the
    same line so the section closes flush. */
+/* The form column stretches to the install column's height and the
+   message field takes the slack, so "Send message" ends level with
+   "Read the Docs" on the left. */
 .closing-cta__grid .contact {
-  align-self: end;
+  align-self: stretch;
   display: flex;
   flex-direction: column;
 }
@@ -2278,9 +2363,10 @@ a:hover { text-decoration: underline; }
   gap: 1.25rem;
 }
 .closing-cta__title {
-  font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
+  font-size: clamp(1.75rem, 3vw + 0.5rem, 2.5rem); /* same as .contact__title */
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
   background: linear-gradient(135deg, #ffffff 0%, var(--color-moon) 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -2347,9 +2433,10 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
 
 /* ── Contact form (Web3Forms), right of the closing CTA ─────── */
 .contact__title {
-  font-size: clamp(1.6rem, 2.5vw + 0.5rem, 2.1rem);
+  font-size: clamp(1.75rem, 3vw + 0.5rem, 2.5rem); /* same as .closing-cta__title */
   font-weight: 800;
   letter-spacing: -0.02em;
+  line-height: 1.15;
   color: #fff;
   margin-bottom: 0.6rem;
 }
@@ -2361,6 +2448,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   max-width: 42ch;
 }
 .contact__form {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -2379,7 +2467,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   font-size: 0.95rem;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
-.contact__form textarea { resize: vertical; min-height: 7rem; }
+.contact__form textarea { resize: vertical; min-height: 7rem; flex: 1; }
 .contact__form ::placeholder { color: rgba(255,255,255,0.4); }
 .contact__form input:focus,
 .contact__form textarea:focus {
@@ -2480,6 +2568,8 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   .api__tile-logos { flex-wrap: nowrap; gap: 0.5rem; min-height: 0; }
   .api__tile-logos .via { height: 28px; max-width: 62%; }
   .api__tile-logos .chain { height: 21px; max-width: 34%; }
+  /* ASTRA carries both chain marks; on phones the wordmark alone has to do */
+  .api__tile--astra .api__tile-logos .chain { display: none; }
   /* fact lists single column with uppercase labels, like the console on phones */
   .api__facts li { grid-template-columns: 1fr; gap: 0.15rem; padding: 0.55rem 0; }
   .api__facts li b { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); }
@@ -2498,7 +2588,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
 }
 
 /* ============================================================
-   Night — aligned with the ODATANO Console (api.odatano.dev)
+   Night — aligned with the ODATANO Console (api.preprod.odatano.dev)
    ============================================================
    The console is one flat graphite ground (--bg) with a single soft
    glow, panels on --surface behind --border hairlines and exactly one
@@ -2998,7 +3088,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   .hero__code-box pre { color: var(--color-text); }
   .hero__code-box .code-comment { color: #55607a; }
   .hero__code-box .code-key { color: var(--odt-day-blue); }
-  .hero__code-box .code-val { color: #0a7d0a; }
+  .hero__code-box .code-val { color: var(--color-text); }
   .hero__code-box .code-str { color: var(--color-text); }
   .hero__code-box .code-cmd,
   .hero__code-box .code-cmd--night { color: var(--color-bright-blue); }

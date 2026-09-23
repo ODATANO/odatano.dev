@@ -26,6 +26,25 @@ function rehypeTableWrap() {
 
 export default defineConfig({
 	site: 'https://odatano.dev',
+	// Old docs URLs. The docs were regrouped in September 2026 (one guide per
+	// product, operations and internals live on GitHub); these keep the old
+	// links alive as static redirect pages.
+	redirects: {
+		'/docs/quick-start': '/docs/get-started/',
+		'/docs/configuration': '/docs/odatano/',
+		'/docs/user-guide': '/docs/odatano/',
+		'/docs/transaction-workflow': '/docs/odatano/',
+		'/docs/plutus': '/docs/odatano/',
+		'/docs/reference': '/docs/odatano/',
+		'/docs/security': 'https://github.com/ODATANO/ODATANO/blob/main/docs/guides/SECURITY_GUIDE.md',
+		'/docs/developer-guide': 'https://github.com/ODATANO/ODATANO/blob/main/docs/guides/DEVELOPER_GUIDE.md',
+		'/docs/backend-configuration': 'https://github.com/ODATANO/ODATANO/blob/main/docs/guides/BACKEND_CONFIGURATION.md',
+		'/docs/error-handling': 'https://github.com/ODATANO/ODATANO/blob/main/docs/concepts%20%26%20architecture/ERROR_HANDLING.md',
+		'/docs/docker-deployment': 'https://github.com/ODATANO/ODATANO/blob/main/docs/guides/DOCKER_DEPLOYMENT.md',
+		'/docs/production-deployment': 'https://github.com/ODATANO/ODATANO/blob/main/docs/guides/PRODUCTION_DEPLOYMENT.md',
+		'/docs/odatano-mcp': '/docs/mcp/',
+		'/docs/nightgate-mcp': '/docs/mcp/',
+	},
 	integrations: [mdx(), sitemap()],
 	markdown: {
 		shikiConfig: {

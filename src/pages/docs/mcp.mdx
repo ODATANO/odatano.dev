@@ -1,0 +1,122 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: MCP servers
+description: ODATANO-MCP for Cardano and NIGHTGATE-MCP for Midnight. One key, both chains, for Claude Code, Claude Desktop, Cursor or any MCP client. The agent gets a notary, not a wallet.
+---
+
+# MCP servers for AI agents
+
+Two Model Context Protocol servers put both chains in front of an agent. `@odatano/core-mcp` reads Cardano, queries the indexer with OData, builds unsigned transactions and submits signed CBOR. `@odatano/nightgate-mcp` anchors documents on Midnight, proves zero-knowledge claims over hidden fields and verifies against live contract state. Both carry the ASTRA analytics for their chain.
+
+Both make the same promise: **the agent gets a notary, not a wallet.** Nothing in either server can sign. HSM signing, wallet sessions, contract deployment and every admin operation are not exposed. On Cardano a human or a CIP-30 wallet signs. On Midnight the agent builds locally and a sponsor pays, or a scoped grant limits what a session may do.
+
+## Set-up
+
+One `oda_…` key from the [API page](https://api.preprod.odatano.dev/) configures both servers. Needs Node.js 20 or newer; `npx` fetches the servers.
+
+```json
+{
+  "mcpServers": {
+    "odatano": {
+      "command": "npx",
+      "args": ["-y", "@odatano/core-mcp"],
+      "env": { "ODATANO_ACCESS_KEY": "oda_..." }
+    },
+    "nightgate": {
+      "command": "npx",
+      "args": ["-y", "@odatano/nightgate-mcp"],
+      "env": { "ODATANO_ACCESS_KEY": "oda_..." }
+    }
+  }
+}
+```
+
+With Claude Code:
+
+```bash
+claude mcp add odatano   --env ODATANO_ACCESS_KEY=oda_... -- npx -y @odatano/core-mcp
+claude mcp add nightgate --env ODATANO_ACCESS_KEY=oda_... -- npx -y @odatano/nightgate-mcp
+```
+
+The hosted gateway is the default URL. It swaps in the agent grant underneath, meters the key per call and answers a 402 with the top-up hint when units run out.
+
+### Shared configuration
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `ODATANO_ACCESS_KEY` | | the `oda_…` key. Against a direct instance: an `odat_…` or `ngat_…` agent grant, or any other bearer |
+| `ODATANO_ACCESS_URL` | `https://api.preprod.odatano.dev` | the gateway, or your own instance, e.g. `http://localhost:4004` |
+| `ODATANO_ACCESS_USER`, `ODATANO_ACCESS_PASSWORD` | | basic auth against a dev instance with CAP mocked auth |
+| `ODATANO_ANALYTICS_URL` | `<ODATANO_ACCESS_URL>/odata/v4/astra` | where ASTRA answers; the `analytics_*` tools register when it does |
+
+Per-server variables (timeouts, row caps, service prefixes, the wallet-job opt-in, the local builder seed) are in the READMEs linked below.
+
+## ODATANO-MCP (Cardano)
+
+The tool catalogue follows the host. The hosted API and every ODATANO 1.x host get the core tools. A self-hosted 2.0 host adds status tools for crawler and wallet worker; `ODATANO_MCP_ENABLE_WALLET_JOBS=1` adds the two job tools where a server wallet signs.
+
+| Group | Tools | What |
+|-------|-------|------|
+| Read | `get_network_info`, `get_latest_block`, `get_block`, `get_epoch`, `get_protocol_parameters`, `get_transaction`, `get_transaction_metadata`, `parse_transaction_cbor`, `get_address`, `get_utxos`, `get_address_assets`, `get_address_transactions`, `get_asset_info`, `get_asset_history`, `get_account`, `get_pool`, `get_drep` | chain, address, asset, staking and governance lookups. A miss returns `{ found: false }`, never an error |
+| Query | `query_entity` | OData V4 over every entity set: `$filter`, `$select`, `$expand`, `$orderby`, `$top`, `$skip`, `$count`. Questions no fixed action covers become one call |
+| Build | `build_ada_transfer`, `build_metadata_transaction`, `build_multi_asset_transfer`, `build_mint_transaction`, `build_plutus_spend`, `set_collateral`, `get_build_details`, `list_builds_by_address`, `derive_script_address`, `extract_payment_key_hash` | every build returns `{ id, unsignedTxCbor, fee }`. Nothing is signed |
+| Sign and submit | `create_signing_request`, `get_signing_request`, `list_signing_requests`, `verify_signature`, `verify_data_signature`, `submit_signed_transaction`, `submit_verified_transaction`, `get_submission_status` | hand-off to a human or wallet, verification, submission of signed CBOR |
+| Analytics | `analytics_overview`, `analytics_key_figures`, `analytics_daily`, `analytics_top`, `analytics_epochs`, `analytics_metrics`, `analytics_metric`, `analytics_series`, `analytics_compare`, `analytics_anomalies` | ASTRA for Cardano, one unit a read |
+| 2.0 host only | `get_sync_status`, `get_reorg_log`, `get_worker_status`, `get_wallet_job_status`, `submit_wallet_job`, `cancel_wallet_job` | crawler and wallet worker; the last two are opt-in and move funds |
+
+A typical flow:
+
+```
+get_network_info → get_utxos(address) → build_ada_transfer(...)   nothing moved
+parse_transaction_cbor                                            show the human what they sign
+create_signing_request                                            instructions + cardano-cli command
+… human or CIP-30 wallet signs …
+verify_signature → submit_signed_transaction → get_submission_status
+```
+
+## NIGHTGATE-MCP (Midnight)
+
+Twenty-two tools cover the attestation surface: verify, prove, anchor, grant, sponsoring and jobs. Write tools return a job id; `get_job_status` polls until `succeeded` or `failed`. Every verify tool answers `verified: false` when nothing is there, never an error.
+
+| Group | Tools | What |
+|-------|-------|------|
+| Verify | `verify_attestation`, `verify_predicate`, `verify_predicate_attestation`, `verify_document` | live contract state, no wallet, no crawler. Anyone can call them |
+| Prove | `prepare_document_proof`, `prepare_membership_set`, `prove_field_predicate`, `prove_field_equality`, `prove_field_membership`, `prove_field_predicates_batch`, `prove_document_integrity`, `prove_document_diff` | canonicalise a document, then prove a threshold, an equality, a membership or a cross-document claim. Values stay hidden. Up to 8 claims in one transaction |
+| Anchor | `anchor_document`, `attest_agent_output` | a content hash on chain under the session's attester id; agent-output provenance |
+| Grant | `grant_disclosure`, `revoke_disclosure` | who reads which tier of an anchored document. Attester only |
+| Sponsoring | `build_sponsorable_transaction`, `get_attester_identity`, `sponsor_unbound_transaction`, `sponsor_finalized_transaction`, `derive_token_type` | build, prove and sign locally with `NIGHTGATE_SEED_HEX`, a sponsor pays the dust. Needs `@odatano/nightgate-tx` next to the server |
+| Jobs | `get_job_status` | poll an async job |
+| Analytics | `analytics_overview`, `analytics_key_figures`, `analytics_daily`, `analytics_top_block_producers`, `analytics_metrics`, `analytics_metric`, `analytics_series`, `analytics_compare`, `analytics_anomalies` | ASTRA for Midnight, one unit a read |
+
+Session-bound writes (`anchor_document`, `prove_*`, `grant_disclosure`) need a wallet session, which is created outside MCP by design. Through the hosted gateway the agent writes via the sponsoring tools instead: the platform pool pays.
+
+A typical flow through the gateway, with `NIGHTGATE_SEED_HEX` set:
+
+```
+get_attester_identity            → attesterId the server builds under
+prepare_document_proof           → payloadHash, contentRoot, per-field inputs
+build_sponsorable_transaction    → bytes for "anchorContentRoot"        (local, 20 to 60 s)
+sponsor_unbound_transaction      → { jobId, sessionId }                (platform pool pays)
+get_job_status                   → succeeded
+build_sponsorable_transaction    → "proveFieldPredicate", e.g. carbon_footprint ≤ 80
+sponsor_unbound_transaction → get_job_status → verify_predicate → verified: true
+```
+
+The MCP version must match the NIGHTGATE server it talks to. The [compatibility table](https://github.com/ODATANO/NIGHTGATE-MCP#compatibility) on GitHub pairs them.
+
+## Your own instance
+
+Set `ODATANO_ACCESS_URL` to your ODATANO or NIGHTGATE host. For a local `cds watch` with mocked auth, `ODATANO_ACCESS_USER=alice` is enough. For anything else, create a scoped agent grant once as the operator and hand the returned `odat_…` or `ngat_…` token to the agent as `ODATANO_ACCESS_KEY`. The write tools are then limited to the grant's allow list, budget and pinned session.
+
+The Docker images are the fastest way to an own instance: `ghcr.io/odatano/odatano` and `ghcr.io/odatano/nightgate`. See [ODATANO](/docs/odatano/#run-it) and [NIGHTGATE](/docs/nightgate/#run-it).
+
+## Errors
+
+Upstream errors reach the agent as `{ httpStatus, code, message }`, so it can react instead of failing blind: 401 means credentials, 400 means fix the arguments, 429 means back off, 402 means top up. A Midnight job that fails with `CHAIN_EXECUTION_FAILED` landed on chain but did not apply; build again against current state, never resubmit the same bytes.
+
+## On GitHub
+
+- [ODATANO-CORE-MCP](https://github.com/ODATANO/ODATANO-CORE-MCP): every tool with its arguments, configuration, integration check · [npm](https://www.npmjs.com/package/@odatano/core-mcp)
+- [NIGHTGATE-MCP](https://github.com/ODATANO/NIGHTGATE-MCP): tools, sponsoring set-up, compatibility table · [npm](https://www.npmjs.com/package/@odatano/nightgate-mcp)
+- [NIGHTGATE TX](/docs/nightgate-tx/): the local builder behind `build_sponsorable_transaction`
+- [ASTRA](/docs/astra/): what the `analytics_*` tools return

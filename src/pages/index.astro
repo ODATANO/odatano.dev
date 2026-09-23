@@ -14,13 +14,15 @@ import coreLogo from "@odatano/brand/logos/odatano-core-logo.svg?url";
 import coreLogoDark from "@odatano/brand/logos/odatano-core-logo-on-dark.svg?url";
 import nightgateLogoLight from "@odatano/brand/logos/nightgate-logo-on-light.svg?url";
 import nightgateLogoDark from "@odatano/brand/logos/nightgate-logo.svg?url";
+import astraLogo from "@odatano/brand/logos/astra-logo.svg?url";
+import astraLogoDark from "@odatano/brand/logos/astra-logo-on-dark.svg?url";
 
-const heroCode = `<span class="code-line code-comment"># 1 - ask for a key, pay with ADA, no account</span><span class="code-line"><span class="code-cmd">curl -X POST</span> https://api.odatano.dev/keys</span><span class="code-line code-comment"># 402 Payment Required</span><span class="code-line">{ <span class="code-key">&quot;x402Version&quot;</span>: 2, <span class="code-key">&quot;accepts&quot;</span>: [{</span><span class="code-line">    <span class="code-key">&quot;network&quot;</span>: <span class="code-str">&quot;cardano:preprod&quot;</span>, <span class="code-key">&quot;asset&quot;</span>: <span class="code-str">&quot;lovelace&quot;</span>,</span><span class="code-line">    <span class="code-key">&quot;amount&quot;</span>: <span class="code-str">&quot;5000000&quot;</span>, <span class="code-key">&quot;payTo&quot;</span>: <span class="code-str">&quot;addr_test1…&quot;</span>,</span><span class="code-line">    <span class="code-key">&quot;extra&quot;</span>: { <span class="code-key">&quot;units&quot;</span>: 500 } }] }</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># 2 - pay that entry on chain, repeat the call</span><span class="code-line"><span class="code-cmd">curl -X POST</span> https://api.odatano.dev/keys \\</span><span class="code-line">  -H <span class="code-str">&quot;PAYMENT-SIGNATURE: &lt;base64 envelope&gt;&quot;</span></span><span class="code-line code-comment"># 201 { "token": "oda_…", "units": 500 }</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># 3 - query either chain with that key, 1 unit a read</span><span class="code-line"><span class="code-cmd code-cmd--night">curl</span> https://api.odatano.dev/odata/v4/cardano-odata/Blocks \\</span><span class="code-line">  -H <span class="code-str">&quot;Authorization: Bearer oda_…&quot;</span></span>`;
+const heroCode = `<span class="code-line code-comment"># 1 - read the chain as OData</span><span class="code-line"><span class="code-cmd">GET</span> api.preprod.odatano.dev/odata/v4/cardano-odata/Blocks</span><span class="code-line">    ?<span class="code-key">$orderby</span>=<span class="code-str">height desc</span>&amp;<span class="code-key">$top</span>=<span class="code-str">1</span></span><span class="code-line code-comment"># 200 { "value": [{ "height": 4123456, "txCount": 12 }] }</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># 2 - build a transaction as an OData action</span><span class="code-line"><span class="code-cmd">POST</span> …/cardano-transaction/BuildSimpleAdaTransaction</span><span class="code-line">  { <span class="code-key">&quot;senderAddress&quot;</span>: <span class="code-str">&quot;addr_test1…&quot;</span>,</span><span class="code-line">    <span class="code-key">&quot;recipientAddress&quot;</span>: <span class="code-str">&quot;addr_test1…&quot;</span>,</span><span class="code-line">    <span class="code-key">&quot;lovelaceAmount&quot;</span>: <span class="code-val">10000000</span> }</span><span class="code-line code-comment"># 200 { "unsignedTxCbor": "84a4…", "fee": 171001 }</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># 3 - same routes on Midnight, hosted or self-hosted</span><span class="code-line"><span class="code-cmd code-cmd--night">GET</span> …/odata/v4/nightgate/Blocks?$top=1</span>`;
 
 /* `.mcp.json` snippet for the AI Agents section - both MCP servers against
-   the hosted API (api.odatano.dev) with one `oda_…` key. Both servers send
+   the hosted API (api.preprod.odatano.dev) with one `oda_…` key. Both servers send
    the key as `Authorization: Bearer` (ODATANO_ACCESS_KEY, both servers). */
-const mcpCode = `<span class="code-line"><span class="code-cmd">npx</span> @odatano/core-mcp</span><span class="code-line"><span class="code-cmd code-cmd--night">npx</span> @odatano/nightgate-mcp</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># .mcp.json - Claude Code / Claude Desktop / Cursor / any MCP client</span><span class="code-line code-comment"># one key from api.odatano.dev, both chains</span><span class="code-line">{ <span class="code-key">"mcpServers"</span>: {</span><span class="code-line">  <span class="code-key">"odatano"</span>: {</span><span class="code-line">    <span class="code-key">"command"</span>: <span class="code-str">"npx"</span>,</span><span class="code-line">    <span class="code-key">"args"</span>: [<span class="code-str">"-y"</span>, <span class="code-str">"@odatano/core-mcp"</span>],</span><span class="code-line">    <span class="code-key">"env"</span>: { <span class="code-key">"ODATANO_ACCESS_KEY"</span>: <span class="code-str">"oda_…"</span> }</span><span class="code-line">  },</span><span class="code-line">  <span class="code-key">"nightgate"</span>: {</span><span class="code-line">    <span class="code-key">"command"</span>: <span class="code-str">"npx"</span>,</span><span class="code-line">    <span class="code-key">"args"</span>: [<span class="code-str">"-y"</span>, <span class="code-str">"@odatano/nightgate-mcp"</span>],</span><span class="code-line">    <span class="code-key">"env"</span>: { <span class="code-key">"ODATANO_ACCESS_KEY"</span>: <span class="code-str">"oda_…"</span> }</span><span class="code-line">  }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># self-hosted instead: ODATANO_ACCESS_URL points at your own instance</span>`;
+const mcpCode = `<span class="code-line"><span class="code-cmd">npx</span> @odatano/core-mcp</span><span class="code-line"><span class="code-cmd code-cmd--night">npx</span> @odatano/nightgate-mcp</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># .mcp.json - Claude Code / Claude Desktop / Cursor / any MCP client</span><span class="code-line code-comment"># one key from api.preprod.odatano.dev, both chains</span><span class="code-line">{ <span class="code-key">"mcpServers"</span>: {</span><span class="code-line">  <span class="code-key">"odatano"</span>: {</span><span class="code-line">    <span class="code-key">"command"</span>: <span class="code-str">"npx"</span>,</span><span class="code-line">    <span class="code-key">"args"</span>: [<span class="code-str">"-y"</span>, <span class="code-str">"@odatano/core-mcp"</span>],</span><span class="code-line">    <span class="code-key">"env"</span>: { <span class="code-key">"ODATANO_ACCESS_KEY"</span>: <span class="code-str">"oda_…"</span> }</span><span class="code-line">  },</span><span class="code-line">  <span class="code-key">"nightgate"</span>: {</span><span class="code-line">    <span class="code-key">"command"</span>: <span class="code-str">"npx"</span>,</span><span class="code-line">    <span class="code-key">"args"</span>: [<span class="code-str">"-y"</span>, <span class="code-str">"@odatano/nightgate-mcp"</span>],</span><span class="code-line">    <span class="code-key">"env"</span>: { <span class="code-key">"ODATANO_ACCESS_KEY"</span>: <span class="code-str">"oda_…"</span> }</span><span class="code-line">  }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># self-hosted instead: ODATANO_ACCESS_URL points at your own instance</span>`;
 
 /* Contact form backend (Web3Forms). Get a free access key at
    https://web3forms.com — enter the email you want messages delivered to,
@@ -39,16 +41,18 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
     <div class="container hero__inner">
       <div class="hero__text">
         <h1 class="hero__headline">
-          OData for<br />
+          The <span class="hero__headline-accent">first</span> open source<br class="hero__headline-br" />
+          OData service for<br class="hero__headline-br" />
           <span class="hero__headline-accent">Cardano</span>
           <span class="hero__headline-amp">&amp;</span>
           <span class="hero__headline-accent hero__headline-accent--night">Midnight</span>
         </h1>
         <p class="hero__sub">
-          An OData&nbsp;V4 API for Cardano and Midnight. Fiori, Excel,
-          Power&nbsp;BI and AI agents read the chain and submit transactions
-          through one service. Use it hosted with one key, run it standalone,
-          or add it to your CAP app as a plugin.
+          Read blocks, UTxOs and pools as OData entities, build and submit
+          transactions as actions, and prove claims privately on Midnight.
+          Use it hosted with one key, run it standalone, or add it to your
+          CAP app as a plugin. Fiori, Excel, Power&nbsp;BI and AI agents
+          call the same routes everywhere.
         </p>
         <div class="hero__actions">
           <a href="/docs/get-started/" class="btn btn--primary btn--lg">
@@ -68,7 +72,7 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
         <div class="hero__code-box">
           <div class="hero__code-chrome" aria-hidden="true">
             <span class="hero__code-glyph">&gt;_</span>
-            <span class="hero__code-filename">x402</span>
+            <span class="hero__code-filename">OData V4</span>
           </div>
           <pre set:html={heroCode} />
         </div>
@@ -109,11 +113,12 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
     <div class="container">
       <div class="section__header">
         <h2 class="section__title">
-          Public on Cardano. Private on Midnight.
+          Read, build, mint, sign, prove.
         </h2>
         <p class="section__subtitle">
-          Anchor business data where everyone can audit it, or prove a claim
-          about it without showing the data. One API, two chains.
+          ODATANO CORE covers Cardano, NIGHTGATE covers Midnight. Read blocks
+          and balances, build and submit transactions, mint assets, anchor
+          documents and prove claims, all as OData.
         </p>
       </div>
       <div class="duality__grid">
@@ -125,11 +130,11 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
             <img class="duality__logo--chain only-day" src={cardanoBlue} alt="Cardano" />
             <img class="duality__logo--chain only-night" src={cardanoWhite} alt="Cardano" />
           </div>
-          <h3>Transparent by design.</h3>
+          <h3>Query, transact, mint, stake.</h3>
           <p>
-            Public and auditable. Blocks, addresses and UTxOs as OData
-            entities, transactions as actions. Readable by Fiori, Excel,
-            Power BI or any OData client.
+            Blocks, addresses, UTxOs, pools and DReps as entities. ADA and
+            multi-asset transfers, mints, metadata and Plutus spends as
+            actions. Signing requests and submission included.
           </p>
           <div class="duality__chips">
             <span class="duality__chip">@odatano/core</span>
@@ -151,10 +156,11 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
             <img class="duality__logo--chain only-day" src={midnightDark} alt="Midnight" />
             <img class="duality__logo--chain only-night" src={midnightWhite} alt="Midnight" />
           </div>
-          <h3>Private by proof.</h3>
+          <h3>Transfer, anchor, attest, prove.</h3>
           <p>
-            Shielded transfers, Compact contracts and zero-knowledge
-            attestations. Prove compliance without revealing the data.
+            Blocks and contract state as entities. Shielded transfers,
+            Compact contract calls, document anchoring and zero-knowledge
+            attestations as actions, sponsored so no NIGHT or DUST is needed.
           </p>
           <div class="duality__chips">
             <span class="duality__chip">@odatano/nightgate</span>
@@ -171,18 +177,16 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
     </div>
   </section>
 
-  <!-- ── API — the hosted console (api.odatano.dev), in short ── -->
+  <!-- ── API — the hosted console (api.preprod.odatano.dev), in short ── -->
   <section class="section api" id="api">
     <div class="container">
       <div class="section__header">
-        <h2 class="section__title">Hosted API: one key, both chains</h2>
+        <h2 class="section__title">ODATANO API</h2>
         <p class="section__subtitle">
-          One key at <code>api.odatano.dev</code>, both chains. Fiori, Excel,
-          Power BI or curl call the OData routes directly. AI agents use the
-          same key through the two MCP servers. No node, no wallet, nothing
-          to host. The routes match a self-hosted <code>@odatano/core</code>
-          or <code>@odatano/nightgate</code>, so you can move later without
-          changing a client.
+          Seamless enterprise and agentic access to Cardano and Midnight.
+          One key for Fiori, Excel, Power BI and any OData client: read blocks, UTxOs and contract state, build and submit
+          transactions, read the analytics. AI agents can use the same key through the two MCP
+          servers.
         </p>
       </div>
 
@@ -222,6 +226,27 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
             <li><b>Prove</b><span>field, equality, membership, document integrity and diff attestations</span></li>
           </ul>
         </article>
+        <article class="api__tile api__tile--astra">
+          <div class="api__tile-logos">
+            <img class="via only-day" src={astraLogo} alt="ODATANO ASTRA" />
+            <img class="via only-night" src={astraLogoDark} alt="ODATANO ASTRA" />
+            <span class="spacer"></span>
+            <img class="chain only-day" src={cardanoBlue} alt="Cardano" />
+            <img class="chain only-night" src={cardanoWhite} alt="Cardano" />
+            <img class="chain only-day" src={midnightDark} alt="Midnight" />
+            <img class="chain only-night" src={midnightWhite} alt="Midnight" />
+          </div>
+          <p>Analytics, computed from the same indexes. Blocks, transactions and fees per hour, day or week, with the change against the window before. Every number names the block range it came from.</p>
+          <ul class="api__facts">
+            <li><b>Route</b><span class="mono">/odata/v4/astra</span></li>
+            <li><b>Agents</b><span><code>analytics_*</code> tools in both MCP servers</span></li>
+            <li><b>Overview</b><span>ChainOverview: tip, lag, blocks and transactions in the last hour, fees over 24 h, one row per chain</span></li>
+            <li><b>Key figures</b><span>KeyFigures: every metric over 1 h, 24 h, 7 d, 14 d and 30 d, with the previous window and the change in percent</span></li>
+            <li><b>Per day</b><span>BlocksDaily, TransactionsDaily, FeesDaily, TokensDaily and StakeEpochs, one row per chain and day, named columns</span></li>
+            <li><b>Rankings</b><span>TopTokens, TopPolicies, TopAddresses, TopScripts, TopBlockProducers, TopPools, TopDReps per chain and window</span></li>
+            <li><b>Shape</b><span>compare for both chains side by side, getDistribution for histograms, getAnomalies for days off their own baseline</span></li>
+          </ul>
+        </article>
       </div>
 
 
@@ -240,13 +265,14 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
         </div>
         <div class="api__lane">
           <b>Redeem a code</b>
-          <span>A 6-character voucher from events, exchanged on the console for a key.</span>
+          <span>A 6-character voucher from events, exchanged on the API page for a key.</span>
         </div>
       </div>
 
       <div class="api__footer">
-        <a class="btn btn--primary" href="https://api.odatano.dev/" target="_blank" rel="noopener">Get a key ↗</a>
-        <a class="btn btn--outline" href="https://api.odatano.dev/reference" target="_blank" rel="noopener">Reference ↗</a>
+        <a class="btn btn--primary" href="https://api.preprod.odatano.dev/" target="_blank" rel="noopener">Get a key ↗</a>
+        <a class="btn btn--outline" href="https://api.preprod.odatano.dev/reference" target="_blank" rel="noopener">Reference ↗</a>
+        <a class="btn btn--outline" href="/docs/astra/">ASTRA</a>
         <a class="btn btn--outline" href="/docs/x402/">x402</a>
       </div>
     </div>
@@ -686,10 +712,11 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
           <p class="section__subtitle">
             Two MCP servers: <code>@odatano/core-mcp</code> for Cardano,
             <code>@odatano/nightgate-mcp</code> for Midnight. Both use one
-            <code>oda_…</code> key against <code>api.odatano.dev</code>. The
+            <code>oda_…</code> key against <code>api.preprod.odatano.dev</code>. The
             agent gets a notary, never a wallet: it reads, builds and
-            verifies, a human or an HSM signs. Works with Claude Code, Claude
-            Desktop, Cursor or any MCP client.
+            verifies, a human or an HSM signs. Both carry the ODATANO ASTRA
+            analytics for their chain: key figures, daily tables, rankings.
+            Works with Claude Code, Claude Desktop, Cursor or any MCP client.
           </p>
         </div>
 
@@ -701,7 +728,7 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
             </span>
             <h3>Read the chain, build unsigned.</h3>
             <p>
-              36 tools. Read the chain, query the indexer, build transactions. Every build comes back unsigned, a human or wallet signs.
+              36 tools plus 10 for analytics. Read the chain, query the indexer, build transactions. Every build comes back unsigned, a human or wallet signs.
             </p>
 
             <ul class="agents__tools">
@@ -736,12 +763,21 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
                   <code>get_submission_status</code>
                 </span>
               </li>
+              <li class="agents__tool-group">
+                <span class="agents__tool-label">ASTRA</span>
+                <span class="agents__tool-chips">
+                  <code>analytics_key_figures</code>
+                  <code>analytics_daily</code>
+                  <code>analytics_top</code>
+                  <code>analytics_anomalies</code>
+                </span>
+              </li>
             </ul>
 
             <div class="agents__links">
               <a href="https://www.npmjs.com/package/@odatano/core-mcp" target="_blank" rel="noopener">npm ↗</a>
               <a href="https://github.com/ODATANO/ODATANO-CORE-MCP" target="_blank" rel="noopener">GitHub ↗</a>
-              <a href="/docs/odatano-mcp/">Docs</a>
+              <a href="/docs/mcp/">Docs</a>
             </div>
           </article>
 
@@ -752,7 +788,7 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
             </span>
             <h3>Prove it without revealing it.</h3>
             <p>
-              22 tools. Anchor documents, prove claims over hidden fields, verify against live contract state. Writes are sponsored or scoped by a grant.
+              22 tools plus 9 for analytics. Anchor documents, prove claims over hidden fields, verify against live contract state. Writes are sponsored or scoped by a grant.
             </p>
 
             <ul class="agents__tools">
@@ -788,12 +824,21 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
                   <code>get_job_status</code>
                 </span>
               </li>
+              <li class="agents__tool-group">
+                <span class="agents__tool-label">ASTRA</span>
+                <span class="agents__tool-chips">
+                  <code>analytics_key_figures</code>
+                  <code>analytics_daily</code>
+                  <code>analytics_compare</code>
+                  <code>analytics_anomalies</code>
+                </span>
+              </li>
             </ul>
 
             <div class="agents__links">
               <a href="https://www.npmjs.com/package/@odatano/nightgate-mcp" target="_blank" rel="noopener">npm ↗</a>
               <a href="https://github.com/ODATANO/NIGHTGATE-MCP" target="_blank" rel="noopener">GitHub ↗</a>
-              <a href="/docs/nightgate-mcp/">Docs</a>
+              <a href="/docs/mcp/">Docs</a>
             </div>
           </article>
         </div>
@@ -866,7 +911,7 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
         <ProjectCard
           name="DPP SDK"
           icon="dpp-sdk"
-          tag="Digital Product Passport · Core Library"
+          tag="Digital Product Passport"
           track="both"
           description="The chain-agnostic core of DAYPASS and NIGHTPASS. Canonical hashing, encryption, access levels, Merkle content trees, lifecycles and ZK claim planning. No chain code, no network calls. A passport anchored on one chain verifies against data from the other."
           bullets={[
@@ -971,13 +1016,8 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
     <div class="container closing-cta__grid">
       <div class="closing-cta__inner">
         <h2 class="closing-cta__title">Start building.</h2>
-        <p class="closing-cta__sub">
-          Two chains, one API. Hosted: one key from api.odatano.dev, no node
-          of your own. Self-hosted: run it standalone or add it to your CAP
-          app as a plugin. The MCP servers point at either.
-        </p>
         <div class="closing-cta__install">
-          <a class="closing-cta__cmd closing-cta__cmd--api" href="https://api.odatano.dev">api.odatano.dev <span class="closing-cta__cmd-note">get a key, use both chains</span></a>
+          <a class="closing-cta__cmd closing-cta__cmd--api" href="https://api.preprod.odatano.dev">api.preprod.odatano.dev <span class="closing-cta__cmd-note">get a key</span></a>
           <code class="closing-cta__cmd closing-cta__cmd--day">npm install @odatano/core</code>
           <code class="closing-cta__cmd">npm install @odatano/nightgate</code>
           <code class="closing-cta__cmd closing-cta__cmd--day">npx @odatano/core-mcp</code>

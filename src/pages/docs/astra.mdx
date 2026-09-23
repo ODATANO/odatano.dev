@@ -1,0 +1,130 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: ASTRA (Analytics)
+description: ODATANO ASTRA, analytics over Cardano and Midnight as OData V4. Windows, series, rankings and anomalies on the hosted API, one key, one unit a read.
+---
+
+# ODATANO ASTRA
+
+Analytics over Cardano and Midnight as OData V4. ASTRA reads the indexes the hosted ODATANO and NIGHTGATE instances already fill, aggregates them into minute, hour and day buckets and serves windows, series, rankings and anomalies under `/odata/v4/astra`. Every number names the block range it was computed from.
+
+ASTRA runs hosted only, at [api.preprod.odatano.dev](https://api.preprod.odatano.dev/), behind the same key as the other routes. A read costs one unit. There is no npm package; the raw-data services of ODATANO and NIGHTGATE stay reachable next to it.
+
+## Call it
+
+```bash
+# one row per chain: tip, lag, blocks and transactions 1 h, fees 24 h
+curl https://api.preprod.odatano.dev/odata/v4/astra/ChainOverview \
+  -H "Authorization: Bearer oda_..."
+
+# every metric over one window, with the window before and the change in percent
+curl "https://api.preprod.odatano.dev/odata/v4/astra/KeyFigures?\$filter=chain eq 'cardano' and window eq '7d'" \
+  -H "Authorization: Bearer oda_..."
+
+# fees per day, newest first: total, fee-paying transactions, average, median, p95, maximum
+curl "https://api.preprod.odatano.dev/odata/v4/astra/FeesDaily?\$filter=chain eq 'midnight' and day ge 2026-09-01&\$orderby=day desc" \
+  -H "Authorization: Bearer oda_..."
+
+# the ten tokens with the most transfers today
+curl "https://api.preprod.odatano.dev/odata/v4/astra/TopTokens?\$filter=chain eq 'cardano' and window eq '24h' and rank le 10" \
+  -H "Authorization: Bearer oda_..."
+
+# one metric over a rolling window, with the window before and the change in percent
+curl "https://api.preprod.odatano.dev/odata/v4/astra/getWindow(chain='cardano',metric='tx.count',window='24h')" \
+  -H "Authorization: Bearer oda_..."
+
+# the same metric for Cardano and Midnight side by side
+curl "https://api.preprod.odatano.dev/odata/v4/astra/compare(metric='fees.paid',window='7d')" \
+  -H "Authorization: Bearer oda_..."
+
+```
+
+`chain` is `cardano` or `midnight`. Windows are `1h`, `24h`, `7d`, `14d` and `30d`; rankings also take `epoch`. The entities take `$filter` (comparisons, `and`, `or`, `not`), `$orderby`, `$top`, `$skip`, `$select` and `$count`; a plain GET reads newest first. Every call is listed with an example response in the [API reference](https://api.preprod.odatano.dev/reference) under Analytics.
+
+## Ready-made entities
+
+No metric id needed. Every entity holds both chains; a column a chain does not have is null, so Cardano and Midnight sit in one table.
+
+| Entity | One row per | Holds |
+|--------|-------------|-------|
+| `ChainOverview` | chain | network, tip, two lags, blocks and transactions 1 h with change, fees 24 h with median and P95, average block time |
+| `KeyFigures` | chain, metric, window | value, previous window, change in percent, count, sum, avg, min, max, p50, p95, block range |
+| `BlocksDaily` | chain, UTC day | blocks, empty blocks, avg / p95 / max block time, avg / max block size, transactions per block |
+| `TransactionsDaily` | chain, UTC day | transactions, with assets, with metadata, UTxOs created and spent, volume (Cardano); size, system extrinsics, shielded, with proof, contract calls and deploys, failed (Midnight) |
+| `FeesDaily` | chain, UTC day | total, fee-paying transactions, avg, median, p95, max fee in the chain's unit; estimated fees and estimate error (Midnight) |
+| `TokensDaily` | chain, UTC day | native-asset transfers, mints, burns (Cardano) |
+| `StakeEpochs` | chain, epoch | pools, total live stake, active DReps, total voting power (Cardano) |
+| `TopTokens`, `TopPolicies`, `TopAddresses`, `TopScripts`, `TopBlockProducers`, `TopPools`, `TopDReps` | chain, window, rank | the ranking with the question already asked: tokens and policies by transfers, addresses and scripts by ADA received, producers by blocks, pools by live stake and DReps by voting power in the newest epoch snapshot |
+| `Metrics` | chain, metric | the catalogue: id, name, kind, scope, unit, description |
+| `Reorgs`, `VerificationRuns` | event | reorgs seen at the source and recomputed; sampled comparisons of indexed blocks against an independent public indexer |
+
+## Functions
+
+| Function | Returns |
+|----------|---------|
+| `getWindow(chain, metric, window)` | value, previous window, change in percent, count, sum, avg, min, max, p50, p95, stddev, block range |
+| `getSeries(chain, metric, window)` | time series in the resolution that fits the window: 1h in minutes, 24h in hours, 7d, 14d and 30d in days |
+| `compare(metric, window)` | the same metric for Cardano and Midnight side by side |
+| `getTop(chain, dimension, metric, window, limit, by, subject)` | ranking over a dimension, exact rather than a stored top-N; `by` is `sum` or `count` |
+| `getConcentration(chain, dimension, metric, window, by, subject)` | Gini, Nakamoto coefficient and the share of the top 1, 10 and 100 entities |
+| `getDistribution(chain, metric, window)` | the stored histogram as bins, so a client can draw the shape |
+| `getAnomalies(chain, threshold, baselineDays)` | days that sit far from their own recent baseline, in standard deviations, with every number the verdict rests on |
+
+Dimensions for rankings: `token`, `policy`, `script`, `address`, `producer`, `pool`, `drep` and `tokenHolder`. The last one needs a `subject`, the unit of the token whose holders are ranked. `pool` and `drep` read the newest epoch snapshot instead of a span of time.
+
+## Under the hood
+
+The entities above are computed on read from ASTRA's own bucket store: count, sum, min, max and a log histogram per metric, granularity and bucket start, plus per-entity counters behind the rankings and epoch snapshots for stake and governance. Those raw tables (`MetricBuckets`, `EntityBuckets`, `Snapshots`) and the aggregation cursor (`SyncStatus`) stay with the operator; the gateway does not offer them. `ChainOverview` carries what a consumer needs of the cursor: tip, both lags, `lastBlockAt` and `backfilling`.
+
+## Metrics
+
+Metric ids are the same on Cardano and Midnight where the measure exists. `kind` decides the headline: a counter reports its sum, a distribution its average, a gauge its last value.
+
+| Area | Cardano | Midnight |
+|------|---------|----------|
+| Blocks | `blocks.count`, `blocks.size`, `blocks.interval`, `blocks.empty`, `blocks.txCount` | `blocks.count`, `blocks.interval`, `blocks.empty`, `blocks.txCount` |
+| Transactions | `tx.count`, `tx.withMetadata`, `tx.withAssets` | `tx.count`, `tx.system`, `tx.size`, `tx.failed` |
+| Fees | `fees.paid` in lovelace | `fees.paid`, `fees.estimated`, `fees.estimateError` in DUST |
+| Value | `value.transferred` in ADA, `utxo.created`, `utxo.spent` | |
+| Tokens | `tokens.transfers`, `tokens.mints`, `tokens.burns` | |
+| Privacy and contracts | | `tx.shielded`, `tx.withProof`, `tx.contractCalls`, `tx.contractDeploys` |
+| Rankings only | `value.received`, `value.sent`, `blocks.produced`, `tokens.received`, `tokens.sent` | `blocks.produced` |
+| Stake and governance | `stake.live`, `stake.active`, `stake.delegators`, `stake.blocksLifetime`, `stake.pools`, `stake.totalLive`, `governance.votingPower`, `governance.dreps`, `governance.totalPower` | |
+
+The full catalogue with units and descriptions is `GET /odata/v4/astra/Metrics`.
+
+## Two lags
+
+`ChainOverview` reports two lags, and both matter when reading the recent windows. `lagBlocks` is how far ASTRA is behind its source, `sourceLagBlocks` how far the source is behind the chain. The windows are anchored to the wall clock, so while either lag is large the last hour looks empty. That is missing data, not a quiet chain. `lastBlockAt` says how far the numbers actually reach.
+
+## Reorg-safe and traceable
+
+A reorg logged by the ODATANO or NIGHTGATE crawler marks the affected buckets invalid and the aggregator recomputes them. Every bucket carries `fromHeight`, `toHeight` and `computedAt`, so any number can be checked against the raw entities of `/odata/v4/cardano-odata` or `/odata/v4/nightgate`.
+
+## In SAP and Excel
+
+The service is plain OData V4. Fiori elements, SAP Analytics Cloud, Excel and Power BI read `BlocksDaily`, `FeesDaily`, `KeyFigures` and `ChainOverview` like any other entity set, one row per day or per key figure, with named columns instead of metric ids:
+
+```http
+GET /odata/v4/astra/TransactionsDaily?$filter=day ge 2026-09-01&$orderby=day desc
+GET /odata/v4/astra/KeyFigures?$filter=window eq '30d'&$select=chain,metric,name,value,previous,changePct,unit
+```
+
+## For AI agents
+
+Both MCP servers carry these numbers as tools for their chain, registered when the gateway serves ASTRA: [ODATANO-MCP](/docs/mcp/#odatano-mcp-cardano) for Cardano and [NIGHTGATE-MCP](/docs/mcp/#nightgate-mcp-midnight) for Midnight, same key, one unit a read.
+
+```
+"How busy was Cardano this week?"          → analytics_key_figures(window: "7d")
+"Fees per day for the last two weeks"      → analytics_daily(topic: "fees", days: 14)
+"Which tokens moved most today?"           → analytics_top(ranking: "tokens", window: "24h")
+"How many Midnight transactions were shielded?" → analytics_key_figures(metric: "tx.shielded")
+"Cardano and Midnight side by side"        → analytics_compare(metric: "tx.count", window: "7d")
+"Anything unusual yesterday?"              → analytics_anomalies()
+```
+
+## Next steps
+
+- [Get Started:](/docs/get-started/) Get a key and make the first calls
+- [MCP servers:](/docs/mcp/) The same key for AI agents, with the `analytics_*` tools on both chains
+- [API reference:](https://api.preprod.odatano.dev/reference) Every call with an example response

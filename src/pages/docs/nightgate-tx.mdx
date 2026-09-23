@@ -1,0 +1,141 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: NIGHTGATE TX · Builder
+description: "@odatano/nightgate-tx: the NIGHTGATE client SDK plus a builder that proves and signs Midnight transactions on your machine with your own key. A sponsor pays and submits."
+---
+
+# NIGHTGATE TX: the client SDK and local builder
+
+`@odatano/nightgate-tx` is the client side of NIGHTGATE in one package under 1 MB. Two halves: `connect()` calls a hosted NIGHTGATE as plain functions, `createTxBuilder()` builds, proves and signs a Midnight contract transaction **on your own machine with your own key**. A sponsor pays the dust and submits. No server, database, proof server or Docker of your own.
+
+```
+YOUR machine                                  SPONSOR (a NIGHTGATE)
+seed  →  attester id, attestation secret
+prepare* call  →  prove (wasm)  →  sign
+                    finalizedTxB64 (~5 KB) ──▶  policy check, balance dust, submit  →  txHash
+```
+
+Nothing secret leaves the process. The on-chain attestation carries **your** attester id; the sponsor never sees a key, witness or preimage.
+
+## Install
+
+```bash
+npm install @odatano/nightgate-tx
+```
+
+Needs Node.js 20 or newer. The package pins the Midnight SDK line it was built with; a second copy of a wasm-bearing package in your tree rejects the first one's objects, so keep one copy per package (the README lists the overrides). Version pairing: nightgate-tx 0.6.x builds calls for vaults deployed with NIGHTGATE 0.24 and newer.
+
+## Call a hosted NIGHTGATE
+
+One method per action. Write methods submit the job and wait for the result, so one call returns the `txHash`. Verification needs no key at all.
+
+```js
+import { connect } from '@odatano/nightgate-tx';
+
+const ng = connect({
+  baseUrl: 'https://api.preprod.odatano.dev',
+  token: 'oda_...'                       // or agentToken: 'ngat_...', or username + password
+});
+
+// a plain read: no wallet, no session
+const state = await ng.verifyAttestation({ contractAddress, attesterId, payloadHash });
+
+// with a wallet session
+const proof = await ng.prepareDocumentProof({
+  documentJson: JSON.stringify(doc),
+  proofFieldsJson: JSON.stringify(['battery.capacity_kwh'])
+});
+await ng.proveFieldPredicate({
+  payloadHash: proof.payloadHash, fieldKey, value, fieldSalt,
+  predicate: 'lessOrEqual', threshold, sessionId, contractAddress
+});
+```
+
+Covered: the verify functions, `prepareDocumentProof` and `prepareMembershipSet`, anchoring, the field and document proofs, disclosure grants, wallet sessions, contract deploy and calls, `sendNight`, the two sponsor channels, `waitForJob`, and `callFunction` / `callAction` for anything new.
+
+## Build with your own key
+
+```js
+import { connect, createTxBuilder } from '@odatano/nightgate-tx';
+import { prepareAttest } from '@odatano/nightgate-tx/calls';
+import { Contract } from '@odatano/nightgate-tx/attestation-vault';
+
+const builder = await createTxBuilder({
+  seedHex,                                   // your 64-byte BIP39 seed, never sent anywhere
+  networkId: 'preprod',
+  indexerHttpUrl: 'https://indexer.preprod.midnight.network/api/v4/graphql',
+  indexerWsUrl:   'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
+  nodeUrl:        'wss://rpc.preprod.midnight.network/',
+  zkConfigBaseUrl: 'https://api.preprod.odatano.dev/zk-config/attestation-vault',
+  contractClass: Contract,
+  walletSync: false                          // vault calls move no value
+});
+
+console.log(builder.attesterId);             // the identity every attestation carries
+
+const call = prepareAttest({ payloadHash, metadataHash, attestationSecret: builder.attestationSecret });
+const { finalizedTxB64 } = await builder.buildSponsorable({ contractAddress: VAULT, call });
+
+const ng = connect({ baseUrl: 'https://api.preprod.odatano.dev', token: 'oda_...' });
+const { txHash } = await ng.sponsorFinalized({ finalizedTxB64, sponsorSessionId });
+
+await builder.close();
+```
+
+Every `prepare*` helper works the same way: `prepareAnchorContentRoot`, `prepareProveFieldPredicate`, `prepareGrantDisclosure` and the rest. The document helpers run offline and feed into them. `deriveIdentity({ seedHex })` returns the attester id and the NIGHT address without a builder, in about 150 ms.
+
+### Options that matter
+
+| Option | Meaning |
+|--------|---------|
+| `seedHex` | 128 hex chars; HD derivation matches Lace |
+| `zkConfigBaseUrl` | the sponsor's public `/zk-config/<contract>`; prover keys are fetched once and cached under `~/.cache/nightgate-txbuilder` |
+| `zkConfigDir` | your own `keys/` and `zkir/` instead, for your own contract |
+| `contractClass` | the compiled contract; `attestation-vault-32` for the 32-slot vault |
+| `circuits` | fetch keys only for the calls you make |
+| `ttlMinutes` | default 30; the sponsor must submit within it |
+| `provingMode` | `wasm` in-process (default) or `server` on a proof server you run, which receives the witnesses |
+| `walletSync` | `false` for value-free calls, then no sync from genesis |
+
+## Batches and parallel sponsoring
+
+`buildSponsorable({ contractAddress, calls: [...] })` puts up to 8 calls into one transaction: one fee, one contract state transition. A causality pre-check aborts before proving when the order cannot apply (`BatchCausalityViolation`, no fee). `independentCalls: true` orders a proof cart by execution stage; `orderedPrefix: 1` keeps a leading anchor first. Verify per claim afterwards, never per batch: a landed batch can apply partially.
+
+`bind: false` returns `unboundTxB64` for `sponsorUnbound`. The sponsor merges its dust spend and binds, so one sponsor wallet pays for many callers in parallel. Same proof, identity and TTL.
+
+## Your own contract, sponsored deploys
+
+`createTxBuilder({ contractClass, zkConfigDir })` builds calls on your own Compact contract from local keys. Witnesses come from you, one shared object per batch. `buildDeploySponsorable()` builds, proves and signs a deploy and returns the address it will create; a sponsor pays when its policy and the grant allow deploys, and the landed address is sponsorable under the same token.
+
+## Self-funded submission
+
+Without a sponsor, the `txbuilder` entry point exports the submission helpers: `submitFinalized` over a one-shot WebSocket (the node's HTTP gateway rejects proven calls), `waitLanded` to confirm by transaction identifier, `classifyNodeReject` to tell a stale dust proof from missing funds, and `withDustGuard` so a pre-mempool reject does not wedge the dust wallet. Needs the optional peer `@polkadot/api`.
+
+## Costs and caveats
+
+- **First build downloads the prover keys**, about 83 MB for the vault set. Restrict `circuits` to what you call.
+- **Proving blocks the thread** for tens of seconds. In a server, host the builder in a worker thread.
+- **Memory follows the circuit**: about 1.8 GB at the 16-slot comparison circuit, 3.5 GB at 32 slots. Wasm memory never shrinks.
+- **Fetch the prover keys from the host you submit to.** The artifact generation is pinned to the deployed contract.
+- **Built transactions expire** after `ttlMinutes`.
+- **The sponsor decides what it pays for**: allow-listed contracts and circuits, a size cap, nothing else in the envelope.
+
+## Entry points
+
+| Import | What you get |
+|--------|--------------|
+| `@odatano/nightgate-tx` | `connect` and `createTxBuilder` |
+| `@odatano/nightgate-tx/client` | the hosted-endpoint client alone |
+| `@odatano/nightgate-tx/txbuilder` | the local builder and the self-funded submission helpers |
+| `@odatano/nightgate-tx/calls` | the `prepare*` call builders, witnesses, attestation-secret helpers |
+| `@odatano/nightgate-tx/attestation-vault`, `/attestation-vault-32` | the compiled vault contracts and their pure circuits |
+| `@odatano/nightgate-tx/set-root` | the canonical membership-set rule |
+
+The same builder ships inside the plugin as `@odatano/nightgate/txbuilder`; only the package name differs.
+
+## On GitHub
+
+- [packages/nightgate-tx](https://github.com/ODATANO/NIGHTGATE/tree/main/packages/nightgate-tx): README, `example/anchor.mjs`, `example/self-funded.mjs` · [npm](https://www.npmjs.com/package/@odatano/nightgate-tx)
+- [docs/txbuilder.md](https://github.com/ODATANO/NIGHTGATE/blob/main/docs/txbuilder.md): every option, batch rules, reject codes, memory
+- [NIGHTGATE](/docs/nightgate/): the sponsor half
+- [MCP servers](/docs/mcp/): `build_sponsorable_transaction` runs this builder for an agent

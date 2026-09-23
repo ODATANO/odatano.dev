@@ -16,45 +16,34 @@ const description = frontmatter?.description ?? Astro.props.description;
 
 const currentPath = Astro.url.pathname.replace(/\/$/, '');
 
+/* `chain` colours the dot in front of an entry: day = Cardano, night = Midnight,
+   both = spans the two chains. Entries without a chain get no dot. */
 const navItems = [
   { group: 'Getting Started', links: [
     { label: 'Get Started', href: '/docs/get-started' },
-    { label: 'Configuration', href: '/docs/configuration' },
   ]},
   { group: 'Guides', links: [
-    { label: 'User Guide', href: '/docs/user-guide' },
-    { label: 'Transaction Workflow', href: '/docs/transaction-workflow' },
-    { label: 'Plutus & Smart Contracts', href: '/docs/plutus' },
-    { label: 'Security', href: '/docs/security' },
-    { label: 'Developer Guide', href: '/docs/developer-guide' },
-    { label: 'ODATANO-MCP (AI Agents)', href: '/docs/odatano-mcp' },
-  ]},
-  { group: 'Operations', links: [
-    { label: 'Backend Configuration', href: '/docs/backend-configuration' },
-    { label: 'Error Handling', href: '/docs/error-handling' },
-    { label: 'Docker Deployment', href: '/docs/docker-deployment' },
-    { label: 'Production Deployment', href: '/docs/production-deployment' },
-  ]},
-  { group: 'Midnight', links: [
-    { label: 'NIGHTGATE', href: '/docs/nightgate' },
-    { label: 'NIGHTGATE-MCP', href: '/docs/nightgate-mcp' },
-    { label: 'NIGHTPASS', href: '/docs/nightpass' },
+    { label: 'ODATANO', hint: 'Cardano', chain: 'day', href: '/docs/odatano' },
+    { label: 'NIGHTGATE', hint: 'Midnight', chain: 'night', href: '/docs/nightgate' },
+    { label: 'NIGHTGATE TX', hint: 'Builder', chain: 'night', href: '/docs/nightgate-tx' },
+    { label: 'ASTRA', hint: 'Analytics', chain: 'both', href: '/docs/astra' },
+    { label: 'Hosted API', hint: 'One key', chain: 'both', href: '/docs/api' },
+    { label: 'MCP servers', hint: 'AI agents', chain: 'both', href: '/docs/mcp' },
   ]},
   { group: 'Ecosystem', links: [
-    { label: 'DAYPASS', href: '/docs/daypass' },
-    { label: 'DAYZERO', href: '/docs/dayzero' },
-    { label: 'TRACE', href: '/docs/trace' },
-    { label: 'QUANTIX', href: '/docs/quantix' },
-    { label: 'FINCA', href: '/docs/finca' },
-    { label: 'x402', href: '/docs/x402' },
-    { label: 'WATCH', href: '/docs/watch' },
+    { label: 'DAYPASS', chain: 'day', href: '/docs/daypass' },
+    { label: 'NIGHTPASS', chain: 'night', href: '/docs/nightpass' },
+    { label: 'DAYZERO', chain: 'day', href: '/docs/dayzero' },
+    { label: 'TRACE', chain: 'day', href: '/docs/trace' },
+    { label: 'QUANTIX', chain: 'day', href: '/docs/quantix' },
+    { label: 'FINCA', chain: 'day', href: '/docs/finca' },
+    { label: 'x402', chain: 'day', href: '/docs/x402' },
+    { label: 'WATCH', chain: 'day', href: '/docs/watch' },
   ]},
-  { group: 'Reference', links: [
-    { label: 'API Reference', href: '/docs/reference' },
-  ]},
-  { group: 'Hosted API', links: [
-    { label: 'Console (get a key)', href: 'https://api.odatano.dev/', external: true },
-    { label: 'API Reference (console)', href: 'https://api.odatano.dev/reference', external: true },
+  { group: 'Links', links: [
+    { label: 'API', hint: 'get a key', href: 'https://api.preprod.odatano.dev/', external: true },
+    { label: 'API reference', href: 'https://api.preprod.odatano.dev/reference', external: true },
+    { label: 'GitHub', href: 'https://github.com/ODATANO', external: true },
   ]},
 ];
 ---
@@ -62,22 +51,33 @@ const navItems = [
 <Layout title={title} description={description}>
   <div class="docs-page">
     <aside class="docs-sidebar">
+      <div class="docs-sidebar__head">
+        <span class="docs-sidebar__title">Documentation</span>
+      </div>
       <nav class="docs-sidebar__nav">
         {navItems.map(group => (
           <div class="docs-sidebar__group">
             <p class="docs-sidebar__group-label">{group.group}</p>
-            {group.links.map(link => (
-              'external' in link && link.external ? (
-                <a href={link.href} target="_blank" rel="noopener">{link.label} ↗</a>
-              ) : (
+            {group.links.map(link => {
+              const isExternal = 'external' in link && link.external;
+              const active = !isExternal && (currentPath === link.href || currentPath === link.href + '/');
+              return (
                 <a
-                  href={link.href + '/'}
-                  class:list={[{ active: currentPath === link.href || currentPath === link.href + '/' }]}
+                  href={isExternal ? link.href : link.href + '/'}
+                  target={isExternal ? '_blank' : undefined}
+                  rel={isExternal ? 'noopener' : undefined}
+                  class:list={['docs-sidebar__link', { active, 'docs-sidebar__link--external': isExternal }]}
+                  aria-current={active ? 'page' : undefined}
                 >
-                  {link.label}
+                  {'chain' in link && link.chain
+                    ? <span class={`docs-sidebar__dot docs-sidebar__dot--${link.chain}`} aria-hidden="true"></span>
+                    : null}
+                  <span class="docs-sidebar__label">{link.label}</span>
+                  {'hint' in link && link.hint ? <span class="docs-sidebar__hint">{link.hint}</span> : null}
+                  {isExternal ? <span class="docs-sidebar__ext" aria-hidden="true">↗</span> : null}
                 </a>
-              )
-            ))}
+              );
+            })}
           </div>
         ))}
       </nav>

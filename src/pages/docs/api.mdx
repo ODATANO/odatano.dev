@@ -1,0 +1,84 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: Hosted API
+description: ODATANO, NIGHTGATE and ASTRA at api.preprod.odatano.dev behind one key. Routes, how to get a key, units, what the gateway keeps closed.
+---
+
+# Hosted API
+
+One key for both chains. [api.preprod.odatano.dev](https://api.preprod.odatano.dev/) runs ODATANO on Cardano preprod, NIGHTGATE on Midnight preprod and ASTRA over both, behind the ODATANO ACCESS gateway. The gateway holds the agent grants underneath, meters every call in units and keeps the ledger. No node, no plugin, nothing to install.
+
+The routes are the ones a self-hosted instance serves. What you build against the hosted API runs unchanged against your own ODATANO or NIGHTGATE later.
+
+## Routes
+
+| Product | Route | What |
+|---------|-------|------|
+| ODATANO | `/odata/v4/cardano-odata` | blocks, transactions, addresses, UTxOs, assets, pools, DReps |
+| ODATANO | `/odata/v4/cardano-transaction` | unsigned ADA, multi-asset, mint, metadata and Plutus transactions; submit |
+| ODATANO | `/odata/v4/cardano-sign` | signing requests, signature verification |
+| NIGHTGATE | `/odata/v4/nightgate` | blocks, transactions, contract state, jobs; anchor, prove, sponsor |
+| NIGHTGATE | `/odata/v4/nightgate-indexer` | sync state and health |
+| NIGHTGATE | `/odata/v4/nightgate-verify` | attestation and predicate verification, no key needed |
+| ASTRA | `/odata/v4/astra` | analytics: overview, key figures, daily tables, rankings, anomalies |
+
+The NIGHTGATE paths are aliases of the plugin's `/api/v1/nightgate`, `/api/v1/indexer` and `/api/v1/verify`; the gateway accepts both spellings. Every forwarded call is listed with an example response in the [API reference](https://api.preprod.odatano.dev/reference).
+
+## Get a key
+
+Three lanes on the [API page](https://api.preprod.odatano.dev/):
+
+1. **Cardano wallet.** Sign a one-time message with a CIP-30 wallet, no transaction. The first key comes with free calls.
+2. **Redeem a code.** A voucher from an event, exchanged on the [redeem page](https://api.preprod.odatano.dev/redeem) for a key. With a key presented, the code tops that key up.
+3. **Buy a pack.** Pay with ADA over x402 (`POST /keys` or `POST /topup`). The key comes back in the response and is bound to the paying address.
+
+The API page shows a key once, together with a ready `.mcp.json`. Rotation gives a new secret on the same key; units and ledger stay.
+
+## Call it
+
+The key goes as `Authorization: Bearer oda_…` or as `x-agent-token: oda_…`. Both MCP servers take it unchanged.
+
+```bash
+curl "https://api.preprod.odatano.dev/odata/v4/cardano-odata/Blocks?\$orderby=height desc&\$top=1" \
+  -H "Authorization: Bearer oda_..."
+
+curl https://api.preprod.odatano.dev/me \
+  -H "Authorization: Bearer oda_..."
+```
+
+| Route | What |
+|-------|------|
+| `GET /me` | plan, units left, validity, last calls |
+| `GET /me/ledger` | every charged call and every credit |
+| `POST /me/revoke` | revoke the key and both grants underneath |
+| `GET /prices` | the current unit table |
+| `GET /health` | liveness |
+
+Every proxied answer carries `x-access-units-charged` and `x-access-units-left`.
+
+## Units
+
+A call costs units, not money. Units are reserved before the upstream call and refunded when the upstream rejects or does not answer; you pay for work, not for errors. `$metadata`, the service documents, the verify lane and the prover keys under `/zk-config` are free.
+
+| Status | Meaning |
+|--------|---------|
+| 401 | key missing, unknown or expired |
+| 402 | units exhausted; the body carries the price and the remaining units |
+| 403 | a route the gateway does not forward |
+| 429 | rate limited; `Retry-After` says when |
+
+## What stays closed
+
+The key reaches the read and transaction surface of both products. Everything that belongs to the operator of the box answers 403: grant administration, wallet sessions and `sendNight`, contract deployment, dust registration, HSM signing, crawler and worker control, `/api/v1/admin`, `$batch` and ASTRA's internals. The upstream grants refuse them too; the gateway refuses first.
+
+## Self-hosted instead
+
+Point your client, or the MCP servers via `ODATANO_ACCESS_URL`, at your own ODATANO or NIGHTGATE. The routes stay the same, the key becomes your own auth: CAP mocked auth in development, XSUAA or an `odat_…` / `ngat_…` agent grant in production. Set-up: [ODATANO](/docs/odatano/#run-it), [NIGHTGATE](/docs/nightgate/#run-it).
+
+## Next steps
+
+- [Get Started:](/docs/get-started/) First calls on both chains
+- [MCP servers:](/docs/mcp/) The same key for AI agents
+- [ASTRA:](/docs/astra/) The analytics route in detail
+- [API page:](https://api.preprod.odatano.dev/) Get a key, ledger, reference
+- [GitHub: ACCESS](https://github.com/ODATANO/ACCESS): The gateway's source

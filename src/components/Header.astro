@@ -6,8 +6,8 @@ import logoDarkUrl from '@odatano/brand/logos/odatano-logo-on-dark.svg?url';
 <header class="site-header">
   <div class="container site-header__inner">
     <a href="/" class="site-header__logo">
-      <img class="only-day" src={logoUrl} alt="ODATANO" height="102" />
-      <img class="only-night" src={logoDarkUrl} alt="ODATANO" height="102" />
+      <img class="only-day" src={logoUrl} alt="ODATANO" height="60" />
+      <img class="only-night" src={logoDarkUrl} alt="ODATANO" height="60" />
     </a>
     <nav class="site-header__nav site-header__nav--desktop">
       <div class="nav-links">
@@ -57,7 +57,7 @@ import logoDarkUrl from '@odatano/brand/logos/odatano-logo-on-dark.svg?url';
 <script is:inline>
   (function () {
     // Day / Night flip: same mechanism and storage key as the console
-    // (api.odatano.dev/console.js). Flip data-theme, write the key, nothing else.
+    // (api.preprod.odatano.dev/console.js). Flip data-theme, write the key, nothing else.
     document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var next = document.documentElement.dataset.theme === 'night' ? 'day' : 'night';

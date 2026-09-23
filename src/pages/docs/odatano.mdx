@@ -1,0 +1,199 @@
+---
+layout: ../../layouts/DocLayout.astro
+title: ODATANO · Cardano
+description: OData V4 for Cardano with @odatano/core. Six services, Build → Sign → Submit, Plutus V3, crawler, wallet worker and agent grants. Hosted or self-hosted.
+---
+
+# ODATANO on Cardano
+
+`@odatano/core` is the OData V4 API for the **Cardano** blockchain. Blocks, transactions, addresses, UTxOs, pools and DReps are OData entities. ADA, multi-asset, mint and Plutus V3 transactions are OData actions that return unsigned CBOR. A wallet, a CLI key or an HSM signs, the service submits. Fiori, Excel, Power BI, any OData client and AI agents call the same routes.
+
+It runs hosted at [api.preprod.odatano.dev](https://api.preprod.odatano.dev/), standalone from the repo or Docker image, or as a plugin in your SAP CAP app. Needs Node.js 22.5 or newer and `@sap/cds` 10.
+
+## Services
+
+| Service | Path | What |
+|---------|------|------|
+| `CardanoODataService` | `/odata/v4/cardano-odata/` | Read: 22 entities, 19 actions. Lazy indexing with TTL refresh |
+| `CardanoTransactionService` | `/odata/v4/cardano-transaction/` | Build and submit: 6 build actions, submit, status, utilities |
+| `CardanoSignService` | `/odata/v4/cardano-sign/` | Signing requests, signature verification, HSM signing |
+| `CardanoIndexerService` | `/odata/v4/cardano-indexer/` | Chain crawler: sync state, reorg log, pause and resume. Off by default |
+| `CardanoWorkerService` | `/odata/v4/cardano-worker/` | Server-side wallet jobs: build, sign, submit, confirm. Off by default |
+| `CardanoAgentService` | `/odata/v4/cardano-agent/` | Scoped, budgeted bearer tokens for agents. Off by default |
+
+Every entity set takes `$filter`, `$select`, `$expand`, `$orderby`, `$top`, `$skip` and `$count`. Actions are `POST` with a JSON body. `$metadata` carries the full schema. All services require an authenticated user; `getLiveness` and `VerifyDataSignature` are public.
+
+## Read
+
+| Topic | Entity | Actions |
+|-------|--------|---------|
+| Network | `NetworkInformation` | `GetNetworkInformation` |
+| Blocks, epochs | `Blocks`, `Epochs` | `GetBlockByHash`, `GetLatestBlock`, `GetEpochByNumber`, `GetLatestEpoch` |
+| Transactions | `Transactions`, inputs, outputs, `TransactionMetadata` | `GetTransactionByHash`, `GetMetadataByTxHash`, `ParseTransactionCbor` |
+| Addresses | `Addresses`, `AddressUTxOs`, `AddressAssets`, `AddressTransactions` | `GetAddressByBech32`, `GetUTxOsByAddress`, `GetUTxOsByCredential`, `GetAssetsByAddress`, `GetLatestTransactionsByAddress` |
+| Assets | `Assets`, `AssetHistory` | `GetAssetInfo`, `GetAssetHistory` |
+| Staking, governance | `Pools`, `Accounts`, `Dreps`, epoch snapshots | `GetPoolById`, `GetAccountByStakeAddress`, `GetDrepById` |
+| Protocol | `LedgerProtocolParameters` | `GetLedgerProtocolParameters` |
+
+Actions fetch from the chain on a cache miss and store the row. Entity sets read the cache, so a `$filter` over `Transactions` covers what was fetched before, or everything the crawler pre-synced.
+
+```http
+GET  /odata/v4/cardano-odata/Blocks?$orderby=height desc&$top=1
+GET  /odata/v4/cardano-odata/Transactions?$filter=slot gt 12345678&$top=10
+GET  /odata/v4/cardano-odata/Transactions('<hash>')?$expand=inputs,outputs
+POST /odata/v4/cardano-odata/GetUTxOsByAddress   {"address": "addr_test1..."}
+```
+
+## Transactions: Build, Sign, Submit
+
+The server never holds a private key. A build returns `unsignedTxCbor`, `txBodyHash`, `fee` and a `buildId`. The client signs. The server verifies the witnesses and submits.
+
+<img class="only-day" src="/assets/docs/build-sign-submit.svg" alt="Build, Sign, Submit" />
+<img class="only-night" src="/assets/docs/build-sign-submit-dark.svg" alt="Build, Sign, Submit" />
+
+### Build
+
+| Action | What it builds |
+|--------|----------------|
+| `BuildSimpleAdaTransaction` | ADA transfer. Optional assets, inline datum, lock at a script address, CIP-33 reference script |
+| `BuildTransactionWithMetadata` | Transfer with transaction metadata, e.g. CIP-20 or a label-1447 anchor |
+| `BuildMultiAssetTransaction` | Native assets plus ADA to one recipient |
+| `BuildMintTransaction` | Mint or burn under a Plutus V3 policy. Required signers, reference inputs, metadata |
+| `BuildPlutusSpendTransaction` | Spend a script UTxO: validator, redeemer, continuing datum, extra outputs, combined mint |
+| `SetCollateral` | Makes sure an ADA-only collateral UTxO exists |
+
+Every build takes `senderAddress`, `recipientAddress` and `lovelaceAmount`, plus the fields of its kind. Full parameter tables: [Transaction Workflow on GitHub](https://github.com/ODATANO/ODATANO/blob/main/docs/guides/TRANSACTION_WORKFLOW.md).
+
+```bash
+curl -X POST http://localhost:4004/odata/v4/cardano-transaction/BuildSimpleAdaTransaction \
+  -H "Content-Type: application/json" \
+  -d '{"senderAddress":"addr_test1...","recipientAddress":"addr_test1...","lovelaceAmount":10000000}'
+```
+
+### Sign
+
+| Method | `signerType` | Where the key lives |
+|--------|--------------|---------------------|
+| Cardano CLI | `cardano-cli` | a `.skey` file, backend automation |
+| CIP-30 wallet | `browser-wallet` | browser extension: Lace, Eternl, Yoroi |
+| Hardware wallet | `hardware-wallet` | Ledger or Trezor through a wallet adapter |
+| HSM | server side | PKCS#11 device, the key never leaves the chip |
+
+External signing: `Build*` → `CreateSigningRequest` → client signs → `SubmitVerifiedTransaction`. The request moves `pending` → `verified` → `submitted` and expires after 30 minutes. `VerifySignature` checks CBOR, body hash, fee payer and required signers without submitting.
+
+HSM signing: `Build*` → `SignAndSubmitWithHsm`. Needs `hsm.enabled` and a PKCS#11 module; failures at start are non-fatal and the HSM actions answer `ODATANO_HSM_UNAVAILABLE`.
+
+### Submit
+
+| Action | Params |
+|--------|--------|
+| `SubmitTransaction` | `buildId`, `signedTxCbor` |
+| `SubmitSignedTransaction` | `signedTxCbor`, `network` |
+| `CheckSubmissionStatus` | bound on `TransactionSubmissions(id)` |
+
+A duplicate submit answers `ODATANO_TX_ALREADY_SUBMITTED`. `DeriveScriptAddress` and `ExtractPaymentKeyHash` are pure helpers without a network call. `VerifyDataSignature` checks a CIP-30 `signData` signature for wallet login and is public.
+
+## Plutus V3
+
+Buildooor is the sole transaction builder and computes the script data hash for mint and spend by construction. Plutus V1 and V2 scripts are rejected at build time.
+
+| Flow | Actions |
+|------|---------|
+| Lock | `BuildSimpleAdaTransaction` with `lockOnScript: true` and `outputDatumJson` |
+| Spend | `SetCollateral`, then `BuildPlutusSpendTransaction` with `validatorScript`, `redeemerJson`, `scriptTxHash`, `scriptOutputIndex` |
+| Mint | `BuildMintTransaction` with `mintingPolicyScript` and `mintActionsJson`; negative quantities burn |
+| State machine | spend with `lockOnScript: true` and `inlineDatumJson` re-locks the next state; `extraOutputsJson` adds outputs |
+| Spend and mint | `mintActionsJson` and `mintingPolicyScript` on `BuildPlutusSpendTransaction`, one atomic transaction |
+
+Also supported: parameterised validators (`scriptParamsJson`), required signers (`requiredSignersJson`), CIP-31 reference inputs, CIP-33 reference scripts on every build action, validity windows (`validityStartMs`, `validityEndMs`), forced inputs and the `__INPUT_IDX:<txHash>#<index>__` placeholder inside redeemers and datums. Script hex from Aiken or Plutus is passed as is, CBOR wrapper included.
+
+Worked examples: [TRACE](/docs/trace/) (batch NFTs with a continuing datum) and [QUANTIX](/docs/quantix/) (atomic mint against oracle feeds).
+
+## 2.0 subsystems
+
+Three optional services, each off by default and each with CAP events for in-process consumers.
+
+- **Crawler** (`crawler.enabled`): pre-syncs blocks and transactions from a start slot into the cache, with a sync cursor, reorg log and pause or resume. Chain-sync over Ogmios or pagination over Blockfrost and Koios.
+- **Wallet worker** (`walletWorker.enabled`): server-side wallets run build, sign, submit and confirm as one job. `SubmitWalletJob` takes the same payload as the matching build action. Keys never pass through the API.
+- **Agent grants** (`agentGrants.enabled`): an admin issues an `odat_…` token with an action allow list, an optional wallet, a daily budget and an expiry. A request with `x-agent-token` runs as that grant, never as the operator. HSM signing and admin actions are never grantable.
+
+## Run it
+
+### As a CAP plugin
+
+```json
+{
+  "cds": {
+    "requires": {
+      "[development]": { "auth": { "kind": "dummy" } },
+      "db": { "kind": "sqlite", "credentials": { "url": "db.sqlite" } },
+      "odatano-core": {
+        "network": "preview",
+        "backends": ["blockfrost", "koios"]
+      }
+    }
+  }
+}
+```
+
+Then `cds deploy --to sqlite` and `cds watch`. Secrets such as the Blockfrost key belong in `.env`. Upgrading a consumer from 1.x: run `cds deploy` once, 2.0 adds six tables.
+
+### Standalone
+
+```bash
+git clone https://github.com/ODATANO/ODATANO && cd ODATANO
+npm ci
+cp .env.example .env       # NETWORK, BACKENDS, BLOCKFROST_API_KEY
+cds deploy --to sqlite
+cds serve
+```
+
+`docker compose up -d` brings up a local cardano-node, Ogmios and ODATANO on preview. The release workflow publishes `ghcr.io/odatano/odatano`; the image runs with HTTP basic auth (`ODATANO_HTTP_PASSWORD`) and SQLite or PostgreSQL (`ODATANO_DB_URL`).
+
+### Configuration
+
+Plugin keys sit under `cds.requires.odatano-core`. Standalone reads environment variables. A plugin key wins over the variable.
+
+| Key | Env | Default | Meaning |
+|-----|-----|---------|---------|
+| `network` | `NETWORK` | `preview` | `mainnet`, `preview` or `preprod` |
+| `backends` | `BACKENDS` | `["koios"]` | priority order; first is live, the rest historical fallback |
+| `blockfrostApiKey` | `BLOCKFROST_API_KEY` | | required with `blockfrost` unless a custom backend is set |
+| `blockfrostCustomBackend` | `BLOCKFROST_CUSTOM_BACKEND` | | self-hosted Blockfrost-compatible node, e.g. Dolos MiniBF |
+| `koiosApiKey` | `KOIOS_API_KEY` | | optional Koios bearer |
+| `ogmiosUrl` | `OGMIOS_URL` | `ws://localhost:1337` | required with `ogmios` |
+| `primaryTimeoutMs`, `fallbackTimeoutMs` | `PRIMARY_TIMEOUT_MS`, `FALLBACK_TIMEOUT_MS` | 30000, 60000 | per backend |
+| `indexTtlMs` | `INDEX_TTL_MS` | 3600000 | cache TTL for addresses and accounts |
+| `hsm.*`, `crawler.*`, `walletWorker.*`, `agentGrants.*` | `HSM_*`, `CRAWLER_*`, `WALLET_WORKER_*`, `AGENT_GRANTS_*` | off | the optional subsystems |
+
+Backends: Ogmios answers live queries and submits, Blockfrost and Koios serve history. A circuit breaker moves a failing backend out of rotation and retries after a cooldown. Production runs `NODE_ENV=production` with HANA and XSUAA; the full key list and the deployment guides are on GitHub.
+
+## Errors
+
+Every error is `{ code, message, target? }`. Branch on `code`, not on the HTTP status.
+
+| Code | HTTP | Meaning |
+|------|------|---------|
+| `ODATANO_INVALID_INPUT` | 400 | bad address or hash, missing field, JSON over limit |
+| `ODATANO_NOT_FOUND` | 404 | not on chain |
+| `ODATANO_INSUFFICIENT_FUNDS` | 400 | the sender cannot cover the build |
+| `ODATANO_TX_VALIDATION_FAILED` | 400 | witness, signature or CBOR invalid |
+| `ODATANO_SCRIPT_VALIDATION_FAILED` | 400 | Plutus script failed |
+| `ODATANO_TX_ALREADY_SUBMITTED` | 409 | in the mempool or on chain |
+| `ODATANO_PROVIDER_RATE_LIMITED` | 429 | Blockfrost or Koios limit |
+| `ODATANO_PROVIDER_UNAVAILABLE` | 503 | backend timeout or 5xx |
+| `ODATANO_HSM_UNAVAILABLE` | 503 | HSM device or session missing |
+
+## On GitHub
+
+The repo holds the detail this page leaves out. [github.com/ODATANO/ODATANO](https://github.com/ODATANO/ODATANO)
+
+- [User Guide](https://github.com/ODATANO/ODATANO/blob/main/docs/guides/USER_GUIDE.md): entities, query patterns, examples
+- [Transaction Workflow](https://github.com/ODATANO/ODATANO/blob/main/docs/guides/TRANSACTION_WORKFLOW.md): every build parameter, signing methods
+- [Developer Guide](https://github.com/ODATANO/ODATANO/blob/main/docs/guides/DEVELOPER_GUIDE.md): architecture, plugin internals, public API, tests
+- [Security Guide](https://github.com/ODATANO/ODATANO/blob/main/docs/guides/SECURITY_GUIDE.md): XSUAA, scopes, HSM, audit trail
+- [Backend Configuration](https://github.com/ODATANO/ODATANO/blob/main/docs/guides/BACKEND_CONFIGURATION.md): routing, recommended setups, self-hosted Blockfrost
+- [Docker Deployment](https://github.com/ODATANO/ODATANO/blob/main/docs/guides/DOCKER_DEPLOYMENT.md) and [Production Deployment](https://github.com/ODATANO/ODATANO/blob/main/docs/guides/PRODUCTION_DEPLOYMENT.md): compose stack, SAP BTP, HANA
+- [Error Handling](https://github.com/ODATANO/ODATANO/blob/main/docs/concepts%20%26%20architecture/ERROR_HANDLING.md): class hierarchy and normalisation
+- [SAP Integration Examples](https://github.com/ODATANO/ODATANO/blob/main/docs/guides/SAP_INTEGRATION_EXAMPLES.md) and [ABAP examples](https://github.com/ODATANO/ODATANO/tree/main/docs/abap%20examples)
+- [Changelog](https://github.com/ODATANO/ODATANO/blob/main/CHANGELOG.md) · [npm: @odatano/core](https://www.npmjs.com/package/@odatano/core)
