@@ -3,11 +3,7 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 
-/**
- * Wrap every markdown table in <div class="table-wrap"> so the docs can
- * scroll a wide table sideways while it stays a real table (columns line up
- * in every viewport width). Styled in src/styles/global.css.
- */
+/** Wraps every markdown table in <div class="table-wrap"> so wide tables scroll sideways. */
 function rehypeTableWrap() {
 	return (tree) => {
 		const visit = (node) => {
@@ -26,9 +22,7 @@ function rehypeTableWrap() {
 
 export default defineConfig({
 	site: 'https://odatano.dev',
-	// Old docs URLs. The docs were regrouped in September 2026 (one guide per
-	// product, operations and internals live on GitHub); these keep the old
-	// links alive as static redirect pages.
+	// Old docs URLs, kept alive as static redirect pages.
 	redirects: {
 		'/docs/quick-start': '/docs/get-started/',
 		'/docs/configuration': '/docs/odatano/',

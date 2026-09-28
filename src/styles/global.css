@@ -13,9 +13,7 @@
   --color-bg-alt:      var(--odt-day-bg-alt);
   --color-surface:     var(--odt-day-surface);
   --color-border:      var(--odt-day-border);
-  /* Darker than the kit's day ink pair (#1a1a2e / #5a6480): on this much
-     white the muted tone read as washed out. Local to the site — the kit
-     tokens and the console are untouched. */
+  /* Darker than the kit's day ink pair (#1a1a2e / #5a6480); site only. */
   --color-text:        #15172c;
   --color-text-muted:  #434a66;
   --color-code-bg:     #13151b;
@@ -84,12 +82,8 @@
 }
 
 /* ── Night theme ────────────────────────────────────────────── */
-/* Same flip as the ODATANO Console: `data-theme="night"` on <html>, set by
-   the header button and read from localStorage['odatano.theme'] before
-   paint. Only the light surfaces flip — the aliases re-map to the kit's
-   graphite palette. Sections that are dark anyway (.section--dark,
-   .section--night, the code windows, closing CTA, footer) keep their
-   colours in both themes. */
+/* `data-theme="night"` on <html> (same key as the console). Only light surfaces
+   flip; sections that are dark anyway keep their colours. */
 [data-theme="night"] {
   --color-dark-blue:   var(--odt-night-ink);
   --color-bright-blue: var(--odt-night-accent);
@@ -691,10 +685,7 @@ a:hover { text-decoration: underline; }
   transform: translateY(-3px);
   border-color: rgba(12, 94, 207, 0.3);
 }
-/* The lanes wear each other's colour on purpose: ODATANO graphite/indigo,
-   NIGHTGATE navy/blue, and the chain boxes and arrows follow suit.
-   `--plugin` is the shared base, so it carries the ODATANO surface and
-   `--plugin-night` overrides it for the NIGHTGATE box. */
+/* `--plugin` carries the ODATANO surface, `--plugin-night` the NIGHTGATE one. */
 .arch__col--plugin {
   background: var(--color-night-800);
   background-image:
@@ -732,8 +723,7 @@ a:hover { text-decoration: underline; }
   line-height: 1;
 }
 
-/* Two per row rather than one tall column — six service names stacked
-   made the plugin boxes twice as tall as the chain boxes. */
+/* Two per row, so the plugin boxes stay as tall as the chain boxes. */
 .arch__col-chips {
   display: flex;
   flex-wrap: wrap;
@@ -741,10 +731,7 @@ a:hover { text-decoration: underline; }
   justify-content: center;
   gap: 0.4rem 0.45rem;
 }
-/* The service chips of the two plugin boxes sit in a real grid, so their
-   left edges line up instead of every wrapped row being centred on its
-   own width. Narrow columns fall back to one chip per row; a lone last
-   chip is centred under both. */
+/* Chips in a grid so left edges line up; a lone last chip is centred. */
 .arch__col--plugin .arch__col-chips {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -1399,11 +1386,8 @@ a:hover { text-decoration: underline; }
 .docs-content th code {
   white-space: nowrap;
 }
-/* Every docs table sits in a .table-wrap (rehype plugin in astro.config.mjs):
-   the table stays a real table, so columns line up in every width, and the
-   wrapper scrolls sideways when the table is wider than the content column.
-   (The old fallback turned each row into its own table below 900px, which
-   put every row's column edge somewhere else.) */
+/* Every docs table sits in a .table-wrap (rehype plugin in astro.config.mjs)
+   that scrolls sideways when the table is wider than the column. */
 .docs-content .table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -1482,9 +1466,7 @@ a:hover { text-decoration: underline; }
   .site-header__toggle { display: flex; }
   .site-header__mobile-actions { display: flex; }
   .site-header__nav--desktop { display: none; }
-  /* Logo + theme button + burger must fit 390px: the logo file is ~4:1,
-     so 56px tall is ~220px wide; 80px was 317px and pushed the burger
-     past the right edge. */
+  /* Logo + theme button + burger must fit 390px (logo is ~4:1). */
   .site-header__logo img { height: 48px; }
 }
 @media (max-width: 760px) {
@@ -1581,8 +1563,7 @@ a:hover { text-decoration: underline; }
 }
 
 /* ============================================================
-   Modern polish — scroll reveal, spotlight, aurora, micro-fx
-   (progressive enhancement; degrades cleanly without JS / motion)
+   Stat numbers
    ============================================================ */
 
 /* ── Gradient stat numbers ──────────────────────────────────── */
@@ -1595,11 +1576,10 @@ a:hover { text-decoration: underline; }
 }
 
 /* ============================================================
-   Day → Night redesign — sky narrative, duality, night surfaces
-   (progressive enhancement; degrades cleanly without JS / motion)
+   Night sections, duality, cards, architecture
    ============================================================ */
 
-/* ── Night section (peer of .section--dark, violet flavored) ── */
+/* ── Night section (peer of .section--dark) ─────────────────── */
 .section--night {
   background: var(--color-night-900);
   background-image:
@@ -1713,9 +1693,7 @@ a:hover { text-decoration: underline; }
   color: var(--color-bright-blue);
 }
 .duality__panel--night .duality__eyebrow { color: var(--color-violet-light); }
-/* Chain logo with the product wordmark under it, like the console's product
-   tiles. Boxes differ, cap heights match: the CORE / NIGHTGATE files carry
-   more air around the glyphs than the Cardano / Midnight files. */
+/* Chain logo with the product wordmark under it; sizes set so cap heights match. */
 .duality__logos {
   display: flex;
   align-items: center;
@@ -1806,10 +1784,7 @@ a:hover { text-decoration: underline; }
 }
 .arch__col--plugin-night:hover { border-color: var(--color-bright-blue); }
 .arch__col--plugin-night .arch__col-eyebrow { color: rgba(255,255,255,0.55); }
-/* Each family carries its own tint so the six boxes read as three
-   lanes at a glance: neutral app, blue ODATANO/Cardano, indigo
-   NIGHTGATE/Midnight. Both tints are the palette's own accents
-   (--odt-day-blue / --odt-night-accent-2), only washed down. */
+/* Three lanes by tint: neutral app, blue ODATANO/Cardano, indigo NIGHTGATE/Midnight. */
 .arch__col--app {
   background:
     radial-gradient(420px 220px at 20% 0%, rgba(90, 100, 128, 0.16), transparent 65%),
@@ -1933,8 +1908,7 @@ a:hover { text-decoration: underline; }
 }
 .ecosystem__grid .project-card .example-card__bullets li { font-size: 0.875rem; }
 
-/* Title row: the product wordmark from the kit (light / dark pair, swapped
-   by theme; the always-dark NIGHTPASS card uses the dark file in both). */
+/* Title row: product wordmark, light / dark pair swapped by theme. */
 .project-card__title {
   display: flex;
   align-items: center;
@@ -1951,9 +1925,7 @@ a:hover { text-decoration: underline; }
   max-width: 100%;
 }
 
-/* Head row: tag on the left, the chain's own symbol on the right (Cardano
-   starburst or Midnight symbol, 20px). No "Cardano" / "Midnight" word next
-   to a logo that already says it; the alt text carries it. */
+/* Head row: tag left, chain symbol right (alt text names the chain). */
 .project-card__head {
   display: flex;
   align-items: flex-start;
@@ -2030,10 +2002,7 @@ a:hover { text-decoration: underline; }
   border-color: rgba(255,255,255,0.14);
 }
 
-/* ── AI Agents — NIGHTGATE-MCP (text + .mcp.json code box) ────
-   Sits in the dusk zone of the scroll-driven sky, so it carries its own
-   night panel (same treatment as the duality night panel) instead of
-   relying on the section backdrop for contrast. */
+/* ── AI Agents — the two MCP servers (text + .mcp.json code box) ── */
 .agents { padding-top: 0; }
 /* No capsule: the AI Agents section sits on the ground like the rest. */
 .agents__panel {
@@ -2198,10 +2167,7 @@ a:hover { text-decoration: underline; }
   background: linear-gradient(135deg, rgba(59, 142, 240, 0.5), transparent 45%, rgba(27, 58, 150, 0.45));
 }
 .agents__code pre { font-size: 0.82rem; }
-/* ── API — the hosted console in short (api.preprod.odatano.dev) ─────
-   Mirrors the console's start page: two product tiles in its fact-list
-   style, the hero request example, the four lanes to a key. Sits in the
-   night zone of the scroll, so it is a .section--night like Ecosystem. */
+/* ── API — the hosted console in short: product tiles, request, lanes to a key ── */
 /* Sits right under the stats bar; the Duality section brings its own top
    padding, so the API section ends flush. */
 .api { padding-top: 0; padding-bottom: 0; }
@@ -2345,9 +2311,7 @@ a:hover { text-decoration: underline; }
 }
 /* The form is shorter than the install column next to it; both end on the
    same line so the section closes flush. */
-/* The form column stretches to the install column's height and the
-   message field takes the slack, so "Send message" ends level with
-   "Read the Docs" on the left. */
+/* Form column stretches to the install column; the message field takes the slack. */
 .closing-cta__grid .contact {
   align-self: stretch;
   display: flex;
@@ -2513,8 +2477,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   .ecosystem__grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 1120px) {
-  /* Five items no longer fit on one line — wrap to a deliberate 3 + 2 instead
-     of the 4 + 1 that plain flex-wrap produces. */
+  /* Deliberate 3 + 2 wrap instead of flex-wrap's 4 + 1. */
   .stats-bar__list { row-gap: 1.25rem; }
   .stats-bar__item { flex: 0 0 33.333%; padding: 0 1rem; }
   .stats-bar__item:nth-child(3n) { border-right: none; }
@@ -2588,13 +2551,9 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
 }
 
 /* ============================================================
-   Night — aligned with the ODATANO Console (api.preprod.odatano.dev)
-   ============================================================
-   The console is one flat graphite ground (--bg) with a single soft
-   glow, panels on --surface behind --border hairlines and exactly one
-   accent (#7aa2ff). This block applies that to every section here:
-   no per-section navy or dusk grounds, no radial tints inside cards,
-   no gradient text, no coloured shadows. Day mode is untouched. */
+   Night — aligned with the ODATANO Console: one graphite ground,
+   panels on --surface, one accent. Day mode is untouched.
+   ============================================================ */
 
 /* Night ground: one clean gradient from top to bottom, no glow.
    A touch lighter at the top, the kit's graphite in the middle,
@@ -2631,8 +2590,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
 [data-theme="night"] .closing-cta__sub { color: var(--color-text-muted); }
 
 /* ── Hero ──────────────────────────────────────────────────── */
-/* Solid accents instead of clipped gradients: on graphite the night
-   gradient faded the second word out into the background. */
+/* Solid accents instead of clipped gradients, which fade out on graphite. */
 [data-theme="night"] .hero__headline-accent {
   background: none;
   -webkit-text-fill-color: var(--odt-night-accent);
@@ -2748,12 +2706,8 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   color: var(--color-text);
 }
 
-/* The architecture boxes are flattened to one surface above; give the two
-   product lanes their accent wash back so the diagram stays readable as
-   app -> plugin -> chain at night too. Same two accents as by day. */
-/* The two accents are both blue, so hue alone cannot carry the split:
-   the ODATANO lane is a light, frosted blue wash, the NIGHTGATE lane a
-   deep indigo panel. Value does the work, the accents only tint. */
+/* Architecture lanes get their accent wash back at night. */
+/* Both accents are blue, so value carries the split: frosted ODATANO, deep indigo NIGHTGATE. */
 [data-theme="night"] .arch__col--plugin {
   background:
     radial-gradient(360px 200px at 50% 0%, rgba(27, 58, 150, 0.3), transparent 62%),
@@ -2861,13 +2815,8 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
 }
 
 /* ============================================================
-   Day theme — the night zone turns light
-   The lower half of the page (Ecosystem, AI Agents, the closing CTA
-   and the footer) and every "--night" card were dark in both themes,
-   which read as a half-finished page in Day. Here they take the day
-   ground and ink; the Midnight track keeps its identity through the
-   indigo tint instead of through darkness. The code windows stay dark
-   in both themes — a terminal is a terminal.
+   Day theme — the lower sections and "--night" cards on day ground;
+   the Midnight track keeps an indigo tint, code windows stay dark.
    ============================================================ */
 :root:not([data-theme="night"]) {
   /* ── Sections ──────────────────────────────────────────────── */
@@ -3055,12 +3004,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
     border-top-color: var(--color-border);
   }
 
-  /* ── Code windows ─────────────────────────────────────────────
-     A light terminal in Day: paper ground, ink text, the palette's
-     own blue for keys and prompts. Strings and values take the
-     status amber / green darkened until they hold up on paper —
-     the kit's #fab219 and #0ca30c are tuned for dark surfaces, and a
-     saturated amber shouts on paper. */
+  /* ── Code windows: light terminal in Day, amber / green darkened for paper ── */
   --color-code-bg: #e9e9ec;
   --astro-code-foreground:              #1a1a2e;
   --astro-code-background:              #e9e9ec;
@@ -3173,10 +3117,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   );
 }
 
-/* ── Softer day surfaces ───────────────────────────────────────
-   The kit's pure white and cool near-white read harsh on large
-   surfaces. Every day surface sits a step greyer; night is untouched.
-   Overrides the kit tokens for this site only. */
+/* ── Softer day surfaces: every day surface a step greyer than the kit ── */
 :root:not([data-theme="night"]) {
   --odt-day-bg:      #f1f1f3;
   --odt-day-bg-alt:  #ebebee;
@@ -3184,10 +3125,7 @@ a.closing-cta__cmd--api:hover { border-color: var(--color-light-blue); backgroun
   --odt-day-border:  #d9dadf;
 }
 
-/* ── Day ground: one gradient from top to bottom ───────────────
-   Light at the top, a step greyer at the bottom, fixed so it does
-   not restart per section. Hero blobs, grid and alt-section tints
-   are off so the ground shows through, like at night. */
+/* ── Day ground: one fixed gradient; hero blobs, grid and alt tints off ── */
 :root:not([data-theme="night"]) body {
   background: linear-gradient(180deg, #f5f5f7 0%, #eeeef1 55%, #e8e8eb 100%);
   background-attachment: fixed;

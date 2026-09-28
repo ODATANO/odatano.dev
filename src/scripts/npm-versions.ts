@@ -1,12 +1,5 @@
-/**
- * Live npm version badges.
- *
- * Every element carrying `data-npm-pkg="<package>"` gets its text replaced
- * with the package's current `latest` version from the npm registry
- * (registry.npmjs.org sends `Access-Control-Allow-Origin: *`, so this works
- * from the browser). The server-rendered version stays as the fallback —
- * no JS, a network error, or a slow registry all leave the page as built.
- */
+/** Replaces the text of every `[data-npm-pkg]` with the package's `latest`
+ *  version from the npm registry; the built version stays on any failure. */
 const els = document.querySelectorAll<HTMLElement>("[data-npm-pkg]");
 
 const packages = new Set<string>();

@@ -1,10 +1,5 @@
-/**
- * Contact form submit handler (Web3Forms).
- *
- * Progressive enhancement: the form works without JS (a normal POST lands on
- * the Web3Forms success page). With JS we intercept, POST via fetch, and show
- * an inline status so the visitor stays on the page.
- */
+/** Contact form: posts to Web3Forms via fetch and shows the status inline;
+ *  without JS the form does a normal POST. */
 const form = document.getElementById("contactForm") as HTMLFormElement | null;
 
 if (form) {

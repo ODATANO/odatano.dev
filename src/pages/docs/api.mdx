@@ -1,12 +1,12 @@
 ---
 layout: ../../layouts/DocLayout.astro
 title: Hosted API
-description: ODATANO, NIGHTGATE and ASTRA at api.preprod.odatano.dev behind one key. Routes, how to get a key, units, what the gateway keeps closed.
+description: ODATANO, NIGHTGATE and ASTRA at api.odatano.dev behind one key. Routes, how to get a key, units, what the gateway keeps closed.
 ---
 
 # Hosted API
 
-One key for both chains. [api.preprod.odatano.dev](https://api.preprod.odatano.dev/) runs ODATANO on Cardano preprod, NIGHTGATE on Midnight preprod and ASTRA over both, behind the ODATANO ACCESS gateway. The gateway holds the agent grants underneath, meters every call in units and keeps the ledger. No node, no plugin, nothing to install.
+One key for both chains. The hosted API at [api.odatano.dev](https://api.odatano.dev/) runs ODATANO on Cardano preprod, NIGHTGATE on Midnight preprod and ASTRA over both, behind the ODATANO ACCESS gateway. Calls go to the network's host, `api.preprod.odatano.dev`. The gateway holds the agent grants underneath, meters every call in units and keeps the ledger. No node, no plugin, nothing to install.
 
 The routes are the ones a self-hosted instance serves. What you build against the hosted API runs unchanged against your own ODATANO or NIGHTGATE later.
 
@@ -26,7 +26,7 @@ The NIGHTGATE paths are aliases of the plugin's `/api/v1/nightgate`, `/api/v1/in
 
 ## Get a key
 
-Three lanes on the [API page](https://api.preprod.odatano.dev/):
+Three lanes on the [API page](https://api.odatano.dev/):
 
 1. **Cardano wallet.** Sign a one-time message with a CIP-30 wallet, no transaction. The first key comes with free calls.
 2. **Redeem a code.** A voucher from an event, exchanged on the [redeem page](https://api.preprod.odatano.dev/redeem) for a key. With a key presented, the code tops that key up.
@@ -80,5 +80,5 @@ Point your client, or the MCP servers via `ODATANO_ACCESS_URL`, at your own ODAT
 - [Get Started:](/docs/get-started/) First calls on both chains
 - [MCP servers:](/docs/mcp/) The same key for AI agents
 - [ASTRA:](/docs/astra/) The analytics route in detail
-- [API page:](https://api.preprod.odatano.dev/) Get a key, ledger, reference
+- [API page:](https://api.odatano.dev/) Get a key, ledger, reference
 - [GitHub: ACCESS](https://github.com/ODATANO/ACCESS): The gateway's source

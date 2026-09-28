@@ -23,14 +23,8 @@ import midnightSymbol from "../assets/logos/midnight-symbol-dark.svg?url";
 import midnightSymbolWhite from "../assets/logos/midnight-symbol-white.svg?url";
 
 /**
- * Ecosystem project card. Generalizes the former `.example-card` markup —
- * the `example-card` class is kept so existing card styles and the cursor
- * spotlight keep working; `.project-card` adds the compact/night variants.
- *
- * Logos: the product wordmark from @odatano/brand as a light / dark pair,
- * swapped with `.only-day` / `.only-night`; the chain badge is the official
- * Cardano starburst or the Midnight symbol. `night` cards follow the theme
- * like every other card, so they use the same pair.
+ * Ecosystem project card (`.example-card` base styles, `.project-card` variants).
+ * Logos: product wordmark as a light / dark pair swapped by theme, plus the chain badge.
  */
 interface Props {
   name: string;

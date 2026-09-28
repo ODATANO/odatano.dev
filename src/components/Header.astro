@@ -57,7 +57,7 @@ import logoDarkUrl from '@odatano/brand/logos/odatano-logo-on-dark.svg?url';
 <script is:inline>
   (function () {
     // Day / Night flip: same mechanism and storage key as the console
-    // (api.preprod.odatano.dev/console.js). Flip data-theme, write the key, nothing else.
+    // (api.odatano.dev/console.js). Flip data-theme, write the key, nothing else.
     document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var next = document.documentElement.dataset.theme === 'night' ? 'day' : 'night';
