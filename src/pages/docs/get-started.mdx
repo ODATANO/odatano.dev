@@ -42,7 +42,7 @@ curl -X POST https://api.preprod.odatano.dev/odata/v4/cardano-transaction/BuildS
 Midnight and analytics, same key:
 
 ```bash
-curl "https://api.preprod.odatano.dev/odata/v4/nightgate/Blocks?\$top=1" \
+curl "https://api.preprod.odatano.dev/odata/v4/nightgate/Blocks/latest()" \
   -H "Authorization: Bearer oda_..."
 
 curl https://api.preprod.odatano.dev/odata/v4/astra/ChainOverview \

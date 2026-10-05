@@ -39,7 +39,7 @@ The API page shows a key once, together with a ready `.mcp.json`. Rotation gives
 The key goes as `Authorization: Bearer oda_…` or as `x-agent-token: oda_…`. Both MCP servers take it unchanged.
 
 ```bash
-curl "https://api.preprod.odatano.dev/odata/v4/cardano-odata/Blocks?\$orderby=height desc&\$top=1" \
+curl "https://api.preprod.odatano.dev/odata/v4/cardano-odata/Transactions('cf8e5cc9a3c28e7fa745b0526176bbef13f102df57ef70c79d5db8c07810a0b9')?\$expand=inputs,outputs" \
   -H "Authorization: Bearer oda_..."
 
 curl https://api.preprod.odatano.dev/me \

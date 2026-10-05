@@ -2,6 +2,26 @@
 import Layout from "../layouts/Layout.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 
+/* Package versions in the stats bar: the npm `latest` at build time, so the
+   page is current even before src/scripts/npm-versions.ts refreshes it in the
+   browser. The second argument is used when npm cannot be reached. */
+async function npmLatest(pkg: string, fallback: string): Promise<string> {
+  try {
+    const res = await fetch(`https://registry.npmjs.org/${encodeURIComponent(pkg)}/latest`, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return fallback;
+    const { version } = (await res.json()) as { version?: string };
+    return version ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+const [coreVersion, coreMcpVersion, nightgateVersion, nightgateMcpVersion] = await Promise.all([
+  npmLatest("@odatano/core", "2.0.0-rc.28"),
+  npmLatest("@odatano/core-mcp", "0.4.0"),
+  npmLatest("@odatano/nightgate", "0.30.4"),
+  npmLatest("@odatano/nightgate-mcp", "0.10.1"),
+]);
+
 /* Chain logos (official Cardano and Midnight files, not in @odatano/brand)
    and the two product wordmarks. Each comes as a light / dark pair, swapped
    with `.only-day` / `.only-night`; surfaces that are dark in both themes
@@ -17,7 +37,7 @@ import nightgateLogoDark from "@odatano/brand/logos/nightgate-logo.svg?url";
 import astraLogo from "@odatano/brand/logos/astra-logo.svg?url";
 import astraLogoDark from "@odatano/brand/logos/astra-logo-on-dark.svg?url";
 
-const heroCode = `<span class="code-line code-comment"># 1 read the chain</span><span class="code-line"><span class="code-cmd">GET</span> api.preprod.odatano.dev/odata/v4/cardano-odata/Blocks</span><span class="code-line">    ?<span class="code-key">$orderby</span>=<span class="code-str">height desc</span>&amp;<span class="code-key">$top</span>=<span class="code-str">1</span></span><span class="code-line code-comment"># 200 { "value": [{ "height": 4123456, "txCount": 12 }] }</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># 2 build a transaction</span><span class="code-line"><span class="code-cmd">POST</span> …/cardano-transaction/BuildSimpleAdaTransaction</span><span class="code-line">  { <span class="code-key">&quot;senderAddress&quot;</span>: <span class="code-str">&quot;addr_test1…&quot;</span>,</span><span class="code-line">    <span class="code-key">&quot;recipientAddress&quot;</span>: <span class="code-str">&quot;addr_test1…&quot;</span>,</span><span class="code-line">    <span class="code-key">&quot;lovelaceAmount&quot;</span>: <span class="code-val">10000000</span> }</span><span class="code-line code-comment"># 200 { "unsignedTxCbor": "84a4…", "fee": 171001 }</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># 3 same routes on Midnight, hosted or self-hosted</span><span class="code-line"><span class="code-cmd code-cmd--night">GET</span> …/odata/v4/nightgate/Blocks?$top=1</span>`;
+const heroCode = `<span class="code-line code-comment"># 1 read the chain</span><span class="code-line"><span class="code-cmd">GET</span> …/cardano-odata/Transactions(<span class="code-str">'cf8e5cc9…'</span>)</span><span class="code-line">    ?<span class="code-key">$expand</span>=<span class="code-str">inputs,outputs</span></span><span class="code-line code-comment"># 200 { "fee": "166293", "inputs": […], "outputs": […] }</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># 2 build a transaction</span><span class="code-line"><span class="code-cmd">POST</span> …/cardano-transaction/BuildSimpleAdaTransaction</span><span class="code-line">  { <span class="code-key">&quot;senderAddress&quot;</span>: <span class="code-str">&quot;addr_test1…&quot;</span>,</span><span class="code-line">    <span class="code-key">&quot;recipientAddress&quot;</span>: <span class="code-str">&quot;addr_test1…&quot;</span>,</span><span class="code-line">    <span class="code-key">&quot;lovelaceAmount&quot;</span>: <span class="code-val">10000000</span> }</span><span class="code-line code-comment"># 200 { "unsignedTxCbor": "84a4…", "fee": 171001 }</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># 3 same routes on Midnight, hosted or self-hosted</span><span class="code-line"><span class="code-cmd code-cmd--night">GET</span> …/odata/v4/nightgate/Blocks/latest()</span>`;
 
 /* `.mcp.json` snippet: both MCP servers on the hosted API with one `oda_…` key. */
 const mcpCode = `<span class="code-line"><span class="code-cmd">npx</span> @odatano/core-mcp</span><span class="code-line"><span class="code-cmd code-cmd--night">npx</span> @odatano/nightgate-mcp</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># .mcp.json - Claude Code / Claude Desktop / Cursor / any MCP client</span><span class="code-line code-comment"># one key from api.odatano.dev, both chains</span><span class="code-line">{ <span class="code-key">"mcpServers"</span>: {</span><span class="code-line">  <span class="code-key">"odatano"</span>: {</span><span class="code-line">    <span class="code-key">"command"</span>: <span class="code-str">"npx"</span>,</span><span class="code-line">    <span class="code-key">"args"</span>: [<span class="code-str">"-y"</span>, <span class="code-str">"@odatano/core-mcp"</span>],</span><span class="code-line">    <span class="code-key">"env"</span>: { <span class="code-key">"ODATANO_ACCESS_KEY"</span>: <span class="code-str">"oda_…"</span> }</span><span class="code-line">  },</span><span class="code-line">  <span class="code-key">"nightgate"</span>: {</span><span class="code-line">    <span class="code-key">"command"</span>: <span class="code-str">"npx"</span>,</span><span class="code-line">    <span class="code-key">"args"</span>: [<span class="code-str">"-y"</span>, <span class="code-str">"@odatano/nightgate-mcp"</span>],</span><span class="code-line">    <span class="code-key">"env"</span>: { <span class="code-key">"ODATANO_ACCESS_KEY"</span>: <span class="code-str">"oda_…"</span> }</span><span class="code-line">  }</span><span class="code-line">}}</span><span class="code-line code-line--gap"></span><span class="code-line code-comment"># self-hosted instead: ODATANO_ACCESS_URL points at your own instance</span>`;
@@ -89,25 +109,25 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
         </li>
         <li class="stats-bar__item">
           <span class="stats-bar__value" data-npm-pkg="@odatano/core"
-            >v2.0.0-rc.14</span
+            >v{coreVersion}</span
           >
           <span class="stats-bar__label">@odatano/core</span>
         </li>
         <li class="stats-bar__item">
           <span class="stats-bar__value" data-npm-pkg="@odatano/core-mcp"
-            >v0.3.0</span
+            >v{coreMcpVersion}</span
           >
           <span class="stats-bar__label">@odatano/core-mcp</span>
         </li>
         <li class="stats-bar__item">
           <span class="stats-bar__value" data-npm-pkg="@odatano/nightgate"
-            >v0.25.0</span
+            >v{nightgateVersion}</span
           >
           <span class="stats-bar__label">@odatano/nightgate</span>
         </li>
         <li class="stats-bar__item">
           <span class="stats-bar__value" data-npm-pkg="@odatano/nightgate-mcp"
-            >v0.7.0</span
+            >v{nightgateMcpVersion}</span
           >
           <span class="stats-bar__label">@odatano/nightgate-mcp</span>
         </li>
@@ -990,7 +1010,7 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
           <article class="agents__server agents__server--day">
             <span class="agents__eyebrow">
               <span class="agents__eyebrow-dot" aria-hidden="true"></span>
-              ODATANO-MCP · <span data-npm-pkg="@odatano/core-mcp">v0.3.0</span> ·
+              ODATANO-MCP · <span data-npm-pkg="@odatano/core-mcp">v{coreMcpVersion}</span> ·
               Cardano
             </span>
             <h3>Read the chain, build unsigned.</h3>
@@ -1062,7 +1082,7 @@ const WEB3FORMS_KEY = "30cbb22d-de33-4a66-999c-4965c7166b7a";
             <span class="agents__eyebrow">
               <span class="agents__eyebrow-dot" aria-hidden="true"></span>
               NIGHTGATE-MCP · <span data-npm-pkg="@odatano/nightgate-mcp"
-                >v0.7.0</span
+                >v{nightgateMcpVersion}</span
               > · Midnight
             </span>
             <h3>Prove it without revealing it.</h3>

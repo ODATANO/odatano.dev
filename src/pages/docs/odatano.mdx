@@ -38,8 +38,8 @@ Every entity set takes `$filter`, `$select`, `$expand`, `$orderby`, `$top`, `$sk
 Actions fetch from the chain on a cache miss and store the row. Entity sets read the cache, so a `$filter` over `Transactions` covers what was fetched before, or everything the crawler pre-synced.
 
 ```http
-GET  /odata/v4/cardano-odata/Blocks?$orderby=height desc&$top=1
-GET  /odata/v4/cardano-odata/Transactions?$filter=slot gt 12345678&$top=10
+GET  /odata/v4/cardano-odata/Blocks('<hash>')
+GET  /odata/v4/cardano-odata/LedgerUTxOs?$filter=address eq 'addr_test1...' and spentTxHash eq null
 GET  /odata/v4/cardano-odata/Transactions('<hash>')?$expand=inputs,outputs
 POST /odata/v4/cardano-odata/GetUTxOsByAddress   {"address": "addr_test1..."}
 ```
