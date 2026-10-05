@@ -1,0 +1,36 @@
+---
+// Event banner above the header. Remove the component from Layout.astro when the event is over.
+const redeemUrl = "https://api.preprod.odatano.dev/redeem";
+---
+
+<a class="announce" href={redeemUrl}>
+  <span class="announce__tag">TOKEN2049</span>
+  <span class="announce__text">Got a code? Redeem it for a free ODATANO API key.</span>
+  <span class="announce__cta">Redeem now &rarr;</span>
+</a>
+
+<style>
+  .announce {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem .9rem;
+    padding: .6rem 16px;
+    background: var(--gradient-brand);
+    color: #fff;
+    font-size: .95rem;
+    text-align: center;
+    text-decoration: none;
+  }
+  .announce:hover .announce__cta { text-decoration: underline; }
+  .announce__tag {
+    padding: .1rem .5rem;
+    border: 1px solid rgba(255, 255, 255, .6);
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+  }
+  .announce__cta { font-weight: 700; white-space: nowrap; }
+</style>
