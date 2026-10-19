@@ -14,15 +14,15 @@ The routes are the ones a self-hosted instance serves. What you build against th
 
 | Product | Route | What |
 |---------|-------|------|
-| ODATANO | `/odata/v4/cardano-odata` | blocks, transactions, addresses, UTxOs, assets, pools, DReps |
+| ODATANO | `/odata/v4/cardano` | blocks, transactions, addresses, UTxOs, assets, pools, DReps |
 | ODATANO | `/odata/v4/cardano-transaction` | unsigned ADA, multi-asset, mint, metadata and Plutus transactions; submit |
 | ODATANO | `/odata/v4/cardano-sign` | signing requests, signature verification |
-| NIGHTGATE | `/odata/v4/nightgate` | blocks, transactions, contract state, jobs; anchor, prove, sponsor |
-| NIGHTGATE | `/odata/v4/nightgate-indexer` | sync state and health |
-| NIGHTGATE | `/odata/v4/nightgate-verify` | attestation and predicate verification, no key needed |
-| ASTRA | `/odata/v4/astra` | analytics: overview, key figures, daily tables, rankings, anomalies |
+| NIGHTGATE | `/odata/v4/midnight` | blocks, transactions, contract state, jobs; anchor, prove, sponsor |
+| NIGHTGATE | `/odata/v4/midnight-indexer` | sync state and health |
+| NIGHTGATE | `/odata/v4/midnight-verify` | attestation and predicate verification, no key needed |
+| ASTRA | `/odata/v4/analytics` | analytics: overview, key figures, daily tables, rankings, anomalies |
 
-The NIGHTGATE paths are aliases of the plugin's `/api/v1/nightgate`, `/api/v1/indexer` and `/api/v1/verify`; the gateway accepts both spellings. Every forwarded call is listed with an example response in the [API reference](https://api.preprod.odatano.dev/reference).
+Older spellings of these routes keep answering for now. Every forwarded call is listed with an example response in the [API reference](https://api.preprod.odatano.dev/reference).
 
 ## Get a key
 
@@ -39,7 +39,7 @@ The API page shows a key once, together with a ready `.mcp.json`. Rotation gives
 The key goes as `Authorization: Bearer oda_…` or as `x-agent-token: oda_…`. Both MCP servers take it unchanged.
 
 ```bash
-curl "https://api.preprod.odatano.dev/odata/v4/cardano-odata/Transactions('cf8e5cc9a3c28e7fa745b0526176bbef13f102df57ef70c79d5db8c07810a0b9')?\$expand=inputs,outputs" \
+curl "https://api.preprod.odatano.dev/odata/v4/cardano/Transactions('cf8e5cc9a3c28e7fa745b0526176bbef13f102df57ef70c79d5db8c07810a0b9')?\$expand=inputs,outputs" \
   -H "Authorization: Bearer oda_..."
 
 curl https://api.preprod.odatano.dev/me \
@@ -69,7 +69,7 @@ A call costs units, not money. Units are reserved before the upstream call and r
 
 ## What stays closed
 
-The key reaches the read and transaction surface of both products. Everything that belongs to the operator of the box answers 403: grant administration, wallet sessions and `sendNight`, contract deployment, dust registration, HSM signing, crawler and worker control, `/api/v1/admin`, `$batch` and ASTRA's internals. The upstream grants refuse them too; the gateway refuses first.
+The key reaches the read and transaction surface of both products. Everything that belongs to the operator of the box answers 403: grant administration, wallet sessions and `sendNight`, contract deployment, dust registration, HSM signing, crawler and worker control, `/odata/v4/midnight-admin`, `$batch` and ASTRA's internals. The upstream grants refuse them too; the gateway refuses first.
 
 ## Self-hosted instead
 

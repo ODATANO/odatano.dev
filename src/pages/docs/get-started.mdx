@@ -30,7 +30,7 @@ Sign in with a Cardano wallet on the [API page](https://api.odatano.dev/). The f
 The key goes as a bearer token. Cardano:
 
 ```bash
-curl https://api.preprod.odatano.dev/odata/v4/cardano-odata/NetworkInformation \
+curl https://api.preprod.odatano.dev/odata/v4/cardano/NetworkInformation \
   -H "Authorization: Bearer oda_..."
 
 curl -X POST https://api.preprod.odatano.dev/odata/v4/cardano-transaction/BuildSimpleAdaTransaction \
@@ -42,10 +42,10 @@ curl -X POST https://api.preprod.odatano.dev/odata/v4/cardano-transaction/BuildS
 Midnight and analytics, same key:
 
 ```bash
-curl "https://api.preprod.odatano.dev/odata/v4/nightgate/Blocks/latest()" \
+curl "https://api.preprod.odatano.dev/odata/v4/midnight/Blocks/latest()" \
   -H "Authorization: Bearer oda_..."
 
-curl https://api.preprod.odatano.dev/odata/v4/astra/ChainOverview \
+curl https://api.preprod.odatano.dev/odata/v4/analytics/ChainOverview \
   -H "Authorization: Bearer oda_..."
 ```
 
@@ -128,7 +128,7 @@ cds watch
 Six services register under `/odata/v4/cardano-*`. First request:
 
 ```bash
-curl http://localhost:4004/odata/v4/cardano-odata/NetworkInformation
+curl http://localhost:4004/odata/v4/cardano/NetworkInformation
 ```
 
 Services, transactions, Plutus and configuration: [ODATANO guide](/docs/odatano/).

@@ -14,13 +14,13 @@ It runs hosted at [api.odatano.dev](https://api.odatano.dev/), standalone from t
 
 | Service | Path | What |
 |---------|------|------|
-| `NightgateService` | `/api/v1/nightgate` | chain data, wallet sessions, token, contract, attestation and agent-grant actions |
-| `NightgateIndexerService` | `/api/v1/indexer` | sync state, health, reorg history, Prometheus metrics, crawler control |
-| `NightgateAnalyticsService` | `/api/v1/analytics` | aggregate counts |
-| `NightgateAdminService` | `/api/v1/admin` | sessions, contract registration, role grants, diagnostics |
-| `NightgateVerifyService` | `/api/v1/verify` | state verification without login, when `NIGHTGATE_PUBLIC_VERIFY=true` |
+| `NightgateService` | `/odata/v4/midnight` | chain data, wallet sessions, token, contract, attestation and agent-grant actions |
+| `NightgateIndexerService` | `/odata/v4/midnight-indexer` | sync state, health, reorg history, Prometheus metrics, crawler control |
+| `NightgateAnalyticsService` | `/odata/v4/midnight-analytics` | aggregate counts |
+| `NightgateAdminService` | `/odata/v4/midnight-admin` | sessions, contract registration, role grants, diagnostics |
+| `NightgateVerifyService` | `/odata/v4/midnight-verify` | state verification without login, when `NIGHTGATE_PUBLIC_VERIFY=true` |
 
-The hosted API also serves the first three under `/odata/v4/nightgate`, `/odata/v4/nightgate-indexer` and `/odata/v4/nightgate-verify`.
+The hosted API serves the same paths. The older `/api/v1/…` spelling keeps answering until 1.0.
 
 Write actions are async. They return `{ jobId, status }`; poll `getJobStatus(jobId, sessionId)` for the result. Jobs survive restarts: idempotency keys, leased execution, `chainStatus` confirmed from the indexer. Write actions answer 503 with `Retry-After` while the wallet runtime is down.
 

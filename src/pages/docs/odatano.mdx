@@ -14,7 +14,7 @@ It runs hosted at [api.odatano.dev](https://api.odatano.dev/), standalone from t
 
 | Service | Path | What |
 |---------|------|------|
-| `CardanoODataService` | `/odata/v4/cardano-odata/` | Read: 22 entities, 19 actions. Lazy indexing with TTL refresh |
+| `CardanoODataService` | `/odata/v4/cardano/` | Read: 22 entities, 19 actions. Lazy indexing with TTL refresh |
 | `CardanoTransactionService` | `/odata/v4/cardano-transaction/` | Build and submit: 6 build actions, submit, status, utilities |
 | `CardanoSignService` | `/odata/v4/cardano-sign/` | Signing requests, signature verification, HSM signing |
 | `CardanoIndexerService` | `/odata/v4/cardano-indexer/` | Chain crawler: sync state, reorg log, pause and resume. Off by default |
@@ -38,10 +38,10 @@ Every entity set takes `$filter`, `$select`, `$expand`, `$orderby`, `$top`, `$sk
 Actions fetch from the chain on a cache miss and store the row. Entity sets read the cache, so a `$filter` over `Transactions` covers what was fetched before, or everything the crawler pre-synced.
 
 ```http
-GET  /odata/v4/cardano-odata/Blocks('<hash>')
-GET  /odata/v4/cardano-odata/LedgerUTxOs?$filter=address eq 'addr_test1...' and spentTxHash eq null
-GET  /odata/v4/cardano-odata/Transactions('<hash>')?$expand=inputs,outputs
-POST /odata/v4/cardano-odata/GetUTxOsByAddress   {"address": "addr_test1..."}
+GET  /odata/v4/cardano/Blocks('<hash>')
+GET  /odata/v4/cardano/LedgerUTxOs?$filter=address eq 'addr_test1...' and spentTxHash eq null
+GET  /odata/v4/cardano/Transactions('<hash>')?$expand=inputs,outputs
+POST /odata/v4/cardano/GetUTxOsByAddress   {"address": "addr_test1..."}
 ```
 
 ## Transactions: Build, Sign, Submit
