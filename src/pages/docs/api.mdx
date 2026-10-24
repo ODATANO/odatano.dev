@@ -26,11 +26,10 @@ Older spellings of these routes keep answering for now. Every forwarded call is 
 
 ## Get a key
 
-Three lanes on the [API page](https://api.odatano.dev/):
+Two lanes on the [API page](https://api.odatano.dev/):
 
 1. **Cardano wallet.** Sign a one-time message with a CIP-30 wallet, no transaction. The first key comes with free calls.
-2. **Redeem a code.** A voucher from an event, exchanged on the [redeem page](https://api.preprod.odatano.dev/redeem) for a key. With a key presented, the code tops that key up.
-3. **Buy a pack.** Pay with ADA over x402 (`POST /keys` or `POST /topup`). The key comes back in the response and is bound to the paying address.
+2. **Buy a pack.** Pay with ADA over x402 (`POST /keys` or `POST /topup`). The key comes back in the response and is bound to the paying address.
 
 The API page shows a key once, together with a ready `.mcp.json`. Rotation gives a new secret on the same key; units and ledger stay.
 

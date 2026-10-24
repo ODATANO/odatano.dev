@@ -2239,11 +2239,11 @@ a:hover { text-decoration: underline; }
 .api__code .code-s { color: #e8eaf0; }
 .api__lanes {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
-/* Three ways to a key: the accent carries the box, a blue edge and a
+/* Two ways to a key: the accent carries the box, a blue edge and a
    blue title on a tinted ground, so the row reads as part of the API. */
 .api__lane {
   min-width: 0;

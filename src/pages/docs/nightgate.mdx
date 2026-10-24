@@ -56,7 +56,7 @@ Main thread                       Worker thread
 │ CAP DB             │◄─state-save┤ - private-state-rpc    │
 └────────┬───────────┘            └────────────────────────┘
          ▼  OData V4
-5 services on /api/v1/{nightgate, indexer, analytics, admin, verify}
+5 services on /odata/v4/midnight{,-indexer,-analytics,-admin,-verify}
 ```
 
 The wallet SDK lives in a worker thread because its sync saturates the microtask queue. The CAP request pipeline stays responsive.
